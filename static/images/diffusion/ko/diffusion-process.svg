@@ -1,0 +1,124 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 500">
+  <defs>
+    <marker id="arrowRight" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
+      <path d="M0,0 L0,6 L9,3 z" fill="#3498db"/>
+    </marker>
+    <marker id="arrowLeft" markerWidth="10" markerHeight="10" refX="0" refY="3" orient="auto">
+      <path d="M9,0 L9,6 L0,3 z" fill="#2ecc71"/>
+    </marker>
+    <linearGradient id="noiseGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#3498db;stop-opacity:1"/>
+      <stop offset="100%" style="stop-color:#95a5a6;stop-opacity:1"/>
+    </linearGradient>
+    <linearGradient id="denoiseGrad" x1="100%" y1="0%" x2="0%" y2="0%">
+      <stop offset="0%" style="stop-color:#95a5a6;stop-opacity:1"/>
+      <stop offset="100%" style="stop-color:#2ecc71;stop-opacity:1"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Background -->
+  <rect width="900" height="500" fill="#1a1a2e"/>
+
+  <!-- Title -->
+  <text x="450" y="35" text-anchor="middle" fill="#ffffff" font-family="Arial, sans-serif" font-size="22" font-weight="bold">Diffusion Process: 노이즈 추가와 제거</text>
+
+  <!-- Analogy Box -->
+  <rect x="50" y="55" width="800" height="50" fill="#2c3e50" rx="5" stroke="#3498db" stroke-width="1"/>
+  <text x="450" y="85" text-anchor="middle" fill="#f39c12" font-family="Arial, sans-serif" font-size="14">
+    💡 비유: 선명한 사진을 점점 흐리게 만든 후, 그 과정을 역으로 학습하여 흐린 사진을 선명하게 복원하는 것
+  </text>
+
+  <!-- Forward Process Section -->
+  <text x="450" y="140" text-anchor="middle" fill="#3498db" font-family="Arial, sans-serif" font-size="16" font-weight="bold">Forward Process (노이즈 추가) - 학습 시 사용</text>
+
+  <!-- Image progression -->
+  <g transform="translate(50, 160)">
+    <!-- Original Image x0 -->
+    <rect x="0" y="0" width="100" height="100" fill="#3498db" rx="5"/>
+    <text x="50" y="55" text-anchor="middle" fill="#fff" font-family="Arial, sans-serif" font-size="12">원본 이미지</text>
+    <text x="50" y="75" text-anchor="middle" fill="#fff" font-family="Arial, sans-serif" font-size="16" font-weight="bold">x₀</text>
+
+    <!-- Arrow -->
+    <path d="M 110 50 L 160 50" stroke="url(#noiseGrad)" stroke-width="3" marker-end="url(#arrowRight)"/>
+    <text x="135" y="40" text-anchor="middle" fill="#888" font-family="Arial, sans-serif" font-size="10">+노이즈</text>
+
+    <!-- x1 -->
+    <rect x="170" y="0" width="100" height="100" fill="#5dade2" rx="5"/>
+    <text x="220" y="55" text-anchor="middle" fill="#fff" font-family="Arial, sans-serif" font-size="16">x₁</text>
+
+    <!-- Arrow -->
+    <path d="M 280 50 L 330 50" stroke="url(#noiseGrad)" stroke-width="3" marker-end="url(#arrowRight)"/>
+    <text x="305" y="40" text-anchor="middle" fill="#888" font-family="Arial, sans-serif" font-size="10">+노이즈</text>
+
+    <!-- x2 -->
+    <rect x="340" y="0" width="100" height="100" fill="#85c1e9" rx="5"/>
+    <text x="390" y="55" text-anchor="middle" fill="#fff" font-family="Arial, sans-serif" font-size="16">x₂</text>
+
+    <!-- ... -->
+    <text x="480" y="55" text-anchor="middle" fill="#888" font-family="Arial, sans-serif" font-size="20">...</text>
+
+    <!-- xT-1 -->
+    <rect x="520" y="0" width="100" height="100" fill="#aeb6bf" rx="5"/>
+    <text x="570" y="55" text-anchor="middle" fill="#fff" font-family="Arial, sans-serif" font-size="14">x_{T-1}</text>
+
+    <!-- Arrow -->
+    <path d="M 630 50 L 680 50" stroke="url(#noiseGrad)" stroke-width="3" marker-end="url(#arrowRight)"/>
+    <text x="655" y="40" text-anchor="middle" fill="#888" font-family="Arial, sans-serif" font-size="10">+노이즈</text>
+
+    <!-- xT (pure noise) -->
+    <rect x="690" y="0" width="100" height="100" fill="#95a5a6" rx="5"/>
+    <text x="740" y="50" text-anchor="middle" fill="#fff" font-family="Arial, sans-serif" font-size="12">순수 노이즈</text>
+    <text x="740" y="75" text-anchor="middle" fill="#fff" font-family="Arial, sans-serif" font-size="16" font-weight="bold">x_T</text>
+  </g>
+
+  <!-- Forward formula -->
+  <rect x="250" y="275" width="400" height="40" fill="#2c3e50" rx="5"/>
+  <text x="450" y="300" text-anchor="middle" fill="#3498db" font-family="monospace" font-size="14">q(xₜ|xₜ₋₁) = N(xₜ; √(1-βₜ)xₜ₋₁, βₜI)</text>
+
+  <!-- Reverse Process Section -->
+  <text x="450" y="350" text-anchor="middle" fill="#2ecc71" font-family="Arial, sans-serif" font-size="16" font-weight="bold">Reverse Process (노이즈 제거) - 생성 시 사용 (학습 대상!)</text>
+
+  <!-- Reverse image progression -->
+  <g transform="translate(50, 370)">
+    <!-- xT (pure noise) -->
+    <rect x="0" y="0" width="100" height="100" fill="#95a5a6" rx="5"/>
+    <text x="50" y="50" text-anchor="middle" fill="#fff" font-family="Arial, sans-serif" font-size="12">순수 노이즈</text>
+    <text x="50" y="75" text-anchor="middle" fill="#fff" font-family="Arial, sans-serif" font-size="16" font-weight="bold">x_T</text>
+
+    <!-- Arrow -->
+    <path d="M 160 50 L 110 50" stroke="url(#denoiseGrad)" stroke-width="3" marker-end="url(#arrowLeft)"/>
+    <text x="135" y="40" text-anchor="middle" fill="#888" font-family="Arial, sans-serif" font-size="10">-노이즈</text>
+
+    <!-- xT-1 -->
+    <rect x="170" y="0" width="100" height="100" fill="#aeb6bf" rx="5"/>
+    <text x="220" y="55" text-anchor="middle" fill="#fff" font-family="Arial, sans-serif" font-size="14">x_{T-1}</text>
+
+    <!-- Arrow -->
+    <path d="M 330 50 L 280 50" stroke="url(#denoiseGrad)" stroke-width="3" marker-end="url(#arrowLeft)"/>
+    <text x="305" y="40" text-anchor="middle" fill="#888" font-family="Arial, sans-serif" font-size="10">-노이즈</text>
+
+    <!-- ... -->
+    <text x="370" y="55" text-anchor="middle" fill="#888" font-family="Arial, sans-serif" font-size="20">...</text>
+
+    <!-- x2 -->
+    <rect x="410" y="0" width="100" height="100" fill="#85c1e9" rx="5"/>
+    <text x="460" y="55" text-anchor="middle" fill="#fff" font-family="Arial, sans-serif" font-size="16">x₂</text>
+
+    <!-- Arrow -->
+    <path d="M 570 50 L 520 50" stroke="url(#denoiseGrad)" stroke-width="3" marker-end="url(#arrowLeft)"/>
+    <text x="545" y="40" text-anchor="middle" fill="#888" font-family="Arial, sans-serif" font-size="10">-노이즈</text>
+
+    <!-- x1 -->
+    <rect x="580" y="0" width="100" height="100" fill="#5dade2" rx="5"/>
+    <text x="630" y="55" text-anchor="middle" fill="#fff" font-family="Arial, sans-serif" font-size="16">x₁</text>
+
+    <!-- Arrow -->
+    <path d="M 740 50 L 690 50" stroke="url(#denoiseGrad)" stroke-width="3" marker-end="url(#arrowLeft)"/>
+    <text x="715" y="40" text-anchor="middle" fill="#888" font-family="Arial, sans-serif" font-size="10">-노이즈</text>
+
+    <!-- Generated Image x0 -->
+    <rect x="750" y="0" width="100" height="100" fill="#2ecc71" rx="5"/>
+    <text x="800" y="50" text-anchor="middle" fill="#fff" font-family="Arial, sans-serif" font-size="12">생성된 이미지</text>
+    <text x="800" y="75" text-anchor="middle" fill="#fff" font-family="Arial, sans-serif" font-size="16" font-weight="bold">x₀</text>
+  </g>
+</svg>

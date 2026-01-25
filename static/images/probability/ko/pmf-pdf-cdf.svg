@@ -1,6 +1,6 @@
-<svg width="750" height="400" xmlns="http://www.w3.org/2000/svg">
+<svg width="750" height="430" xmlns="http://www.w3.org/2000/svg">
   <!-- Background -->
-  <rect width="750" height="400" fill="#f8f9fa"/>
+  <rect width="750" height="430" fill="#f8f9fa"/>
 
   <!-- Title -->
   <text x="375" y="25" text-anchor="middle" font-family="system-ui, sans-serif" font-size="18" font-weight="bold" fill="#333">
@@ -129,7 +129,7 @@
   </g>
 
   <!-- Relationship explanations -->
-  <g transform="translate(40, 220)">
+  <g transform="translate(40, 250)">
     <rect x="0" y="0" width="670" height="160" fill="white" stroke="#ddd" stroke-width="1" rx="5"/>
 
     <text x="335" y="25" text-anchor="middle" font-family="system-ui, sans-serif" font-size="14" font-weight="bold" fill="#333">

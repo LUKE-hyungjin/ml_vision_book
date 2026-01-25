@@ -1,0 +1,103 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 850 450">
+  <defs>
+    <marker id="arrowBlue" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
+      <path d="M0,0 L0,6 L9,3 z" fill="#3498db"/>
+    </marker>
+    <marker id="arrowRed" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
+      <path d="M0,0 L0,6 L9,3 z" fill="#e74c3c"/>
+    </marker>
+  </defs>
+
+  <!-- Background -->
+  <rect width="850" height="450" fill="#1a1a2e"/>
+
+  <!-- Title -->
+  <text x="425" y="35" text-anchor="middle" fill="#ffffff" font-family="Arial, sans-serif" font-size="20" font-weight="bold">DDPM 학습: 노이즈 예측하기</text>
+
+  <!-- Analogy -->
+  <rect x="50" y="55" width="750" height="45" fill="#2c3e50" rx="5" stroke="#f39c12" stroke-width="1"/>
+  <text x="425" y="82" text-anchor="middle" fill="#f39c12" font-family="Arial, sans-serif" font-size="13">
+    💡 비유: 더럽혀진 그림에서 "어떤 얼룩이 묻었는지"를 맞추는 것. 얼룩(노이즈)을 알면 지울 수 있다!
+  </text>
+
+  <!-- Training Step Visualization -->
+  <text x="425" y="130" text-anchor="middle" fill="#3498db" font-family="Arial, sans-serif" font-size="16" font-weight="bold">학습 과정 (한 스텝)</text>
+
+  <g transform="translate(50, 150)">
+    <!-- Step 1: Original Image -->
+    <rect x="0" y="0" width="90" height="90" fill="#3498db" rx="5"/>
+    <text x="45" y="40" text-anchor="middle" fill="#fff" font-family="Arial, sans-serif" font-size="11">원본</text>
+    <text x="45" y="60" text-anchor="middle" fill="#fff" font-family="Arial, sans-serif" font-size="14" font-weight="bold">x₀</text>
+    <text x="45" y="110" text-anchor="middle" fill="#3498db" font-family="Arial, sans-serif" font-size="10">1. 원본 이미지</text>
+
+    <!-- Arrow -->
+    <path d="M 100 45 L 140 45" stroke="#888" stroke-width="2" marker-end="url(#arrowBlue)"/>
+
+    <!-- Step 2: Add noise -->
+    <rect x="150" y="0" width="90" height="90" fill="#e74c3c" rx="5"/>
+    <text x="195" y="40" text-anchor="middle" fill="#fff" font-family="Arial, sans-serif" font-size="11">노이즈</text>
+    <text x="195" y="60" text-anchor="middle" fill="#fff" font-family="Arial, sans-serif" font-size="14" font-weight="bold">ε</text>
+    <text x="195" y="110" text-anchor="middle" fill="#e74c3c" font-family="Arial, sans-serif" font-size="10">2. 랜덤 노이즈</text>
+    <text x="195" y="125" text-anchor="middle" fill="#888" font-family="Arial, sans-serif" font-size="9">(정답!)</text>
+
+    <!-- Plus sign -->
+    <text x="255" y="55" text-anchor="middle" fill="#fff" font-family="Arial, sans-serif" font-size="24">+</text>
+
+    <!-- Step 3: Noisy Image -->
+    <rect x="280" y="0" width="90" height="90" fill="#9b59b6" rx="5"/>
+    <text x="325" y="40" text-anchor="middle" fill="#fff" font-family="Arial, sans-serif" font-size="11">노이즈 이미지</text>
+    <text x="325" y="60" text-anchor="middle" fill="#fff" font-family="Arial, sans-serif" font-size="14" font-weight="bold">xₜ</text>
+    <text x="325" y="110" text-anchor="middle" fill="#9b59b6" font-family="Arial, sans-serif" font-size="10">3. 섞인 이미지</text>
+
+    <!-- Arrow to U-Net -->
+    <path d="M 380 45 L 420 45" stroke="#888" stroke-width="2" marker-end="url(#arrowBlue)"/>
+    <text x="400" y="35" text-anchor="middle" fill="#888" font-family="Arial, sans-serif" font-size="9">+ t</text>
+
+    <!-- U-Net -->
+    <rect x="430" y="-10" width="100" height="110" fill="#2c3e50" rx="5" stroke="#2ecc71" stroke-width="2"/>
+    <text x="480" y="25" text-anchor="middle" fill="#2ecc71" font-family="Arial, sans-serif" font-size="14" font-weight="bold">U-Net</text>
+    <text x="480" y="50" text-anchor="middle" fill="#fff" font-family="Arial, sans-serif" font-size="10">εθ(xₜ, t)</text>
+    <text x="480" y="75" text-anchor="middle" fill="#888" font-family="Arial, sans-serif" font-size="9">"노이즈가</text>
+    <text x="480" y="90" text-anchor="middle" fill="#888" font-family="Arial, sans-serif" font-size="9">뭐였을까?"</text>
+
+    <!-- Arrow from U-Net -->
+    <path d="M 540 45 L 580 45" stroke="#2ecc71" stroke-width="2" marker-end="url(#arrowBlue)"/>
+
+    <!-- Predicted Noise -->
+    <rect x="590" y="0" width="90" height="90" fill="#2ecc71" rx="5"/>
+    <text x="635" y="40" text-anchor="middle" fill="#fff" font-family="Arial, sans-serif" font-size="10">예측 노이즈</text>
+    <text x="635" y="60" text-anchor="middle" fill="#fff" font-family="Arial, sans-serif" font-size="14" font-weight="bold">ε̂</text>
+    <text x="635" y="110" text-anchor="middle" fill="#2ecc71" font-family="Arial, sans-serif" font-size="10">4. 예측값</text>
+
+    <!-- Compare arrow -->
+    <path d="M 690 45 L 720 45" stroke="#f39c12" stroke-width="2"/>
+    <text x="705" y="35" text-anchor="middle" fill="#f39c12" font-family="Arial, sans-serif" font-size="9">비교</text>
+  </g>
+
+  <!-- Loss Section -->
+  <g transform="translate(50, 310)">
+    <rect x="0" y="0" width="750" height="120" fill="#2c3e50" rx="8" stroke="#f39c12" stroke-width="2"/>
+
+    <text x="375" y="30" text-anchor="middle" fill="#f39c12" font-family="Arial, sans-serif" font-size="16" font-weight="bold">Loss 계산</text>
+
+    <!-- Visual comparison -->
+    <rect x="100" y="50" width="60" height="50" fill="#e74c3c" rx="3"/>
+    <text x="130" y="80" text-anchor="middle" fill="#fff" font-family="Arial, sans-serif" font-size="12">ε</text>
+    <text x="130" y="115" text-anchor="middle" fill="#e74c3c" font-family="Arial, sans-serif" font-size="10">실제 노이즈</text>
+
+    <text x="190" y="80" text-anchor="middle" fill="#fff" font-family="Arial, sans-serif" font-size="20">-</text>
+
+    <rect x="220" y="50" width="60" height="50" fill="#2ecc71" rx="3"/>
+    <text x="250" y="80" text-anchor="middle" fill="#fff" font-family="Arial, sans-serif" font-size="12">ε̂</text>
+    <text x="250" y="115" text-anchor="middle" fill="#2ecc71" font-family="Arial, sans-serif" font-size="10">예측 노이즈</text>
+
+    <text x="310" y="80" text-anchor="middle" fill="#fff" font-family="Arial, sans-serif" font-size="20">²</text>
+
+    <text x="340" y="80" text-anchor="middle" fill="#fff" font-family="Arial, sans-serif" font-size="20">=</text>
+
+    <!-- Loss formula -->
+    <rect x="370" y="45" width="350" height="60" fill="#1a1a2e" rx="5"/>
+    <text x="545" y="70" text-anchor="middle" fill="#f39c12" font-family="monospace" font-size="14">L = E[ || ε - εθ(xₜ, t) ||² ]</text>
+    <text x="545" y="95" text-anchor="middle" fill="#888" font-family="Arial, sans-serif" font-size="11">이 차이를 최소화하도록 U-Net 학습!</text>
+  </g>
+</svg>

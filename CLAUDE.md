@@ -56,6 +56,47 @@ content/
 
 ## 핵심 원칙
 
+### 이미지 규칙
+
+모든 콘텐츠에는 **시각 자료**가 필수입니다.
+
+1. **논문 이미지**: 원본 논문에서 핵심 Figure 추출하여 사용
+   - 저장 위치: `static/images/{카테고리}/{모델명}/`
+   - 예: `static/images/architecture/cnn/alexnet-fig2.png`
+
+2. **SVG 다이어그램**: 개념 이해를 돕는 직접 제작 다이어그램
+   - 저장 위치: `static/images/{카테고리}/{주제}/ko/`, `static/images/{카테고리}/{주제}/en/`
+   - 한국어/영어 버전 별도 제작
+   - 다크 테마 배경(`#1a1a2e`) 권장
+   - 요소 간 마진 충분히 확보 (겹침 방지)
+
+3. **Hugo에서 이미지 삽입**:
+   ```markdown
+   {{</* figure src="/images/architecture/cnn/alexnet-fig2.png" caption="AlexNet 구조" */>}}
+   ```
+
+### 쉬운 설명 규칙
+
+**대학교 1학년 수준**으로 작성합니다. 고등학교 수학(미적분, 확률)은 알지만, 전공 지식은 없다고 가정합니다.
+
+1. **선수지식 명시**: 페이지 상단에 이 내용을 이해하기 위해 필요한 선수지식 링크 제공
+   - 예: "선수지식: [행렬](/ko/docs/math/linear-algebra/matrix), [확률분포](/ko/docs/math/probability)"
+
+2. **비유 사용**: 복잡한 개념은 일상적인 비유로 먼저 설명
+   - 예: "Attention은 책에서 중요한 부분에 형광펜을 칠하는 것과 같습니다"
+
+3. **수식 기호 설명**: 모든 수식의 각 기호가 무엇을 의미하는지 명시
+   - 예: "$\nabla_x$ : x에 대한 기울기(gradient) - 어느 방향으로 가야 값이 커지나?"
+
+4. **단계별 설명**: 한 번에 하나의 개념만
+   - 수식 → 각 기호의 의미 → 직관적 해석 → 코드
+
+5. **시각화 우선**: 텍스트보다 그림이 먼저
+   - 수식만 나열하지 말고, SVG 다이어그램으로 흐름 보여주기
+
+6. **"왜?"를 먼저**: 개념 설명 전에 "왜 필요한가?"부터 설명
+   - 예: "깊은 네트워크에서 gradient가 사라지는 문제가 있었습니다. 이를 해결하기 위해..."
+
 ### 링크 규칙 (절대 위반 금지)
 
 | 출발 | 도착 | 허용 |
@@ -107,20 +148,31 @@ math: true
 
 # 개념명
 
-## 개요
-이 개념이 왜 필요한지 1-2문장으로 설명
+{{%/* hint info */%}}
+**선수지식**: [필요한 개념1](/ko/docs/math/xxx) | [필요한 개념2](/ko/docs/math/xxx)
+{{%/* /hint */%}}
+
+## 한 줄 요약
+> **핵심 아이디어를 한 문장으로**
+
+## 왜 필요한가?
+이 개념이 왜 필요한지 비유와 함께 설명
 
 ## 수식
 $$
 수식
 $$
 
+**각 기호의 의미:**
+- $x$ : 설명
+- $y$ : 설명
+
 ### 직관적 이해
 수식의 의미를 비유나 그림으로 설명
 
 ## 구현
 \`\`\`python
-# 간단한 코드 예시
+# 간단한 코드 예시 (주석 필수)
 \`\`\`
 
 ## 관련 콘텐츠
@@ -139,20 +191,31 @@ math: true
 
 # Concept Name
 
-## Overview
-1-2 sentences explaining why this concept is needed
+{{%/* hint info */%}}
+**Prerequisites**: [Concept1](/en/docs/math/xxx) | [Concept2](/en/docs/math/xxx)
+{{%/* /hint */%}}
+
+## One-line Summary
+> **Core idea in one sentence**
+
+## Why is this needed?
+Explain with analogies
 
 ## Formula
 $$
 formula
 $$
 
+**Symbol meanings:**
+- $x$ : explanation
+- $y$ : explanation
+
 ### Intuition
 Explain the meaning of the formula with analogies or diagrams
 
 ## Implementation
 \`\`\`python
-# Simple code example
+# Simple code example (comments required)
 \`\`\`
 
 ## Related Content
@@ -173,25 +236,37 @@ math: true
 
 # 모델명
 
+{{%/* hint info */%}}
+**선수지식**: [필요한 수학](/ko/docs/math/xxx) | [이전 모델](/ko/docs/architecture/xxx)
+{{%/* /hint */%}}
+
+## 한 줄 요약
+> **이 모델의 핵심 기여**
+
+## 왜 이 모델인가?
+- 어떤 문제가 있었고, 어떻게 해결했는지 비유와 함께 설명
+
 ## 개요
-- 언제 나왔는지
-- 어떤 문제를 해결했는지
-- 핵심 기여 1줄 요약
+- **논문**: 논문명 (연도)
+- **저자**: 저자명
+- **핵심 기여**: 1줄 요약
 
 ## 구조
 ### 전체 아키텍처
-(다이어그램 또는 설명)
+{{</* figure src="/images/..." caption="설명" */>}}
 
 ### 핵심 컴포넌트
-각 컴포넌트 설명
+| 컴포넌트 | 역할 | 비유 |
+|----------|------|------|
+| 컴포넌트1 | 역할 | 일상적 비유 |
 
 ## 학습
-- Loss 함수
+- Loss 함수 (수식 + 각 기호 설명)
 - 학습 방법
 
 ## 코드
 \`\`\`python
-# 핵심 부분 구현 또는 사용법
+# 핵심 부분 구현 또는 사용법 (주석 필수)
 \`\`\`
 
 ## 관련 콘텐츠
@@ -211,25 +286,37 @@ math: true
 
 # Model Name
 
+{{%/* hint info */%}}
+**Prerequisites**: [Required Math](/en/docs/math/xxx) | [Previous Model](/en/docs/architecture/xxx)
+{{%/* /hint */%}}
+
+## One-line Summary
+> **Key contribution of this model**
+
+## Why this model?
+- What problem existed, how it was solved (with analogies)
+
 ## Overview
-- When it was released
-- What problem it solved
-- Key contribution in one line
+- **Paper**: Paper name (year)
+- **Authors**: Author names
+- **Key contribution**: One-line summary
 
 ## Architecture
 ### Overall Architecture
-(Diagram or description)
+{{</* figure src="/images/..." caption="Description" */>}}
 
 ### Key Components
-Description of each component
+| Component | Role | Analogy |
+|-----------|------|---------|
+| Component1 | Role | Everyday analogy |
 
 ## Training
-- Loss function
+- Loss function (formula + symbol explanations)
 - Training method
 
 ## Code
 \`\`\`python
-# Core implementation or usage
+# Core implementation or usage (comments required)
 \`\`\`
 
 ## Related Content
@@ -391,6 +478,36 @@ Hugo Book 테마에서 내부 링크 (언어 prefix 포함):
 [ResNet](/en/docs/architecture/resnet)
 ```
 
+## 수식 작성 규칙
+
+Hugo 설정에서 `passthrough`가 활성화되어 있어 수식 구분자 내부는 마크다운 파서가 처리하지 않습니다. 따라서 **일반 LaTeX 문법 그대로 사용** 가능합니다.
+
+### 인라인 수식
+
+```markdown
+$\mathbb{E}[X]$           # 정상 작동
+$P(A) \geq 0$             # 정상 작동
+$\sum_i x_i$              # 정상 작동
+```
+
+### 디스플레이 수식
+
+```markdown
+$$
+\mathbb{E}[X] = \sum_x x \cdot P(X=x)
+$$
+```
+
+### 주의: 중괄호 이스케이프
+
+집합 표기 등에서 LaTeX 문법상 중괄호는 이스케이프가 필요합니다 (Hugo가 아닌 LaTeX 자체 규칙):
+
+```markdown
+$\{A_i\}$                 # 정상 작동 (LaTeX 문법)
+```
+
+---
+
 ## 체크리스트
 
 콘텐츠 작성 후 확인:
@@ -400,6 +517,7 @@ Hugo Book 테마에서 내부 링크 (언어 prefix 포함):
 - [ ] 입구→콘텐츠, 콘텐츠→콘텐츠 링크만 있는가?
 - [ ] 입구→입구, 콘텐츠→입구 링크가 없는가?
 - [ ] **양쪽 언어의** 관련 입구 페이지에 링크를 추가했는가?
+- [ ] **수식이 올바른 LaTeX 문법으로 작성되었는가?**
 
 ## 참고
 

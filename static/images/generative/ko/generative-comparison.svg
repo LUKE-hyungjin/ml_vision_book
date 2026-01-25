@@ -1,0 +1,118 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 850 420">
+  <defs>
+    <marker id="arrowW" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
+      <path d="M0,0 L0,6 L9,3 z" fill="#fff"/>
+    </marker>
+  </defs>
+
+  <!-- Background -->
+  <rect width="850" height="420" fill="#1a1a2e"/>
+
+  <!-- Title -->
+  <text x="425" y="35" text-anchor="middle" fill="#ffffff" font-family="Arial, sans-serif" font-size="20" font-weight="bold">생성 모델 비교: VAE vs GAN vs Diffusion</text>
+
+  <!-- VAE -->
+  <g transform="translate(25, 60)">
+    <rect x="0" y="0" width="250" height="170" fill="#2c3e50" rx="10" stroke="#3498db" stroke-width="2"/>
+    <text x="125" y="30" text-anchor="middle" fill="#3498db" font-family="Arial, sans-serif" font-size="16" font-weight="bold">VAE</text>
+    <text x="125" y="50" text-anchor="middle" fill="#888" font-family="Arial, sans-serif" font-size="10">Variational Autoencoder</text>
+
+    <!-- Simple diagram -->
+    <rect x="20" y="70" width="50" height="35" fill="#3498db" rx="3"/>
+    <text x="45" y="92" text-anchor="middle" fill="#fff" font-family="Arial, sans-serif" font-size="10">이미지</text>
+    <path d="M 75 87 L 95 87" stroke="#fff" stroke-width="1" marker-end="url(#arrowW)"/>
+    <ellipse cx="125" cy="87" rx="25" ry="15" fill="#9b59b6"/>
+    <text x="125" y="92" text-anchor="middle" fill="#fff" font-family="Arial, sans-serif" font-size="9">잠재z</text>
+    <path d="M 155 87 L 175 87" stroke="#fff" stroke-width="1" marker-end="url(#arrowW)"/>
+    <rect x="180" y="70" width="50" height="35" fill="#3498db" rx="3"/>
+    <text x="205" y="92" text-anchor="middle" fill="#fff" font-family="Arial, sans-serif" font-size="10">복원</text>
+
+    <!-- Pros/Cons -->
+    <text x="20" y="125" fill="#2ecc71" font-family="Arial, sans-serif" font-size="11">장점: 안정적 학습, 잠재 공간</text>
+    <text x="20" y="145" fill="#e74c3c" font-family="Arial, sans-serif" font-size="11">단점: 흐릿한 결과물</text>
+    <text x="20" y="163" fill="#888" font-family="Arial, sans-serif" font-size="10">2013</text>
+  </g>
+
+  <!-- GAN -->
+  <g transform="translate(300, 60)">
+    <rect x="0" y="0" width="250" height="170" fill="#2c3e50" rx="10" stroke="#e74c3c" stroke-width="2"/>
+    <text x="125" y="30" text-anchor="middle" fill="#e74c3c" font-family="Arial, sans-serif" font-size="16" font-weight="bold">GAN</text>
+    <text x="125" y="50" text-anchor="middle" fill="#888" font-family="Arial, sans-serif" font-size="10">Generative Adversarial Network</text>
+
+    <!-- Simple diagram: G vs D -->
+    <rect x="30" y="70" width="60" height="35" fill="#2ecc71" rx="3"/>
+    <text x="60" y="88" text-anchor="middle" fill="#fff" font-family="Arial, sans-serif" font-size="9">Generator</text>
+    <text x="60" y="100" text-anchor="middle" fill="#fff" font-family="Arial, sans-serif" font-size="9">G</text>
+    <text x="125" y="92" text-anchor="middle" fill="#f39c12" font-family="Arial, sans-serif" font-size="16">⚔️</text>
+    <rect x="160" y="70" width="60" height="35" fill="#e74c3c" rx="3"/>
+    <text x="190" y="88" text-anchor="middle" fill="#fff" font-family="Arial, sans-serif" font-size="9">Discriminator</text>
+    <text x="190" y="100" text-anchor="middle" fill="#fff" font-family="Arial, sans-serif" font-size="9">D</text>
+
+    <!-- Pros/Cons -->
+    <text x="20" y="125" fill="#2ecc71" font-family="Arial, sans-serif" font-size="11">장점: 선명한 이미지</text>
+    <text x="20" y="145" fill="#e74c3c" font-family="Arial, sans-serif" font-size="11">단점: 불안정, mode collapse</text>
+    <text x="20" y="163" fill="#888" font-family="Arial, sans-serif" font-size="10">2014</text>
+  </g>
+
+  <!-- Diffusion -->
+  <g transform="translate(575, 60)">
+    <rect x="0" y="0" width="250" height="170" fill="#2c3e50" rx="10" stroke="#9b59b6" stroke-width="2"/>
+    <text x="125" y="30" text-anchor="middle" fill="#9b59b6" font-family="Arial, sans-serif" font-size="16" font-weight="bold">Diffusion</text>
+    <text x="125" y="50" text-anchor="middle" fill="#888" font-family="Arial, sans-serif" font-size="10">Denoising Diffusion</text>
+
+    <!-- Simple diagram: denoise steps -->
+    <rect x="20" y="70" width="35" height="35" fill="#888" rx="3"/>
+    <text x="37" y="92" text-anchor="middle" fill="#fff" font-family="Arial, sans-serif" font-size="8">노이즈</text>
+    <text x="65" y="92" fill="#fff" font-family="Arial, sans-serif" font-size="12">→</text>
+    <rect x="80" y="70" width="35" height="35" fill="#999" rx="3"/>
+    <text x="122" y="92" fill="#fff" font-family="Arial, sans-serif" font-size="12">→</text>
+    <rect x="135" y="70" width="35" height="35" fill="#aaa" rx="3"/>
+    <text x="177" y="92" fill="#fff" font-family="Arial, sans-serif" font-size="12">→</text>
+    <rect x="190" y="70" width="35" height="35" fill="#9b59b6" rx="3"/>
+    <text x="207" y="92" text-anchor="middle" fill="#fff" font-family="Arial, sans-serif" font-size="8">이미지</text>
+
+    <!-- Pros/Cons -->
+    <text x="20" y="125" fill="#2ecc71" font-family="Arial, sans-serif" font-size="11">장점: 고품질, 다양성, 안정</text>
+    <text x="20" y="145" fill="#e74c3c" font-family="Arial, sans-serif" font-size="11">단점: 느린 샘플링</text>
+    <text x="20" y="163" fill="#888" font-family="Arial, sans-serif" font-size="10">2020</text>
+  </g>
+
+  <!-- Comparison Table -->
+  <g transform="translate(25, 250)">
+    <rect x="0" y="0" width="800" height="150" fill="#2c3e50" rx="8"/>
+
+    <text x="400" y="25" text-anchor="middle" fill="#fff" font-family="Arial, sans-serif" font-size="14" font-weight="bold">상세 비교</text>
+
+    <!-- Headers -->
+    <text x="150" y="50" text-anchor="middle" fill="#888" font-family="Arial, sans-serif" font-size="11">기준</text>
+    <text x="300" y="50" text-anchor="middle" fill="#3498db" font-family="Arial, sans-serif" font-size="11">VAE</text>
+    <text x="450" y="50" text-anchor="middle" fill="#e74c3c" font-family="Arial, sans-serif" font-size="11">GAN</text>
+    <text x="600" y="50" text-anchor="middle" fill="#9b59b6" font-family="Arial, sans-serif" font-size="11">Diffusion</text>
+
+    <line x1="50" y1="60" x2="750" y2="60" stroke="#555" stroke-width="1"/>
+
+    <!-- Row 1: Quality -->
+    <text x="150" y="80" text-anchor="middle" fill="#fff" font-family="Arial, sans-serif" font-size="10">이미지 품질</text>
+    <text x="300" y="80" text-anchor="middle" fill="#888" font-family="Arial, sans-serif" font-size="10">보통</text>
+    <text x="450" y="80" text-anchor="middle" fill="#2ecc71" font-family="Arial, sans-serif" font-size="10">좋음</text>
+    <text x="600" y="80" text-anchor="middle" fill="#2ecc71" font-family="Arial, sans-serif" font-size="10" font-weight="bold">최고</text>
+
+    <!-- Row 2: Diversity -->
+    <text x="150" y="100" text-anchor="middle" fill="#fff" font-family="Arial, sans-serif" font-size="10">다양성</text>
+    <text x="300" y="100" text-anchor="middle" fill="#2ecc71" font-family="Arial, sans-serif" font-size="10">좋음</text>
+    <text x="450" y="100" text-anchor="middle" fill="#e74c3c" font-family="Arial, sans-serif" font-size="10">낮음</text>
+    <text x="600" y="100" text-anchor="middle" fill="#2ecc71" font-family="Arial, sans-serif" font-size="10" font-weight="bold">높음</text>
+
+    <!-- Row 3: Training -->
+    <text x="150" y="120" text-anchor="middle" fill="#fff" font-family="Arial, sans-serif" font-size="10">학습 안정성</text>
+    <text x="300" y="120" text-anchor="middle" fill="#2ecc71" font-family="Arial, sans-serif" font-size="10" font-weight="bold">안정</text>
+    <text x="450" y="120" text-anchor="middle" fill="#e74c3c" font-family="Arial, sans-serif" font-size="10">불안정</text>
+    <text x="600" y="120" text-anchor="middle" fill="#2ecc71" font-family="Arial, sans-serif" font-size="10" font-weight="bold">안정</text>
+
+    <!-- Row 4: Speed -->
+    <text x="150" y="140" text-anchor="middle" fill="#fff" font-family="Arial, sans-serif" font-size="10">샘플링 속도</text>
+    <text x="300" y="140" text-anchor="middle" fill="#2ecc71" font-family="Arial, sans-serif" font-size="10" font-weight="bold">빠름</text>
+    <text x="450" y="140" text-anchor="middle" fill="#2ecc71" font-family="Arial, sans-serif" font-size="10" font-weight="bold">빠름</text>
+    <text x="600" y="140" text-anchor="middle" fill="#e74c3c" font-family="Arial, sans-serif" font-size="10">느림</text>
+  </g>
+</svg>

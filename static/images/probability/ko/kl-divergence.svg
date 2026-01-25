@@ -117,8 +117,8 @@
 
       <!-- Loss formula -->
       <text x="400" y="20" class="text" font-size="11" fill="#333">VAE Loss =</text>
-      <text x="400" y="38" class="text" font-size="11" fill="#E74C3C">-D_KL(q(z|x) || p(z))</text>
-      <text x="400" y="55" class="text" font-size="11" fill="#27AE60">+ Reconstruction</text>
+      <text x="400" y="38" class="text" font-size="11" fill="#E74C3C">D_KL(q(z|x) || p(z))</text>
+      <text x="400" y="55" class="text" font-size="11" fill="#27AE60">+ Reconstruction Loss</text>
     </g>
 
     <defs>

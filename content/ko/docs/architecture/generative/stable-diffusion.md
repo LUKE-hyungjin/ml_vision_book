@@ -6,17 +6,45 @@ math: true
 
 # Stable Diffusion
 
-## 개요
+{{% hint info %}}
+**선수지식**: [DDPM](/ko/docs/math/diffusion/ddpm) | [VAE](/ko/docs/architecture/generative/vae) | [U-Net](/ko/docs/architecture/segmentation/unet)
+{{% /hint %}}
 
-- **논문**: High-Resolution Image Synthesis with Latent Diffusion Models (2022)
-- **저자**: Robin Rombach et al. (CompVis, Stability AI)
-- **핵심 기여**: Latent space에서 Diffusion을 수행하여 효율적인 고해상도 생성
+## 왜 Stable Diffusion인가?
 
-## 핵심 아이디어
+> **비유**: 고해상도 그림을 직접 그리면 오래 걸립니다. 하지만 **작은 스케치**를 먼저 완성하고 **확대**하면 훨씬 빠릅니다. Stable Diffusion은 64×64 작은 공간에서 작업 후 512×512로 확대합니다!
 
-> "픽셀 공간이 아닌 압축된 잠재 공간에서 Diffusion"
+**핵심 기여**: Latent space에서 Diffusion → **64배 계산량 절감**
 
-기존 DDPM은 픽셀 공간에서 직접 작동해 계산량이 많았습니다. Stable Diffusion은 VAE로 이미지를 압축한 후 latent space에서 diffusion을 수행합니다.
+---
+
+## 전체 구조
+
+{{< figure src="/images/generative/ko/stable-diffusion-architecture.svg" caption="Stable Diffusion 전체 아키텍처" >}}
+
+### 구성 요소
+
+| 컴포넌트 | 역할 | 비유 |
+|----------|------|------|
+| **CLIP** | 텍스트 → 임베딩 | "통역사" - 텍스트를 숫자로 번역 |
+| **VAE** | 이미지 ↔ Latent (8× 압축) | "압축기" - 큰 파일을 zip으로 |
+| **U-Net** | 노이즈 예측 | "화가" - 실제로 그림을 그림 |
+
+---
+
+## Classifier-Free Guidance
+
+{{< figure src="/images/generative/ko/cfg-guidance.svg" caption="CFG: 조건을 더 강하게" >}}
+
+### 왜 CFG가 필요한가?
+
+순수한 조건부 생성(s=1)은 프롬프트를 약하게 따릅니다. CFG는 **"조건부 - 무조건부"의 방향을 강화**합니다.
+
+```
+s=1: "고양이" → 대충 고양이 같은 것
+s=7.5: "고양이" → 확실한 고양이 (권장)
+s=15+: "고양이" → 과하게 고양이 (품질 저하)
+```
 
 ---
 
@@ -33,39 +61,6 @@ $$q(x_t | x_{t-1}) = \mathcal{N}(x_t; \sqrt{1-\beta_t}x_{t-1}, \beta_t I)$$
 $$p_\theta(x_{t-1} | x_t) = \mathcal{N}(x_{t-1}; \mu_\theta(x_t, t), \Sigma_\theta(x_t, t))$$
 
 학습된 모델로 노이즈를 제거하며 이미지 복원
-
----
-
-## 구조
-
-### 전체 아키텍처
-
-```
-Text Prompt
-      ↓
-┌─────────────────────────────┐
-│      Text Encoder (CLIP)    │
-└─────────────────────────────┘
-      ↓
-Text Embedding
-      ↓                        Random Noise
-      ↓                             ↓
-┌─────────────────────────────────────────────┐
-│                   U-Net                      │
-│   (Latent Diffusion in compressed space)    │
-│                                              │
-│   Input: z_t + timestep + text_embedding    │
-│   Output: predicted noise ε                 │
-└─────────────────────────────────────────────┘
-      ↓
-Denoised Latent z_0
-      ↓
-┌─────────────────────────────┐
-│      VAE Decoder            │
-└─────────────────────────────┘
-      ↓
-Generated Image (512×512 or higher)
-```
 
 ### 핵심 컴포넌트
 
