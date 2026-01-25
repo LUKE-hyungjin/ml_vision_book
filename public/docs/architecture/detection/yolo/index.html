@@ -1,0 +1,1233 @@
+<!DOCTYPE html>
+<html lang="ko-KR" dir="ltr">
+<head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
+  <!--
+Made with Book Theme
+https://github.com/alex-shpak/hugo-book
+-->
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="YOLO (You Only Look Once)# 개요# 논문: You Only Look Once: Unified, Real-Time Object Detection (2016) 저자: Joseph Redmon, Santosh Divvala, Ross Girshick, Ali Farhadi 핵심 기여: Detection을 단일 회귀 문제로 재정의, 실시간 처리 가능 핵심 아이디어# “Detection을 한 번의 forward pass로 해결”
+Two-stage detector와 달리, 이미지를 그리드로 나누고 각 그리드에서 직접 박스와 클래스를 예측합니다.
+YOLO 버전 변화# 버전 연도 핵심 개선 mAP (COCO) FPS YOLOv1 2016 첫 one-stage detector 63.4 (VOC) 45 YOLOv2 2016 Batch Norm, Anchor 78.6 (VOC) 67 YOLOv3 2018 Multi-scale, FPN 33.0 30 YOLOv4 2020 CSPNet, Mish 43.5 65 YOLOv5 2020 PyTorch, 편의성 50.7 140 YOLOv8 2023 Anchor-free, SOTA 53.9 100&#43; YOLOv1 구조# 동작 원리# 1. 이미지를 S×S 그리드로 분할 (S=7) 2. 각 그리드 셀이 B개의 bounding box 예측 (B=2) 3. 각 박스: (x, y, w, h, confidence) 4. 각 그리드 셀이 C개 클래스 확률 예측 (C=20) Output: S × S × (B×5 &#43; C) = 7 × 7 × 30네트워크 구조# Input (448×448×3) ↓ 24 Conv Layers (GoogLeNet inspired) ↓ 2 FC Layers ↓ Output (7×7×30)Confidence Score# $$\text{Confidence} = P(\text{Object}) \times \text{IoU}_{pred}^{truth}$$
+">
+<meta name="theme-color" media="(prefers-color-scheme: light)" content="#ffffff">
+<meta name="theme-color" media="(prefers-color-scheme: dark)" content="#343a40">
+<meta name="color-scheme" content="light dark"><meta property="og:url" content="http://localhost:1313/docs/architecture/detection/yolo/">
+  <meta property="og:site_name" content="Vision Engineer 지식 가이드">
+  <meta property="og:title" content="YOLO">
+  <meta property="og:description" content="YOLO (You Only Look Once)# 개요# 논문: You Only Look Once: Unified, Real-Time Object Detection (2016) 저자: Joseph Redmon, Santosh Divvala, Ross Girshick, Ali Farhadi 핵심 기여: Detection을 단일 회귀 문제로 재정의, 실시간 처리 가능 핵심 아이디어# “Detection을 한 번의 forward pass로 해결”
+Two-stage detector와 달리, 이미지를 그리드로 나누고 각 그리드에서 직접 박스와 클래스를 예측합니다.
+YOLO 버전 변화# 버전 연도 핵심 개선 mAP (COCO) FPS YOLOv1 2016 첫 one-stage detector 63.4 (VOC) 45 YOLOv2 2016 Batch Norm, Anchor 78.6 (VOC) 67 YOLOv3 2018 Multi-scale, FPN 33.0 30 YOLOv4 2020 CSPNet, Mish 43.5 65 YOLOv5 2020 PyTorch, 편의성 50.7 140 YOLOv8 2023 Anchor-free, SOTA 53.9 100&#43; YOLOv1 구조# 동작 원리# 1. 이미지를 S×S 그리드로 분할 (S=7) 2. 각 그리드 셀이 B개의 bounding box 예측 (B=2) 3. 각 박스: (x, y, w, h, confidence) 4. 각 그리드 셀이 C개 클래스 확률 예측 (C=20) Output: S × S × (B×5 &#43; C) = 7 × 7 × 30네트워크 구조# Input (448×448×3) ↓ 24 Conv Layers (GoogLeNet inspired) ↓ 2 FC Layers ↓ Output (7×7×30)Confidence Score# $$\text{Confidence} = P(\text{Object}) \times \text{IoU}_{pred}^{truth}$$">
+  <meta property="og:locale" content="ko_KR">
+  <meta property="og:type" content="article">
+    <meta property="article:section" content="docs">
+
+
+  <meta itemprop="name" content="YOLO">
+  <meta itemprop="description" content="YOLO (You Only Look Once)# 개요# 논문: You Only Look Once: Unified, Real-Time Object Detection (2016) 저자: Joseph Redmon, Santosh Divvala, Ross Girshick, Ali Farhadi 핵심 기여: Detection을 단일 회귀 문제로 재정의, 실시간 처리 가능 핵심 아이디어# “Detection을 한 번의 forward pass로 해결”
+Two-stage detector와 달리, 이미지를 그리드로 나누고 각 그리드에서 직접 박스와 클래스를 예측합니다.
+YOLO 버전 변화# 버전 연도 핵심 개선 mAP (COCO) FPS YOLOv1 2016 첫 one-stage detector 63.4 (VOC) 45 YOLOv2 2016 Batch Norm, Anchor 78.6 (VOC) 67 YOLOv3 2018 Multi-scale, FPN 33.0 30 YOLOv4 2020 CSPNet, Mish 43.5 65 YOLOv5 2020 PyTorch, 편의성 50.7 140 YOLOv8 2023 Anchor-free, SOTA 53.9 100&#43; YOLOv1 구조# 동작 원리# 1. 이미지를 S×S 그리드로 분할 (S=7) 2. 각 그리드 셀이 B개의 bounding box 예측 (B=2) 3. 각 박스: (x, y, w, h, confidence) 4. 각 그리드 셀이 C개 클래스 확률 예측 (C=20) Output: S × S × (B×5 &#43; C) = 7 × 7 × 30네트워크 구조# Input (448×448×3) ↓ 24 Conv Layers (GoogLeNet inspired) ↓ 2 FC Layers ↓ Output (7×7×30)Confidence Score# $$\text{Confidence} = P(\text{Object}) \times \text{IoU}_{pred}^{truth}$$">
+  <meta itemprop="wordCount" content="503">
+
+<title>YOLO | Vision Engineer 지식 가이드</title>
+<link rel="icon" href="/favicon.png" >
+<link rel="manifest" href="/manifest.json">
+<link rel="canonical" href="http://localhost:1313/docs/architecture/detection/yolo/">
+<link rel="stylesheet" href="/book.min.6970156cec683193d93c9c4edaf0d56574e4361df2e0c1be4f697ae81c3ba55f.css" integrity="sha256-aXAVbOxoMZPZPJxO2vDVZXTkNh3y4MG&#43;T2l66Bw7pV8=" crossorigin="anonymous">
+
+
+  <script defer src="/fuse.min.js"></script>
+  <script defer src="/ko.search.min.26f28136458cea7ff1c69490935901eb5c29bceec55294f9efe562732e8a3b1a.js" integrity="sha256-JvKBNkWM6n/xxpSQk1kB61wpvO7FUpT57&#43;Vicy6KOxo=" crossorigin="anonymous"></script>
+
+
+
+  
+</head>
+<body dir="ltr" class="book-kind-page book-type-docs">
+  <input type="checkbox" class="hidden toggle" id="menu-control" />
+  <input type="checkbox" class="hidden toggle" id="toc-control" />
+  <main class="container flex">
+    
+<aside class="book-menu">
+  <div class="book-menu-content">
+    
+  <nav>
+<h2 class="book-brand">
+  <a class="flex align-center" href="/"><span>Vision Engineer 지식 가이드</span>
+  </a>
+</h2>
+
+
+<div class="book-search hidden">
+  <input id="book-search-input" type="text" 
+    placeholder="Search"
+    aria-label="Search"
+    maxlength="64" data-hotkeys="s/" />
+  <div class="book-search-spinner hidden"></div>
+  <ul id="book-search-results"></ul>
+</div>
+<script>document.querySelector(".book-search").classList.remove("hidden")</script>
+
+
+
+  
+
+
+  
+    
+  
+
+
+
+<ul class="book-languages">
+  <li>
+    <input type="checkbox" id="languages" class="toggle" />
+    <label for="languages" class="flex">
+      <a role="button">
+        <img src="/icons/translate.svg" class="book-icon" alt="Languages" />
+        한국어
+      </a>
+      <img src="/icons/chevron-right.svg" class="book-icon" alt="Expand" />
+    </label>
+
+    <ul>
+      
+      <li>
+        <a href="/en/" class="flex flex-auto">
+          English
+        </a>
+      </li>
+      
+    </ul>
+  </li>
+</ul>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <input type="checkbox" id="section-14bcba7439f342435c91a57530ca56c8" class="toggle"  />
+    <label for="section-14bcba7439f342435c91a57530ca56c8" class="flex">
+      <a href="/docs/timeline/" class="">
+        타임라인</a>
+      <img src="/icons/chevron-right.svg" class="book-icon" alt="Expand" />
+    </label>
+  
+
+          
+  <ul>
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <input type="checkbox" id="section-cb9657695dbd536c3a44d019c4d6ef98" class="toggle"  />
+    <label for="section-cb9657695dbd536c3a44d019c4d6ef98" class="flex">
+      <a href="/docs/topdown/" class="">
+        Top-Down</a>
+      <img src="/icons/chevron-right.svg" class="book-icon" alt="Expand" />
+    </label>
+  
+
+          
+  <ul>
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <input type="checkbox" id="section-e7f22db027b1c591ed84a4d4d3a6014f" class="toggle"  />
+    <label for="section-e7f22db027b1c591ed84a4d4d3a6014f" class="flex">
+      <a href="/docs/bottomup/" class="">
+        Bottom-Up</a>
+      <img src="/icons/chevron-right.svg" class="book-icon" alt="Expand" />
+    </label>
+  
+
+          
+  <ul>
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <input type="checkbox" id="section-ce31bba1d1f88a1d133a7e7232f1b4ec" class="toggle"  />
+    <label for="section-ce31bba1d1f88a1d133a7e7232f1b4ec" class="flex">
+      <a href="/docs/math/" class="">
+        수학</a>
+      <img src="/icons/chevron-right.svg" class="book-icon" alt="Expand" />
+    </label>
+  
+
+          
+  <ul>
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <input type="checkbox" id="section-32f2aee524dad19f5100855d6e2014e6" class="toggle" checked />
+    <label for="section-32f2aee524dad19f5100855d6e2014e6" class="flex">
+      <a href="/docs/architecture/" class="">
+        아키텍처</a>
+      <img src="/icons/chevron-right.svg" class="book-icon" alt="Expand" />
+    </label>
+  
+
+          
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <input type="checkbox" id="section-47444199c3019e8b479623bc90a9bd74" class="toggle"  />
+    <label for="section-47444199c3019e8b479623bc90a9bd74" class="flex">
+      <a href="/docs/architecture/classical/" class="">
+        Classical CV</a>
+      <img src="/icons/chevron-right.svg" class="book-icon" alt="Expand" />
+    </label>
+  
+
+          
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/architecture/classical/sift-hog/" class="">
+      SIFT &amp; HOG</a>
+  
+
+        </li>
+      
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <input type="checkbox" id="section-7bf44239f7ce2c72600738f8c315efe4" class="toggle"  />
+    <label for="section-7bf44239f7ce2c72600738f8c315efe4" class="flex">
+      <a href="/docs/architecture/cnn/" class="">
+        CNN</a>
+      <img src="/icons/chevron-right.svg" class="book-icon" alt="Expand" />
+    </label>
+  
+
+          
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/architecture/cnn/alexnet/" class="">
+      AlexNet</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/architecture/cnn/vgg/" class="">
+      VGG</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/architecture/cnn/resnet/" class="">
+      ResNet</a>
+  
+
+        </li>
+      
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <input type="checkbox" id="section-274b800b12326ef4e06255cf5f15c308" class="toggle" checked />
+    <label for="section-274b800b12326ef4e06255cf5f15c308" class="flex">
+      <a href="/docs/architecture/detection/" class="">
+        Detection</a>
+      <img src="/icons/chevron-right.svg" class="book-icon" alt="Expand" />
+    </label>
+  
+
+          
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/architecture/detection/faster-rcnn/" class="">
+      Faster R-CNN</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/architecture/detection/yolo/" class="active">
+      YOLO</a>
+  
+
+        </li>
+      
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <input type="checkbox" id="section-7246e67fd6c549f3bd6240d998b23a6f" class="toggle"  />
+    <label for="section-7246e67fd6c549f3bd6240d998b23a6f" class="flex">
+      <a href="/docs/architecture/segmentation/" class="">
+        Segmentation</a>
+      <img src="/icons/chevron-right.svg" class="book-icon" alt="Expand" />
+    </label>
+  
+
+          
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/architecture/segmentation/unet/" class="">
+      U-Net</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/architecture/segmentation/mask-rcnn/" class="">
+      Mask R-CNN</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/architecture/segmentation/sam/" class="">
+      SAM</a>
+  
+
+        </li>
+      
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <input type="checkbox" id="section-3a9f4e0826e1b9e72550db30b2adcad7" class="toggle"  />
+    <label for="section-3a9f4e0826e1b9e72550db30b2adcad7" class="flex">
+      <a href="/docs/architecture/transformer/" class="">
+        Transformer</a>
+      <img src="/icons/chevron-right.svg" class="book-icon" alt="Expand" />
+    </label>
+  
+
+          
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/architecture/transformer/vit/" class="">
+      ViT</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/architecture/transformer/dit/" class="">
+      DiT</a>
+  
+
+        </li>
+      
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <input type="checkbox" id="section-2902afa0a62febfd7a5eb243df871e8c" class="toggle"  />
+    <label for="section-2902afa0a62febfd7a5eb243df871e8c" class="flex">
+      <a href="/docs/architecture/generative/" class="">
+        Generative</a>
+      <img src="/icons/chevron-right.svg" class="book-icon" alt="Expand" />
+    </label>
+  
+
+          
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/architecture/generative/vae/" class="">
+      VAE</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/architecture/generative/gan/" class="">
+      GAN</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/architecture/generative/stable-diffusion/" class="">
+      Stable Diffusion</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/architecture/generative/controlnet/" class="">
+      ControlNet</a>
+  
+
+        </li>
+      
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <input type="checkbox" id="section-1670f136e85bf39bce97c9ee224d29d9" class="toggle"  />
+    <label for="section-1670f136e85bf39bce97c9ee224d29d9" class="flex">
+      <a href="/docs/architecture/multimodal/" class="">
+        Multimodal</a>
+      <img src="/icons/chevron-right.svg" class="book-icon" alt="Expand" />
+    </label>
+  
+
+          
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/architecture/multimodal/clip/" class="">
+      CLIP</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/architecture/multimodal/vlm/" class="">
+      VLM</a>
+  
+
+        </li>
+      
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <input type="checkbox" id="section-fc1b0b4545ce791b47ab3fe55b854e56" class="toggle"  />
+    <label for="section-fc1b0b4545ce791b47ab3fe55b854e56" class="flex">
+      <a href="/docs/architecture/3d/" class="">
+        3D Vision</a>
+      <img src="/icons/chevron-right.svg" class="book-icon" alt="Expand" />
+    </label>
+  
+
+          
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/architecture/3d/nerf/" class="">
+      NeRF</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/architecture/3d/3dgs/" class="">
+      3D Gaussian Splatting</a>
+  
+
+        </li>
+      
+    
+  </ul>
+
+        </li>
+      
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <input type="checkbox" id="section-cd575cc6fd4e25b684b552791b7a009a" class="toggle"  />
+    <label for="section-cd575cc6fd4e25b684b552791b7a009a" class="flex">
+      <a href="/docs/task/" class="">
+        태스크</a>
+      <img src="/icons/chevron-right.svg" class="book-icon" alt="Expand" />
+    </label>
+  
+
+          
+  <ul>
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <input type="checkbox" id="section-fb690f19903e1435676f710c928c9ad4" class="toggle"  />
+    <label for="section-fb690f19903e1435676f710c928c9ad4" class="flex">
+      <a href="/docs/etc/" class="">
+        기타 자료</a>
+      <img src="/icons/chevron-right.svg" class="book-icon" alt="Expand" />
+    </label>
+  
+
+          
+  <ul>
+    
+  </ul>
+
+        </li>
+      
+    
+  </ul>
+
+
+
+
+
+
+
+
+
+
+
+
+
+</nav>
+
+
+
+
+  <script>(function(){var e=document.querySelector("aside .book-menu-content");addEventListener("beforeunload",function(){localStorage.setItem("menu.scrollTop",e.scrollTop)}),e.scrollTop=localStorage.getItem("menu.scrollTop")})()</script>
+
+
+
+  </div>
+</aside>
+ 
+
+    <div class="book-page">
+      <header class="book-header hidden">
+        
+  <div class="flex align-center justify-between">
+  <label for="menu-control">
+    <img src="/icons/menu.svg" class="book-icon" alt="Menu" />
+  </label>
+
+  <h3>YOLO</h3>
+
+  <label for="toc-control">
+    
+    <img src="/icons/toc.svg" class="book-icon" alt="Table of Contents" />
+    
+  </label>
+</div>
+
+
+  
+  <aside class="hidden">
+    
+  
+<nav id="TableOfContents">
+  <ul>
+    <li><a href="#개요">개요</a></li>
+    <li><a href="#핵심-아이디어">핵심 아이디어</a></li>
+    <li><a href="#yolo-버전-변화">YOLO 버전 변화</a></li>
+    <li><a href="#yolov1-구조">YOLOv1 구조</a>
+      <ul>
+        <li><a href="#동작-원리">동작 원리</a></li>
+        <li><a href="#네트워크-구조">네트워크 구조</a></li>
+        <li><a href="#confidence-score">Confidence Score</a></li>
+        <li><a href="#loss-function">Loss Function</a></li>
+      </ul>
+    </li>
+    <li><a href="#yolov3-구조">YOLOv3 구조</a>
+      <ul>
+        <li><a href="#개선점">개선점</a></li>
+        <li><a href="#아키텍처">아키텍처</a></li>
+      </ul>
+    </li>
+    <li><a href="#yolov8-구조-최신">YOLOv8 구조 (최신)</a>
+      <ul>
+        <li><a href="#주요-특징">주요 특징</a></li>
+        <li><a href="#모델-변형">모델 변형</a></li>
+      </ul>
+    </li>
+    <li><a href="#구현-예시">구현 예시</a>
+      <ul>
+        <li><a href="#yolov8-ultralytics">YOLOv8 (Ultralytics)</a></li>
+        <li><a href="#yolov5-torch-hub">YOLOv5 (torch hub)</a></li>
+      </ul>
+    </li>
+    <li><a href="#yolo-vs-faster-r-cnn">YOLO vs Faster R-CNN</a></li>
+    <li><a href="#실제-활용">실제 활용</a></li>
+    <li><a href="#관련-콘텐츠">관련 콘텐츠</a></li>
+  </ul>
+</nav>
+
+
+
+  </aside>
+  
+ 
+      </header>
+
+      
+      
+  <article class="markdown book-article"><h1 id="yolo-you-only-look-once">YOLO (You Only Look Once)<a class="anchor" href="#yolo-you-only-look-once">#</a></h1>
+<h2 id="개요">개요<a class="anchor" href="#%ea%b0%9c%ec%9a%94">#</a></h2>
+<ul>
+<li><strong>논문</strong>: You Only Look Once: Unified, Real-Time Object Detection (2016)</li>
+<li><strong>저자</strong>: Joseph Redmon, Santosh Divvala, Ross Girshick, Ali Farhadi</li>
+<li><strong>핵심 기여</strong>: Detection을 단일 회귀 문제로 재정의, 실시간 처리 가능</li>
+</ul>
+<h2 id="핵심-아이디어">핵심 아이디어<a class="anchor" href="#%ed%95%b5%ec%8b%ac-%ec%95%84%ec%9d%b4%eb%94%94%ec%96%b4">#</a></h2>
+<blockquote class='book-hint '>
+<p>&ldquo;Detection을 한 번의 forward pass로 해결&rdquo;</p>
+</blockquote><p>Two-stage detector와 달리, 이미지를 그리드로 나누고 각 그리드에서 직접 박스와 클래스를 예측합니다.</p>
+<hr>
+<h2 id="yolo-버전-변화">YOLO 버전 변화<a class="anchor" href="#yolo-%eb%b2%84%ec%a0%84-%eb%b3%80%ed%99%94">#</a></h2>
+<table>
+  <thead>
+      <tr>
+          <th>버전</th>
+          <th>연도</th>
+          <th>핵심 개선</th>
+          <th>mAP (COCO)</th>
+          <th>FPS</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>YOLOv1</td>
+          <td>2016</td>
+          <td>첫 one-stage detector</td>
+          <td>63.4 (VOC)</td>
+          <td>45</td>
+      </tr>
+      <tr>
+          <td>YOLOv2</td>
+          <td>2016</td>
+          <td>Batch Norm, Anchor</td>
+          <td>78.6 (VOC)</td>
+          <td>67</td>
+      </tr>
+      <tr>
+          <td>YOLOv3</td>
+          <td>2018</td>
+          <td>Multi-scale, FPN</td>
+          <td>33.0</td>
+          <td>30</td>
+      </tr>
+      <tr>
+          <td>YOLOv4</td>
+          <td>2020</td>
+          <td>CSPNet, Mish</td>
+          <td>43.5</td>
+          <td>65</td>
+      </tr>
+      <tr>
+          <td>YOLOv5</td>
+          <td>2020</td>
+          <td>PyTorch, 편의성</td>
+          <td>50.7</td>
+          <td>140</td>
+      </tr>
+      <tr>
+          <td>YOLOv8</td>
+          <td>2023</td>
+          <td>Anchor-free, SOTA</td>
+          <td>53.9</td>
+          <td>100+</td>
+      </tr>
+  </tbody>
+</table>
+<hr>
+<h2 id="yolov1-구조">YOLOv1 구조<a class="anchor" href="#yolov1-%ea%b5%ac%ec%a1%b0">#</a></h2>
+<h3 id="동작-원리">동작 원리<a class="anchor" href="#%eb%8f%99%ec%9e%91-%ec%9b%90%eb%a6%ac">#</a></h3>
+<pre tabindex="0"><code>1. 이미지를 S×S 그리드로 분할 (S=7)
+2. 각 그리드 셀이 B개의 bounding box 예측 (B=2)
+3. 각 박스: (x, y, w, h, confidence)
+4. 각 그리드 셀이 C개 클래스 확률 예측 (C=20)
+
+Output: S × S × (B×5 + C) = 7 × 7 × 30</code></pre><h3 id="네트워크-구조">네트워크 구조<a class="anchor" href="#%eb%84%a4%ed%8a%b8%ec%9b%8c%ed%81%ac-%ea%b5%ac%ec%a1%b0">#</a></h3>
+<pre tabindex="0"><code>Input (448×448×3)
+    ↓
+24 Conv Layers (GoogLeNet inspired)
+    ↓
+2 FC Layers
+    ↓
+Output (7×7×30)</code></pre><h3 id="confidence-score">Confidence Score<a class="anchor" href="#confidence-score">#</a></h3>
+<p>$$\text{Confidence} = P(\text{Object}) \times \text{IoU}_{pred}^{truth}$$</p>
+<h3 id="loss-function">Loss Function<a class="anchor" href="#loss-function">#</a></h3>
+<p>$$L = \lambda_{coord} L_{coord} + L_{obj} + \lambda_{noobj} L_{noobj} + L_{class}$$</p>
+<ul>
+<li>$\lambda_{coord} = 5$: 좌표 loss 가중치</li>
+<li>$\lambda_{noobj} = 0.5$: 객체 없는 셀의 loss 가중치</li>
+</ul>
+<hr>
+<h2 id="yolov3-구조">YOLOv3 구조<a class="anchor" href="#yolov3-%ea%b5%ac%ec%a1%b0">#</a></h2>
+<h3 id="개선점">개선점<a class="anchor" href="#%ea%b0%9c%ec%84%a0%ec%a0%90">#</a></h3>
+<ol>
+<li><strong>Multi-scale Prediction</strong>: 3가지 스케일에서 예측</li>
+<li><strong>FPN-like Structure</strong>: 다양한 크기의 객체 검출</li>
+<li><strong>Anchor Boxes</strong>: 9개의 anchor (3 scales × 3 ratios)</li>
+<li><strong>Darknet-53</strong>: ResNet-like backbone</li>
+</ol>
+<h3 id="아키텍처">아키텍처<a class="anchor" href="#%ec%95%84%ed%82%a4%ed%85%8d%ec%b2%98">#</a></h3>
+<pre tabindex="0"><code>Input (416×416)
+    ↓
+Darknet-53 Backbone
+    ↓
+┌─────────────────────────────────────┐
+│         FPN-like Neck               │
+│  52×52 (small) + 26×26 + 13×13 (large) │
+└─────────────────────────────────────┘
+    ↓
+3 Detection Heads
+    ↓
+Output:
+  - 13×13×255 (대형 객체)
+  - 26×26×255 (중형 객체)
+  - 52×52×255 (소형 객체)
+
+255 = 3 anchors × (4 coords + 1 obj + 80 classes)</code></pre><hr>
+<h2 id="yolov8-구조-최신">YOLOv8 구조 (최신)<a class="anchor" href="#yolov8-%ea%b5%ac%ec%a1%b0-%ec%b5%9c%ec%8b%a0">#</a></h2>
+<h3 id="주요-특징">주요 특징<a class="anchor" href="#%ec%a3%bc%ec%9a%94-%ed%8a%b9%ec%a7%95">#</a></h3>
+<ol>
+<li><strong>Anchor-free</strong>: anchor box 없이 직접 예측</li>
+<li><strong>Decoupled Head</strong>: classification과 regression 분리</li>
+<li><strong>C2f Module</strong>: CSP + 더 효율적인 특징 융합</li>
+<li><strong>Task-specific Heads</strong>: detection, segmentation, pose 등</li>
+</ol>
+<h3 id="모델-변형">모델 변형<a class="anchor" href="#%eb%aa%a8%eb%8d%b8-%eb%b3%80%ed%98%95">#</a></h3>
+<table>
+  <thead>
+      <tr>
+          <th>모델</th>
+          <th>파라미터</th>
+          <th>mAP</th>
+          <th>FPS (V100)</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>YOLOv8n</td>
+          <td>3.2M</td>
+          <td>37.3</td>
+          <td>430</td>
+      </tr>
+      <tr>
+          <td>YOLOv8s</td>
+          <td>11.2M</td>
+          <td>44.9</td>
+          <td>350</td>
+      </tr>
+      <tr>
+          <td>YOLOv8m</td>
+          <td>25.9M</td>
+          <td>50.2</td>
+          <td>220</td>
+      </tr>
+      <tr>
+          <td>YOLOv8l</td>
+          <td>43.7M</td>
+          <td>52.9</td>
+          <td>160</td>
+      </tr>
+      <tr>
+          <td>YOLOv8x</td>
+          <td>68.2M</td>
+          <td>53.9</td>
+          <td>100</td>
+      </tr>
+  </tbody>
+</table>
+<hr>
+<h2 id="구현-예시">구현 예시<a class="anchor" href="#%ea%b5%ac%ed%98%84-%ec%98%88%ec%8b%9c">#</a></h2>
+<h3 id="yolov8-ultralytics">YOLOv8 (Ultralytics)<a class="anchor" href="#yolov8-ultralytics">#</a></h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#f92672">from</span> ultralytics <span style="color:#f92672">import</span> YOLO
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># 모델 로드</span>
+</span></span><span style="display:flex;"><span>model <span style="color:#f92672">=</span> YOLO(<span style="color:#e6db74">&#39;yolov8n.pt&#39;</span>)  <span style="color:#75715e"># nano 모델</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># 추론</span>
+</span></span><span style="display:flex;"><span>results <span style="color:#f92672">=</span> model(<span style="color:#e6db74">&#39;image.jpg&#39;</span>)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># 결과 확인</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">for</span> result <span style="color:#f92672">in</span> results:
+</span></span><span style="display:flex;"><span>    boxes <span style="color:#f92672">=</span> result<span style="color:#f92672">.</span>boxes  <span style="color:#75715e"># Bounding boxes</span>
+</span></span><span style="display:flex;"><span>    print(boxes<span style="color:#f92672">.</span>xyxy)     <span style="color:#75715e"># x1, y1, x2, y2 형식</span>
+</span></span><span style="display:flex;"><span>    print(boxes<span style="color:#f92672">.</span>conf)     <span style="color:#75715e"># confidence scores</span>
+</span></span><span style="display:flex;"><span>    print(boxes<span style="color:#f92672">.</span>cls)      <span style="color:#75715e"># class indices</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># 학습</span>
+</span></span><span style="display:flex;"><span>model<span style="color:#f92672">.</span>train(data<span style="color:#f92672">=</span><span style="color:#e6db74">&#39;coco128.yaml&#39;</span>, epochs<span style="color:#f92672">=</span><span style="color:#ae81ff">100</span>)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># Export</span>
+</span></span><span style="display:flex;"><span>model<span style="color:#f92672">.</span>export(format<span style="color:#f92672">=</span><span style="color:#e6db74">&#39;onnx&#39;</span>)</span></span></code></pre></div><h3 id="yolov5-torch-hub">YOLOv5 (torch hub)<a class="anchor" href="#yolov5-torch-hub">#</a></h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#f92672">import</span> torch
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># 모델 로드</span>
+</span></span><span style="display:flex;"><span>model <span style="color:#f92672">=</span> torch<span style="color:#f92672">.</span>hub<span style="color:#f92672">.</span>load(<span style="color:#e6db74">&#39;ultralytics/yolov5&#39;</span>, <span style="color:#e6db74">&#39;yolov5s&#39;</span>, pretrained<span style="color:#f92672">=</span><span style="color:#66d9ef">True</span>)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># 추론</span>
+</span></span><span style="display:flex;"><span>results <span style="color:#f92672">=</span> model(<span style="color:#e6db74">&#39;image.jpg&#39;</span>)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># 결과 출력</span>
+</span></span><span style="display:flex;"><span>results<span style="color:#f92672">.</span>print()
+</span></span><span style="display:flex;"><span>results<span style="color:#f92672">.</span>show()
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># pandas DataFrame으로 결과</span>
+</span></span><span style="display:flex;"><span>df <span style="color:#f92672">=</span> results<span style="color:#f92672">.</span>pandas()<span style="color:#f92672">.</span>xyxy[<span style="color:#ae81ff">0</span>]</span></span></code></pre></div><hr>
+<h2 id="yolo-vs-faster-r-cnn">YOLO vs Faster R-CNN<a class="anchor" href="#yolo-vs-faster-r-cnn">#</a></h2>
+<table>
+  <thead>
+      <tr>
+          <th>측면</th>
+          <th>YOLO</th>
+          <th>Faster R-CNN</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>방식</td>
+          <td>One-stage</td>
+          <td>Two-stage</td>
+      </tr>
+      <tr>
+          <td>속도</td>
+          <td>빠름 (30-100+ FPS)</td>
+          <td>느림 (~7 FPS)</td>
+      </tr>
+      <tr>
+          <td>정확도</td>
+          <td>상대적으로 낮음</td>
+          <td>높음</td>
+      </tr>
+      <tr>
+          <td>작은 객체</td>
+          <td>어려움</td>
+          <td>상대적으로 좋음</td>
+      </tr>
+      <tr>
+          <td>실시간</td>
+          <td>가능</td>
+          <td>어려움</td>
+      </tr>
+      <tr>
+          <td>구현</td>
+          <td>단순</td>
+          <td>복잡</td>
+      </tr>
+  </tbody>
+</table>
+<hr>
+<h2 id="실제-활용">실제 활용<a class="anchor" href="#%ec%8b%a4%ec%a0%9c-%ed%99%9c%ec%9a%a9">#</a></h2>
+<ul>
+<li><strong>자율주행</strong>: 실시간 객체 검출</li>
+<li><strong>CCTV 분석</strong>: 사람/차량 검출</li>
+<li><strong>산업 자동화</strong>: 제품 불량 검출</li>
+<li><strong>모바일</strong>: 경량화 모델 (YOLOv8n)</li>
+</ul>
+<hr>
+<h2 id="관련-콘텐츠">관련 콘텐츠<a class="anchor" href="#%ea%b4%80%eb%a0%a8-%ec%bd%98%ed%85%90%ec%b8%a0">#</a></h2>
+<ul>
+<li><a href="/docs/architecture/detection/faster-rcnn">Faster R-CNN</a> - Two-stage detector</li>
+<li><a href="/docs/math/iou-nms">IoU &amp; NMS</a> - Detection 핵심 개념</li>
+<li><a href="/docs/math/anchor">Anchor Box</a> - 박스 예측 방식</li>
+<li><a href="/docs/task/detection">Detection 태스크</a> - 평가 지표</li>
+</ul>
+</article>
+ 
+      
+
+      <footer class="book-footer">
+        
+  <div class="flex flex-wrap justify-between">
+
+<div>
+
+</div>
+
+<div>
+
+</div>
+
+</div>
+
+
+
+
+
+  
+  
+  
+  <div class="flex flex-wrap justify-between">
+    <span>
+    
+      <a href="/docs/architecture/detection/faster-rcnn/" class="flex align-center">
+        <img src="/icons/backward.svg" class="book-icon" alt="Backward" />
+        <span>Faster R-CNN</span>
+      </a>
+    
+    </span>
+    <span>
+    
+      <a href="/docs/architecture/segmentation/" class="flex align-center">
+        <span>Segmentation</span>
+        <img src="/icons/forward.svg" class="book-icon" alt="Forward" />
+      </a>
+    
+    </span>
+  </div>
+  
+
+
+ 
+        
+  
+  <div class="book-comments">
+
+</div>
+  
+ 
+        
+        
+  
+ 
+        
+  
+  
+    <script>(function(){document.querySelectorAll("pre:has(code)").forEach(e=>{e.addEventListener("click",e.focus),e.addEventListener("copy",function(t){if(t.preventDefault(),navigator.clipboard){const t=window.getSelection().toString()||e.textContent;navigator.clipboard.writeText(t)}})})})()</script>
+  
+
+      </footer>
+
+      <label for="menu-control" class="hidden book-menu-overlay"></label>
+    </div>
+
+    
+  
+  <aside class="book-toc">
+    <div class="book-toc-content">
+      
+  
+<nav id="TableOfContents">
+  <ul>
+    <li><a href="#개요">개요</a></li>
+    <li><a href="#핵심-아이디어">핵심 아이디어</a></li>
+    <li><a href="#yolo-버전-변화">YOLO 버전 변화</a></li>
+    <li><a href="#yolov1-구조">YOLOv1 구조</a>
+      <ul>
+        <li><a href="#동작-원리">동작 원리</a></li>
+        <li><a href="#네트워크-구조">네트워크 구조</a></li>
+        <li><a href="#confidence-score">Confidence Score</a></li>
+        <li><a href="#loss-function">Loss Function</a></li>
+      </ul>
+    </li>
+    <li><a href="#yolov3-구조">YOLOv3 구조</a>
+      <ul>
+        <li><a href="#개선점">개선점</a></li>
+        <li><a href="#아키텍처">아키텍처</a></li>
+      </ul>
+    </li>
+    <li><a href="#yolov8-구조-최신">YOLOv8 구조 (최신)</a>
+      <ul>
+        <li><a href="#주요-특징">주요 특징</a></li>
+        <li><a href="#모델-변형">모델 변형</a></li>
+      </ul>
+    </li>
+    <li><a href="#구현-예시">구현 예시</a>
+      <ul>
+        <li><a href="#yolov8-ultralytics">YOLOv8 (Ultralytics)</a></li>
+        <li><a href="#yolov5-torch-hub">YOLOv5 (torch hub)</a></li>
+      </ul>
+    </li>
+    <li><a href="#yolo-vs-faster-r-cnn">YOLO vs Faster R-CNN</a></li>
+    <li><a href="#실제-활용">실제 활용</a></li>
+    <li><a href="#관련-콘텐츠">관련 콘텐츠</a></li>
+  </ul>
+</nav>
+
+
+
+    </div>
+  </aside>
+  
+ 
+  </main>
+
+  
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

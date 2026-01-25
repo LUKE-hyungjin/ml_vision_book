@@ -1,0 +1,1239 @@
+<!DOCTYPE html>
+<html lang="ko-KR" dir="ltr">
+<head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
+  <!--
+Made with Book Theme
+https://github.com/alex-shpak/hugo-book
+-->
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="ControlNet# 개요# 논문: Adding Conditional Control to Text-to-Image Diffusion Models (2023) 저자: Lvmin Zhang, Maneesh Agrawala (Stanford) 핵심 기여: 사전학습된 Diffusion 모델에 공간적 조건 추가 핵심 아이디어# “원본 모델을 고정하고, 복사본에서 조건을 학습”
+Stable Diffusion의 가중치를 건드리지 않고, 에지/포즈/깊이 등의 조건을 추가할 수 있습니다.
+왜 필요한가?# 텍스트만으로는 부족한 제어# Prompt: &#34;a person raising their hand&#34; → 손 위치, 포즈를 정확히 지정 불가ControlNet의 해결# Prompt: &#34;a person&#34; &#43; Pose Image (조건) → 원하는 포즈 그대로 생성 구조# 전체 아키텍처# Input Image ↓ ┌──────────────────┐ │ Condition Extractor │ (Canny, Pose, Depth 등) └──────────────────┘ ↓ Condition (edge/pose/depth map) ↓ ┌───────────────────────────────────────────────┐ │ ControlNet │ │ │ │ ┌─────────────────┐ ┌─────────────────┐ │ │ │ Trainable Copy │───→│ Zero Conv │ │ │ │ of SD Encoder │ │ (initialized 0)│ │ │ └─────────────────┘ └────────┬────────┘ │ │ ↓ │ │ ┌─────────────────────────────────────────┐ │ │ │ Locked Stable Diffusion │ │ │ │ (original weights frozen) │ │ │ └─────────────────────────────────────────┘ │ └───────────────────────────────────────────────┘ ↓ Generated Image (following the condition)핵심 컴포넌트# 컴포넌트 설명 Locked Copy 원본 SD 가중치 고정 Trainable Copy SD encoder의 학습 가능한 복사본 Zero Convolution 0으로 초기화된 1×1 Conv Zero Convolution# 학습 시작 시 ControlNet의 영향이 0:
+">
+<meta name="theme-color" media="(prefers-color-scheme: light)" content="#ffffff">
+<meta name="theme-color" media="(prefers-color-scheme: dark)" content="#343a40">
+<meta name="color-scheme" content="light dark"><meta property="og:url" content="http://localhost:1313/docs/architecture/generative/controlnet/">
+  <meta property="og:site_name" content="Vision Engineer 지식 가이드">
+  <meta property="og:title" content="ControlNet">
+  <meta property="og:description" content="ControlNet# 개요# 논문: Adding Conditional Control to Text-to-Image Diffusion Models (2023) 저자: Lvmin Zhang, Maneesh Agrawala (Stanford) 핵심 기여: 사전학습된 Diffusion 모델에 공간적 조건 추가 핵심 아이디어# “원본 모델을 고정하고, 복사본에서 조건을 학습”
+Stable Diffusion의 가중치를 건드리지 않고, 에지/포즈/깊이 등의 조건을 추가할 수 있습니다.
+왜 필요한가?# 텍스트만으로는 부족한 제어# Prompt: &#34;a person raising their hand&#34; → 손 위치, 포즈를 정확히 지정 불가ControlNet의 해결# Prompt: &#34;a person&#34; &#43; Pose Image (조건) → 원하는 포즈 그대로 생성 구조# 전체 아키텍처# Input Image ↓ ┌──────────────────┐ │ Condition Extractor │ (Canny, Pose, Depth 등) └──────────────────┘ ↓ Condition (edge/pose/depth map) ↓ ┌───────────────────────────────────────────────┐ │ ControlNet │ │ │ │ ┌─────────────────┐ ┌─────────────────┐ │ │ │ Trainable Copy │───→│ Zero Conv │ │ │ │ of SD Encoder │ │ (initialized 0)│ │ │ └─────────────────┘ └────────┬────────┘ │ │ ↓ │ │ ┌─────────────────────────────────────────┐ │ │ │ Locked Stable Diffusion │ │ │ │ (original weights frozen) │ │ │ └─────────────────────────────────────────┘ │ └───────────────────────────────────────────────┘ ↓ Generated Image (following the condition)핵심 컴포넌트# 컴포넌트 설명 Locked Copy 원본 SD 가중치 고정 Trainable Copy SD encoder의 학습 가능한 복사본 Zero Convolution 0으로 초기화된 1×1 Conv Zero Convolution# 학습 시작 시 ControlNet의 영향이 0:">
+  <meta property="og:locale" content="ko_KR">
+  <meta property="og:type" content="article">
+    <meta property="article:section" content="docs">
+
+
+  <meta itemprop="name" content="ControlNet">
+  <meta itemprop="description" content="ControlNet# 개요# 논문: Adding Conditional Control to Text-to-Image Diffusion Models (2023) 저자: Lvmin Zhang, Maneesh Agrawala (Stanford) 핵심 기여: 사전학습된 Diffusion 모델에 공간적 조건 추가 핵심 아이디어# “원본 모델을 고정하고, 복사본에서 조건을 학습”
+Stable Diffusion의 가중치를 건드리지 않고, 에지/포즈/깊이 등의 조건을 추가할 수 있습니다.
+왜 필요한가?# 텍스트만으로는 부족한 제어# Prompt: &#34;a person raising their hand&#34; → 손 위치, 포즈를 정확히 지정 불가ControlNet의 해결# Prompt: &#34;a person&#34; &#43; Pose Image (조건) → 원하는 포즈 그대로 생성 구조# 전체 아키텍처# Input Image ↓ ┌──────────────────┐ │ Condition Extractor │ (Canny, Pose, Depth 등) └──────────────────┘ ↓ Condition (edge/pose/depth map) ↓ ┌───────────────────────────────────────────────┐ │ ControlNet │ │ │ │ ┌─────────────────┐ ┌─────────────────┐ │ │ │ Trainable Copy │───→│ Zero Conv │ │ │ │ of SD Encoder │ │ (initialized 0)│ │ │ └─────────────────┘ └────────┬────────┘ │ │ ↓ │ │ ┌─────────────────────────────────────────┐ │ │ │ Locked Stable Diffusion │ │ │ │ (original weights frozen) │ │ │ └─────────────────────────────────────────┘ │ └───────────────────────────────────────────────┘ ↓ Generated Image (following the condition)핵심 컴포넌트# 컴포넌트 설명 Locked Copy 원본 SD 가중치 고정 Trainable Copy SD encoder의 학습 가능한 복사본 Zero Convolution 0으로 초기화된 1×1 Conv Zero Convolution# 학습 시작 시 ControlNet의 영향이 0:">
+  <meta itemprop="wordCount" content="563">
+
+<title>ControlNet | Vision Engineer 지식 가이드</title>
+<link rel="icon" href="/favicon.png" >
+<link rel="manifest" href="/manifest.json">
+<link rel="canonical" href="http://localhost:1313/docs/architecture/generative/controlnet/">
+<link rel="stylesheet" href="/book.min.6970156cec683193d93c9c4edaf0d56574e4361df2e0c1be4f697ae81c3ba55f.css" integrity="sha256-aXAVbOxoMZPZPJxO2vDVZXTkNh3y4MG&#43;T2l66Bw7pV8=" crossorigin="anonymous">
+
+
+  <script defer src="/fuse.min.js"></script>
+  <script defer src="/ko.search.min.26f28136458cea7ff1c69490935901eb5c29bceec55294f9efe562732e8a3b1a.js" integrity="sha256-JvKBNkWM6n/xxpSQk1kB61wpvO7FUpT57&#43;Vicy6KOxo=" crossorigin="anonymous"></script>
+
+
+
+  
+</head>
+<body dir="ltr" class="book-kind-page book-type-docs">
+  <input type="checkbox" class="hidden toggle" id="menu-control" />
+  <input type="checkbox" class="hidden toggle" id="toc-control" />
+  <main class="container flex">
+    
+<aside class="book-menu">
+  <div class="book-menu-content">
+    
+  <nav>
+<h2 class="book-brand">
+  <a class="flex align-center" href="/"><span>Vision Engineer 지식 가이드</span>
+  </a>
+</h2>
+
+
+<div class="book-search hidden">
+  <input id="book-search-input" type="text" 
+    placeholder="Search"
+    aria-label="Search"
+    maxlength="64" data-hotkeys="s/" />
+  <div class="book-search-spinner hidden"></div>
+  <ul id="book-search-results"></ul>
+</div>
+<script>document.querySelector(".book-search").classList.remove("hidden")</script>
+
+
+
+  
+
+
+  
+    
+  
+
+
+
+<ul class="book-languages">
+  <li>
+    <input type="checkbox" id="languages" class="toggle" />
+    <label for="languages" class="flex">
+      <a role="button">
+        <img src="/icons/translate.svg" class="book-icon" alt="Languages" />
+        한국어
+      </a>
+      <img src="/icons/chevron-right.svg" class="book-icon" alt="Expand" />
+    </label>
+
+    <ul>
+      
+      <li>
+        <a href="/en/" class="flex flex-auto">
+          English
+        </a>
+      </li>
+      
+    </ul>
+  </li>
+</ul>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <input type="checkbox" id="section-14bcba7439f342435c91a57530ca56c8" class="toggle"  />
+    <label for="section-14bcba7439f342435c91a57530ca56c8" class="flex">
+      <a href="/docs/timeline/" class="">
+        타임라인</a>
+      <img src="/icons/chevron-right.svg" class="book-icon" alt="Expand" />
+    </label>
+  
+
+          
+  <ul>
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <input type="checkbox" id="section-cb9657695dbd536c3a44d019c4d6ef98" class="toggle"  />
+    <label for="section-cb9657695dbd536c3a44d019c4d6ef98" class="flex">
+      <a href="/docs/topdown/" class="">
+        Top-Down</a>
+      <img src="/icons/chevron-right.svg" class="book-icon" alt="Expand" />
+    </label>
+  
+
+          
+  <ul>
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <input type="checkbox" id="section-e7f22db027b1c591ed84a4d4d3a6014f" class="toggle"  />
+    <label for="section-e7f22db027b1c591ed84a4d4d3a6014f" class="flex">
+      <a href="/docs/bottomup/" class="">
+        Bottom-Up</a>
+      <img src="/icons/chevron-right.svg" class="book-icon" alt="Expand" />
+    </label>
+  
+
+          
+  <ul>
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <input type="checkbox" id="section-ce31bba1d1f88a1d133a7e7232f1b4ec" class="toggle"  />
+    <label for="section-ce31bba1d1f88a1d133a7e7232f1b4ec" class="flex">
+      <a href="/docs/math/" class="">
+        수학</a>
+      <img src="/icons/chevron-right.svg" class="book-icon" alt="Expand" />
+    </label>
+  
+
+          
+  <ul>
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <input type="checkbox" id="section-32f2aee524dad19f5100855d6e2014e6" class="toggle" checked />
+    <label for="section-32f2aee524dad19f5100855d6e2014e6" class="flex">
+      <a href="/docs/architecture/" class="">
+        아키텍처</a>
+      <img src="/icons/chevron-right.svg" class="book-icon" alt="Expand" />
+    </label>
+  
+
+          
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <input type="checkbox" id="section-47444199c3019e8b479623bc90a9bd74" class="toggle"  />
+    <label for="section-47444199c3019e8b479623bc90a9bd74" class="flex">
+      <a href="/docs/architecture/classical/" class="">
+        Classical CV</a>
+      <img src="/icons/chevron-right.svg" class="book-icon" alt="Expand" />
+    </label>
+  
+
+          
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/architecture/classical/sift-hog/" class="">
+      SIFT &amp; HOG</a>
+  
+
+        </li>
+      
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <input type="checkbox" id="section-7bf44239f7ce2c72600738f8c315efe4" class="toggle"  />
+    <label for="section-7bf44239f7ce2c72600738f8c315efe4" class="flex">
+      <a href="/docs/architecture/cnn/" class="">
+        CNN</a>
+      <img src="/icons/chevron-right.svg" class="book-icon" alt="Expand" />
+    </label>
+  
+
+          
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/architecture/cnn/alexnet/" class="">
+      AlexNet</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/architecture/cnn/vgg/" class="">
+      VGG</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/architecture/cnn/resnet/" class="">
+      ResNet</a>
+  
+
+        </li>
+      
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <input type="checkbox" id="section-274b800b12326ef4e06255cf5f15c308" class="toggle"  />
+    <label for="section-274b800b12326ef4e06255cf5f15c308" class="flex">
+      <a href="/docs/architecture/detection/" class="">
+        Detection</a>
+      <img src="/icons/chevron-right.svg" class="book-icon" alt="Expand" />
+    </label>
+  
+
+          
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/architecture/detection/faster-rcnn/" class="">
+      Faster R-CNN</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/architecture/detection/yolo/" class="">
+      YOLO</a>
+  
+
+        </li>
+      
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <input type="checkbox" id="section-7246e67fd6c549f3bd6240d998b23a6f" class="toggle"  />
+    <label for="section-7246e67fd6c549f3bd6240d998b23a6f" class="flex">
+      <a href="/docs/architecture/segmentation/" class="">
+        Segmentation</a>
+      <img src="/icons/chevron-right.svg" class="book-icon" alt="Expand" />
+    </label>
+  
+
+          
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/architecture/segmentation/unet/" class="">
+      U-Net</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/architecture/segmentation/mask-rcnn/" class="">
+      Mask R-CNN</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/architecture/segmentation/sam/" class="">
+      SAM</a>
+  
+
+        </li>
+      
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <input type="checkbox" id="section-3a9f4e0826e1b9e72550db30b2adcad7" class="toggle"  />
+    <label for="section-3a9f4e0826e1b9e72550db30b2adcad7" class="flex">
+      <a href="/docs/architecture/transformer/" class="">
+        Transformer</a>
+      <img src="/icons/chevron-right.svg" class="book-icon" alt="Expand" />
+    </label>
+  
+
+          
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/architecture/transformer/vit/" class="">
+      ViT</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/architecture/transformer/dit/" class="">
+      DiT</a>
+  
+
+        </li>
+      
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <input type="checkbox" id="section-2902afa0a62febfd7a5eb243df871e8c" class="toggle" checked />
+    <label for="section-2902afa0a62febfd7a5eb243df871e8c" class="flex">
+      <a href="/docs/architecture/generative/" class="">
+        Generative</a>
+      <img src="/icons/chevron-right.svg" class="book-icon" alt="Expand" />
+    </label>
+  
+
+          
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/architecture/generative/vae/" class="">
+      VAE</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/architecture/generative/gan/" class="">
+      GAN</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/architecture/generative/stable-diffusion/" class="">
+      Stable Diffusion</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/architecture/generative/controlnet/" class="active">
+      ControlNet</a>
+  
+
+        </li>
+      
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <input type="checkbox" id="section-1670f136e85bf39bce97c9ee224d29d9" class="toggle"  />
+    <label for="section-1670f136e85bf39bce97c9ee224d29d9" class="flex">
+      <a href="/docs/architecture/multimodal/" class="">
+        Multimodal</a>
+      <img src="/icons/chevron-right.svg" class="book-icon" alt="Expand" />
+    </label>
+  
+
+          
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/architecture/multimodal/clip/" class="">
+      CLIP</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/architecture/multimodal/vlm/" class="">
+      VLM</a>
+  
+
+        </li>
+      
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <input type="checkbox" id="section-fc1b0b4545ce791b47ab3fe55b854e56" class="toggle"  />
+    <label for="section-fc1b0b4545ce791b47ab3fe55b854e56" class="flex">
+      <a href="/docs/architecture/3d/" class="">
+        3D Vision</a>
+      <img src="/icons/chevron-right.svg" class="book-icon" alt="Expand" />
+    </label>
+  
+
+          
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/architecture/3d/nerf/" class="">
+      NeRF</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/architecture/3d/3dgs/" class="">
+      3D Gaussian Splatting</a>
+  
+
+        </li>
+      
+    
+  </ul>
+
+        </li>
+      
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <input type="checkbox" id="section-cd575cc6fd4e25b684b552791b7a009a" class="toggle"  />
+    <label for="section-cd575cc6fd4e25b684b552791b7a009a" class="flex">
+      <a href="/docs/task/" class="">
+        태스크</a>
+      <img src="/icons/chevron-right.svg" class="book-icon" alt="Expand" />
+    </label>
+  
+
+          
+  <ul>
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <input type="checkbox" id="section-fb690f19903e1435676f710c928c9ad4" class="toggle"  />
+    <label for="section-fb690f19903e1435676f710c928c9ad4" class="flex">
+      <a href="/docs/etc/" class="">
+        기타 자료</a>
+      <img src="/icons/chevron-right.svg" class="book-icon" alt="Expand" />
+    </label>
+  
+
+          
+  <ul>
+    
+  </ul>
+
+        </li>
+      
+    
+  </ul>
+
+
+
+
+
+
+
+
+
+
+
+
+
+</nav>
+
+
+
+
+  <script>(function(){var e=document.querySelector("aside .book-menu-content");addEventListener("beforeunload",function(){localStorage.setItem("menu.scrollTop",e.scrollTop)}),e.scrollTop=localStorage.getItem("menu.scrollTop")})()</script>
+
+
+
+  </div>
+</aside>
+ 
+
+    <div class="book-page">
+      <header class="book-header hidden">
+        
+  <div class="flex align-center justify-between">
+  <label for="menu-control">
+    <img src="/icons/menu.svg" class="book-icon" alt="Menu" />
+  </label>
+
+  <h3>ControlNet</h3>
+
+  <label for="toc-control">
+    
+    <img src="/icons/toc.svg" class="book-icon" alt="Table of Contents" />
+    
+  </label>
+</div>
+
+
+  
+  <aside class="hidden">
+    
+  
+<nav id="TableOfContents">
+  <ul>
+    <li><a href="#개요">개요</a></li>
+    <li><a href="#핵심-아이디어">핵심 아이디어</a></li>
+    <li><a href="#왜-필요한가">왜 필요한가?</a>
+      <ul>
+        <li><a href="#텍스트만으로는-부족한-제어">텍스트만으로는 부족한 제어</a></li>
+        <li><a href="#controlnet의-해결">ControlNet의 해결</a></li>
+      </ul>
+    </li>
+    <li><a href="#구조">구조</a>
+      <ul>
+        <li><a href="#전체-아키텍처">전체 아키텍처</a></li>
+        <li><a href="#핵심-컴포넌트">핵심 컴포넌트</a></li>
+      </ul>
+    </li>
+    <li><a href="#zero-convolution">Zero Convolution</a></li>
+    <li><a href="#지원하는-조건들">지원하는 조건들</a></li>
+    <li><a href="#학습">학습</a>
+      <ul>
+        <li><a href="#데이터셋-구성">데이터셋 구성</a></li>
+        <li><a href="#손실-함수">손실 함수</a></li>
+        <li><a href="#학습-전략">학습 전략</a></li>
+      </ul>
+    </li>
+    <li><a href="#구현-예시">구현 예시</a>
+      <ul>
+        <li><a href="#기본-사용">기본 사용</a></li>
+        <li><a href="#openpose-사용">OpenPose 사용</a></li>
+        <li><a href="#다중-controlnet">다중 ControlNet</a></li>
+      </ul>
+    </li>
+    <li><a href="#조건-강도-조절">조건 강도 조절</a></li>
+    <li><a href="#ip-adapter와-결합">IP-Adapter와 결합</a></li>
+    <li><a href="#controlnet-변형">ControlNet 변형</a></li>
+    <li><a href="#관련-콘텐츠">관련 콘텐츠</a></li>
+  </ul>
+</nav>
+
+
+
+  </aside>
+  
+ 
+      </header>
+
+      
+      
+  <article class="markdown book-article"><h1 id="controlnet">ControlNet<a class="anchor" href="#controlnet">#</a></h1>
+<h2 id="개요">개요<a class="anchor" href="#%ea%b0%9c%ec%9a%94">#</a></h2>
+<ul>
+<li><strong>논문</strong>: Adding Conditional Control to Text-to-Image Diffusion Models (2023)</li>
+<li><strong>저자</strong>: Lvmin Zhang, Maneesh Agrawala (Stanford)</li>
+<li><strong>핵심 기여</strong>: 사전학습된 Diffusion 모델에 공간적 조건 추가</li>
+</ul>
+<h2 id="핵심-아이디어">핵심 아이디어<a class="anchor" href="#%ed%95%b5%ec%8b%ac-%ec%95%84%ec%9d%b4%eb%94%94%ec%96%b4">#</a></h2>
+<blockquote class='book-hint '>
+<p>&ldquo;원본 모델을 고정하고, 복사본에서 조건을 학습&rdquo;</p>
+</blockquote><p>Stable Diffusion의 가중치를 건드리지 않고, 에지/포즈/깊이 등의 조건을 추가할 수 있습니다.</p>
+<hr>
+<h2 id="왜-필요한가">왜 필요한가?<a class="anchor" href="#%ec%99%9c-%ed%95%84%ec%9a%94%ed%95%9c%ea%b0%80">#</a></h2>
+<h3 id="텍스트만으로는-부족한-제어">텍스트만으로는 부족한 제어<a class="anchor" href="#%ed%85%8d%ec%8a%a4%ed%8a%b8%eb%a7%8c%ec%9c%bc%eb%a1%9c%eb%8a%94-%eb%b6%80%ec%a1%b1%ed%95%9c-%ec%a0%9c%ec%96%b4">#</a></h3>
+<pre tabindex="0"><code>Prompt: &#34;a person raising their hand&#34;
+→ 손 위치, 포즈를 정확히 지정 불가</code></pre><h3 id="controlnet의-해결">ControlNet의 해결<a class="anchor" href="#controlnet%ec%9d%98-%ed%95%b4%ea%b2%b0">#</a></h3>
+<pre tabindex="0"><code>Prompt: &#34;a person&#34; + Pose Image (조건)
+→ 원하는 포즈 그대로 생성</code></pre><hr>
+<h2 id="구조">구조<a class="anchor" href="#%ea%b5%ac%ec%a1%b0">#</a></h2>
+<h3 id="전체-아키텍처">전체 아키텍처<a class="anchor" href="#%ec%a0%84%ec%b2%b4-%ec%95%84%ed%82%a4%ed%85%8d%ec%b2%98">#</a></h3>
+<pre tabindex="0"><code>Input Image
+      ↓
+┌──────────────────┐
+│ Condition Extractor │ (Canny, Pose, Depth 등)
+└──────────────────┘
+      ↓
+Condition (edge/pose/depth map)
+      ↓
+┌───────────────────────────────────────────────┐
+│                ControlNet                      │
+│                                                │
+│  ┌─────────────────┐    ┌─────────────────┐  │
+│  │ Trainable Copy  │───→│   Zero Conv    │  │
+│  │  of SD Encoder  │    │  (initialized 0)│  │
+│  └─────────────────┘    └────────┬────────┘  │
+│                                   ↓           │
+│  ┌─────────────────────────────────────────┐ │
+│  │        Locked Stable Diffusion          │ │
+│  │     (original weights frozen)           │ │
+│  └─────────────────────────────────────────┘ │
+└───────────────────────────────────────────────┘
+      ↓
+Generated Image (following the condition)</code></pre><h3 id="핵심-컴포넌트">핵심 컴포넌트<a class="anchor" href="#%ed%95%b5%ec%8b%ac-%ec%bb%b4%ed%8f%ac%eb%84%8c%ed%8a%b8">#</a></h3>
+<table>
+  <thead>
+      <tr>
+          <th>컴포넌트</th>
+          <th>설명</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td><strong>Locked Copy</strong></td>
+          <td>원본 SD 가중치 고정</td>
+      </tr>
+      <tr>
+          <td><strong>Trainable Copy</strong></td>
+          <td>SD encoder의 학습 가능한 복사본</td>
+      </tr>
+      <tr>
+          <td><strong>Zero Convolution</strong></td>
+          <td>0으로 초기화된 1×1 Conv</td>
+      </tr>
+  </tbody>
+</table>
+<hr>
+<h2 id="zero-convolution">Zero Convolution<a class="anchor" href="#zero-convolution">#</a></h2>
+<p>학습 시작 시 ControlNet의 영향이 0:</p>
+<p>$$y = x + \text{ZeroConv}(\text{ControlNet}(x, c))$$</p>
+<p><strong>초기 상태:</strong></p>
+<ul>
+<li>ZeroConv 가중치 = 0</li>
+<li>ControlNet 출력이 0</li>
+<li>원본 SD와 동일하게 동작</li>
+</ul>
+<p><strong>학습 후:</strong></p>
+<ul>
+<li>조건에 맞게 출력 조정</li>
+</ul>
+<p>이렇게 하면 학습 초기에 원본 SD의 품질을 해치지 않습니다.</p>
+<hr>
+<h2 id="지원하는-조건들">지원하는 조건들<a class="anchor" href="#%ec%a7%80%ec%9b%90%ed%95%98%eb%8a%94-%ec%a1%b0%ea%b1%b4%eb%93%a4">#</a></h2>
+<table>
+  <thead>
+      <tr>
+          <th>조건</th>
+          <th>설명</th>
+          <th>용도</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td><strong>Canny Edge</strong></td>
+          <td>윤곽선</td>
+          <td>구조 유지</td>
+      </tr>
+      <tr>
+          <td><strong>OpenPose</strong></td>
+          <td>인체 키포인트</td>
+          <td>포즈 제어</td>
+      </tr>
+      <tr>
+          <td><strong>Depth</strong></td>
+          <td>깊이 맵</td>
+          <td>3D 구조</td>
+      </tr>
+      <tr>
+          <td><strong>Normal</strong></td>
+          <td>노멀 맵</td>
+          <td>표면 방향</td>
+      </tr>
+      <tr>
+          <td><strong>Scribble</strong></td>
+          <td>낙서/스케치</td>
+          <td>대략적 형태</td>
+      </tr>
+      <tr>
+          <td><strong>Segmentation</strong></td>
+          <td>세그멘테이션</td>
+          <td>영역별 제어</td>
+      </tr>
+      <tr>
+          <td><strong>M-LSD</strong></td>
+          <td>직선 검출</td>
+          <td>건축물 등</td>
+      </tr>
+      <tr>
+          <td><strong>SoftEdge</strong></td>
+          <td>부드러운 에지</td>
+          <td>HED, PiDi</td>
+      </tr>
+  </tbody>
+</table>
+<hr>
+<h2 id="학습">학습<a class="anchor" href="#%ed%95%99%ec%8a%b5">#</a></h2>
+<h3 id="데이터셋-구성">데이터셋 구성<a class="anchor" href="#%eb%8d%b0%ec%9d%b4%ed%84%b0%ec%85%8b-%ea%b5%ac%ec%84%b1">#</a></h3>
+<pre tabindex="0"><code>{
+    &#34;source&#34;: &#34;condition_image.png&#34;,  # 조건 이미지
+    &#34;target&#34;: &#34;ground_truth.png&#34;,      # 원본 이미지
+    &#34;prompt&#34;: &#34;text description&#34;
+}</code></pre><h3 id="손실-함수">손실 함수<a class="anchor" href="#%ec%86%90%ec%8b%a4-%ed%95%a8%ec%88%98">#</a></h3>
+<p>표준 Diffusion loss와 동일:</p>
+<p>$$L = \mathbb{E}<em>{z, \epsilon, t, c, c</em>{control}} \left[ | \epsilon - \epsilon_\theta(z_t, t, c, c_{control}) |^2 \right]$$</p>
+<h3 id="학습-전략">학습 전략<a class="anchor" href="#%ed%95%99%ec%8a%b5-%ec%a0%84%eb%9e%b5">#</a></h3>
+<ul>
+<li>원본 SD 가중치 고정</li>
+<li>ControlNet 부분만 학습</li>
+<li>GPU 1개로도 학습 가능 (효율적)</li>
+</ul>
+<hr>
+<h2 id="구현-예시">구현 예시<a class="anchor" href="#%ea%b5%ac%ed%98%84-%ec%98%88%ec%8b%9c">#</a></h2>
+<h3 id="기본-사용">기본 사용<a class="anchor" href="#%ea%b8%b0%eb%b3%b8-%ec%82%ac%ec%9a%a9">#</a></h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#f92672">from</span> diffusers <span style="color:#f92672">import</span> StableDiffusionControlNetPipeline, ControlNetModel
+</span></span><span style="display:flex;"><span><span style="color:#f92672">import</span> torch
+</span></span><span style="display:flex;"><span><span style="color:#f92672">from</span> PIL <span style="color:#f92672">import</span> Image
+</span></span><span style="display:flex;"><span><span style="color:#f92672">import</span> cv2
+</span></span><span style="display:flex;"><span><span style="color:#f92672">import</span> numpy <span style="color:#66d9ef">as</span> np
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># ControlNet 로드 (Canny edge)</span>
+</span></span><span style="display:flex;"><span>controlnet <span style="color:#f92672">=</span> ControlNetModel<span style="color:#f92672">.</span>from_pretrained(
+</span></span><span style="display:flex;"><span>    <span style="color:#e6db74">&#34;lllyasviel/sd-controlnet-canny&#34;</span>,
+</span></span><span style="display:flex;"><span>    torch_dtype<span style="color:#f92672">=</span>torch<span style="color:#f92672">.</span>float16
+</span></span><span style="display:flex;"><span>)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># 파이프라인 생성</span>
+</span></span><span style="display:flex;"><span>pipe <span style="color:#f92672">=</span> StableDiffusionControlNetPipeline<span style="color:#f92672">.</span>from_pretrained(
+</span></span><span style="display:flex;"><span>    <span style="color:#e6db74">&#34;runwayml/stable-diffusion-v1-5&#34;</span>,
+</span></span><span style="display:flex;"><span>    controlnet<span style="color:#f92672">=</span>controlnet,
+</span></span><span style="display:flex;"><span>    torch_dtype<span style="color:#f92672">=</span>torch<span style="color:#f92672">.</span>float16
+</span></span><span style="display:flex;"><span>)<span style="color:#f92672">.</span>to(<span style="color:#e6db74">&#34;cuda&#34;</span>)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># 조건 이미지 생성 (Canny edge)</span>
+</span></span><span style="display:flex;"><span>image <span style="color:#f92672">=</span> Image<span style="color:#f92672">.</span>open(<span style="color:#e6db74">&#34;input.png&#34;</span>)
+</span></span><span style="display:flex;"><span>image_np <span style="color:#f92672">=</span> np<span style="color:#f92672">.</span>array(image)
+</span></span><span style="display:flex;"><span>canny <span style="color:#f92672">=</span> cv2<span style="color:#f92672">.</span>Canny(image_np, <span style="color:#ae81ff">100</span>, <span style="color:#ae81ff">200</span>)
+</span></span><span style="display:flex;"><span>canny_image <span style="color:#f92672">=</span> Image<span style="color:#f92672">.</span>fromarray(canny)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># 생성</span>
+</span></span><span style="display:flex;"><span>output <span style="color:#f92672">=</span> pipe(
+</span></span><span style="display:flex;"><span>    prompt<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;a beautiful garden&#34;</span>,
+</span></span><span style="display:flex;"><span>    image<span style="color:#f92672">=</span>canny_image,
+</span></span><span style="display:flex;"><span>    num_inference_steps<span style="color:#f92672">=</span><span style="color:#ae81ff">30</span>
+</span></span><span style="display:flex;"><span>)<span style="color:#f92672">.</span>images[<span style="color:#ae81ff">0</span>]</span></span></code></pre></div><h3 id="openpose-사용">OpenPose 사용<a class="anchor" href="#openpose-%ec%82%ac%ec%9a%a9">#</a></h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#f92672">from</span> controlnet_aux <span style="color:#f92672">import</span> OpenposeDetector
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># 포즈 추출</span>
+</span></span><span style="display:flex;"><span>openpose <span style="color:#f92672">=</span> OpenposeDetector<span style="color:#f92672">.</span>from_pretrained(<span style="color:#e6db74">&#34;lllyasviel/ControlNet&#34;</span>)
+</span></span><span style="display:flex;"><span>pose <span style="color:#f92672">=</span> openpose(image)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># ControlNet으로 생성</span>
+</span></span><span style="display:flex;"><span>controlnet <span style="color:#f92672">=</span> ControlNetModel<span style="color:#f92672">.</span>from_pretrained(<span style="color:#e6db74">&#34;lllyasviel/sd-controlnet-openpose&#34;</span>)
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># ... 이후 동일</span></span></span></code></pre></div><h3 id="다중-controlnet">다중 ControlNet<a class="anchor" href="#%eb%8b%a4%ec%a4%91-controlnet">#</a></h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#f92672">from</span> diffusers <span style="color:#f92672">import</span> StableDiffusionControlNetPipeline, ControlNetModel
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># 여러 ControlNet 로드</span>
+</span></span><span style="display:flex;"><span>controlnets <span style="color:#f92672">=</span> [
+</span></span><span style="display:flex;"><span>    ControlNetModel<span style="color:#f92672">.</span>from_pretrained(<span style="color:#e6db74">&#34;lllyasviel/sd-controlnet-canny&#34;</span>),
+</span></span><span style="display:flex;"><span>    ControlNetModel<span style="color:#f92672">.</span>from_pretrained(<span style="color:#e6db74">&#34;lllyasviel/sd-controlnet-depth&#34;</span>),
+</span></span><span style="display:flex;"><span>]
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>pipe <span style="color:#f92672">=</span> StableDiffusionControlNetPipeline<span style="color:#f92672">.</span>from_pretrained(
+</span></span><span style="display:flex;"><span>    <span style="color:#e6db74">&#34;runwayml/stable-diffusion-v1-5&#34;</span>,
+</span></span><span style="display:flex;"><span>    controlnet<span style="color:#f92672">=</span>controlnets,  <span style="color:#75715e"># 리스트로 전달</span>
+</span></span><span style="display:flex;"><span>    torch_dtype<span style="color:#f92672">=</span>torch<span style="color:#f92672">.</span>float16
+</span></span><span style="display:flex;"><span>)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># 다중 조건으로 생성</span>
+</span></span><span style="display:flex;"><span>output <span style="color:#f92672">=</span> pipe(
+</span></span><span style="display:flex;"><span>    prompt<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;a house&#34;</span>,
+</span></span><span style="display:flex;"><span>    image<span style="color:#f92672">=</span>[canny_image, depth_image],  <span style="color:#75715e"># 각 조건 이미지</span>
+</span></span><span style="display:flex;"><span>    controlnet_conditioning_scale<span style="color:#f92672">=</span>[<span style="color:#ae81ff">1.0</span>, <span style="color:#ae81ff">0.5</span>]  <span style="color:#75715e"># 각 조건의 강도</span>
+</span></span><span style="display:flex;"><span>)<span style="color:#f92672">.</span>images[<span style="color:#ae81ff">0</span>]</span></span></code></pre></div><hr>
+<h2 id="조건-강도-조절">조건 강도 조절<a class="anchor" href="#%ec%a1%b0%ea%b1%b4-%ea%b0%95%eb%8f%84-%ec%a1%b0%ec%a0%88">#</a></h2>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span>output <span style="color:#f92672">=</span> pipe(
+</span></span><span style="display:flex;"><span>    prompt<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;a landscape&#34;</span>,
+</span></span><span style="display:flex;"><span>    image<span style="color:#f92672">=</span>canny_image,
+</span></span><span style="display:flex;"><span>    controlnet_conditioning_scale<span style="color:#f92672">=</span><span style="color:#ae81ff">0.5</span>  <span style="color:#75715e"># 0: 무시, 1: 완전 준수</span>
+</span></span><span style="display:flex;"><span>)<span style="color:#f92672">.</span>images[<span style="color:#ae81ff">0</span>]</span></span></code></pre></div><p>낮은 값: 더 자유로운 생성
+높은 값: 조건에 더 충실</p>
+<hr>
+<h2 id="ip-adapter와-결합">IP-Adapter와 결합<a class="anchor" href="#ip-adapter%ec%99%80-%ea%b2%b0%ed%95%a9">#</a></h2>
+<p>이미지 스타일 + 구조 제어:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#75715e"># IP-Adapter: 참조 이미지의 스타일</span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># ControlNet: 구조 조건</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>pipe<span style="color:#f92672">.</span>load_ip_adapter(<span style="color:#e6db74">&#34;h94/IP-Adapter&#34;</span>, <span style="color:#f92672">...</span>)
+</span></span><span style="display:flex;"><span>output <span style="color:#f92672">=</span> pipe(
+</span></span><span style="display:flex;"><span>    prompt<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;a portrait&#34;</span>,
+</span></span><span style="display:flex;"><span>    image<span style="color:#f92672">=</span>canny_image,           <span style="color:#75715e"># 구조</span>
+</span></span><span style="display:flex;"><span>    ip_adapter_image<span style="color:#f92672">=</span>style_image  <span style="color:#75715e"># 스타일</span>
+</span></span><span style="display:flex;"><span>)<span style="color:#f92672">.</span>images[<span style="color:#ae81ff">0</span>]</span></span></code></pre></div><hr>
+<h2 id="controlnet-변형">ControlNet 변형<a class="anchor" href="#controlnet-%eb%b3%80%ed%98%95">#</a></h2>
+<table>
+  <thead>
+      <tr>
+          <th>변형</th>
+          <th>특징</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td><strong>T2I-Adapter</strong></td>
+          <td>더 가벼운 구조</td>
+      </tr>
+      <tr>
+          <td><strong>ControlNet-XS</strong></td>
+          <td>경량화 버전</td>
+      </tr>
+      <tr>
+          <td><strong>ControlNet 1.1</strong></td>
+          <td>개선된 학습 전략</td>
+      </tr>
+      <tr>
+          <td><strong>ControlNet++</strong></td>
+          <td>SDXL 지원</td>
+      </tr>
+  </tbody>
+</table>
+<hr>
+<h2 id="관련-콘텐츠">관련 콘텐츠<a class="anchor" href="#%ea%b4%80%eb%a0%a8-%ec%bd%98%ed%85%90%ec%b8%a0">#</a></h2>
+<ul>
+<li><a href="/docs/architecture/generative/stable-diffusion">Stable Diffusion</a> - 기반 모델</li>
+<li><a href="/docs/math/diffusion-process">Diffusion Process</a> - Diffusion 수학</li>
+<li><a href="/docs/architecture/segmentation/unet">U-Net</a> - ControlNet 구조와 유사</li>
+<li><a href="/docs/task/generation">Generation 태스크</a> - 이미지 생성 평가</li>
+</ul>
+</article>
+ 
+      
+
+      <footer class="book-footer">
+        
+  <div class="flex flex-wrap justify-between">
+
+<div>
+
+</div>
+
+<div>
+
+</div>
+
+</div>
+
+
+
+
+
+  
+  
+  
+  <div class="flex flex-wrap justify-between">
+    <span>
+    
+      <a href="/docs/architecture/generative/stable-diffusion/" class="flex align-center">
+        <img src="/icons/backward.svg" class="book-icon" alt="Backward" />
+        <span>Stable Diffusion</span>
+      </a>
+    
+    </span>
+    <span>
+    
+      <a href="/docs/architecture/multimodal/" class="flex align-center">
+        <span>Multimodal</span>
+        <img src="/icons/forward.svg" class="book-icon" alt="Forward" />
+      </a>
+    
+    </span>
+  </div>
+  
+
+
+ 
+        
+  
+  <div class="book-comments">
+
+</div>
+  
+ 
+        
+        
+  
+ 
+        
+  
+  
+    <script>(function(){document.querySelectorAll("pre:has(code)").forEach(e=>{e.addEventListener("click",e.focus),e.addEventListener("copy",function(t){if(t.preventDefault(),navigator.clipboard){const t=window.getSelection().toString()||e.textContent;navigator.clipboard.writeText(t)}})})})()</script>
+  
+
+      </footer>
+
+      <label for="menu-control" class="hidden book-menu-overlay"></label>
+    </div>
+
+    
+  
+  <aside class="book-toc">
+    <div class="book-toc-content">
+      
+  
+<nav id="TableOfContents">
+  <ul>
+    <li><a href="#개요">개요</a></li>
+    <li><a href="#핵심-아이디어">핵심 아이디어</a></li>
+    <li><a href="#왜-필요한가">왜 필요한가?</a>
+      <ul>
+        <li><a href="#텍스트만으로는-부족한-제어">텍스트만으로는 부족한 제어</a></li>
+        <li><a href="#controlnet의-해결">ControlNet의 해결</a></li>
+      </ul>
+    </li>
+    <li><a href="#구조">구조</a>
+      <ul>
+        <li><a href="#전체-아키텍처">전체 아키텍처</a></li>
+        <li><a href="#핵심-컴포넌트">핵심 컴포넌트</a></li>
+      </ul>
+    </li>
+    <li><a href="#zero-convolution">Zero Convolution</a></li>
+    <li><a href="#지원하는-조건들">지원하는 조건들</a></li>
+    <li><a href="#학습">학습</a>
+      <ul>
+        <li><a href="#데이터셋-구성">데이터셋 구성</a></li>
+        <li><a href="#손실-함수">손실 함수</a></li>
+        <li><a href="#학습-전략">학습 전략</a></li>
+      </ul>
+    </li>
+    <li><a href="#구현-예시">구현 예시</a>
+      <ul>
+        <li><a href="#기본-사용">기본 사용</a></li>
+        <li><a href="#openpose-사용">OpenPose 사용</a></li>
+        <li><a href="#다중-controlnet">다중 ControlNet</a></li>
+      </ul>
+    </li>
+    <li><a href="#조건-강도-조절">조건 강도 조절</a></li>
+    <li><a href="#ip-adapter와-결합">IP-Adapter와 결합</a></li>
+    <li><a href="#controlnet-변형">ControlNet 변형</a></li>
+    <li><a href="#관련-콘텐츠">관련 콘텐츠</a></li>
+  </ul>
+</nav>
+
+
+
+    </div>
+  </aside>
+  
+ 
+  </main>
+
+  
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,983 @@
+<!DOCTYPE html>
+<html lang="ko-KR" dir="ltr">
+<head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
+  <!--
+Made with Book Theme
+https://github.com/alex-shpak/hugo-book
+-->
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="Segmentation 모델# 이미지의 각 픽셀에 레이블을 할당하는 모델들입니다.
+Segmentation 유형# Semantic Segmentation# 각 픽셀을 클래스로 분류 (객체 구분 X)
+Input: 고양이 2마리 이미지 Output: 모든 고양이 픽셀 → &#34;고양이&#34; 클래스Instance Segmentation# 각 객체 인스턴스를 구분
+Input: 고양이 2마리 이미지 Output: 고양이1 픽셀, 고양이2 픽셀 (분리)Panoptic Segmentation# Semantic &#43; Instance 통합
+Output: 배경(semantic) &#43; 각 객체(instance) 주요 모델# 모델 유형 연도 특징 U-Net Semantic 2015 Encoder-Decoder, 의료영상 Mask R-CNN Instance 2017 Faster R-CNN &#43; Mask DeepLab Semantic 2017 Atrous Convolution SAM Promptable 2023 Foundation Model 관련 콘텐츠# Transposed Convolution - Upsampling 기법 Segmentation 태스크 - 평가 지표, 데이터셋 ">
+<meta name="theme-color" media="(prefers-color-scheme: light)" content="#ffffff">
+<meta name="theme-color" media="(prefers-color-scheme: dark)" content="#343a40">
+<meta name="color-scheme" content="light dark"><meta property="og:url" content="http://localhost:1313/docs/architecture/segmentation/">
+  <meta property="og:site_name" content="Vision Engineer 지식 가이드">
+  <meta property="og:title" content="Segmentation">
+  <meta property="og:description" content="Segmentation 모델# 이미지의 각 픽셀에 레이블을 할당하는 모델들입니다.
+Segmentation 유형# Semantic Segmentation# 각 픽셀을 클래스로 분류 (객체 구분 X)
+Input: 고양이 2마리 이미지 Output: 모든 고양이 픽셀 → &#34;고양이&#34; 클래스Instance Segmentation# 각 객체 인스턴스를 구분
+Input: 고양이 2마리 이미지 Output: 고양이1 픽셀, 고양이2 픽셀 (분리)Panoptic Segmentation# Semantic &#43; Instance 통합
+Output: 배경(semantic) &#43; 각 객체(instance) 주요 모델# 모델 유형 연도 특징 U-Net Semantic 2015 Encoder-Decoder, 의료영상 Mask R-CNN Instance 2017 Faster R-CNN &#43; Mask DeepLab Semantic 2017 Atrous Convolution SAM Promptable 2023 Foundation Model 관련 콘텐츠# Transposed Convolution - Upsampling 기법 Segmentation 태스크 - 평가 지표, 데이터셋">
+  <meta property="og:locale" content="ko_KR">
+  <meta property="og:type" content="website">
+
+
+  <meta itemprop="name" content="Segmentation">
+  <meta itemprop="description" content="Segmentation 모델# 이미지의 각 픽셀에 레이블을 할당하는 모델들입니다.
+Segmentation 유형# Semantic Segmentation# 각 픽셀을 클래스로 분류 (객체 구분 X)
+Input: 고양이 2마리 이미지 Output: 모든 고양이 픽셀 → &#34;고양이&#34; 클래스Instance Segmentation# 각 객체 인스턴스를 구분
+Input: 고양이 2마리 이미지 Output: 고양이1 픽셀, 고양이2 픽셀 (분리)Panoptic Segmentation# Semantic &#43; Instance 통합
+Output: 배경(semantic) &#43; 각 객체(instance) 주요 모델# 모델 유형 연도 특징 U-Net Semantic 2015 Encoder-Decoder, 의료영상 Mask R-CNN Instance 2017 Faster R-CNN &#43; Mask DeepLab Semantic 2017 Atrous Convolution SAM Promptable 2023 Foundation Model 관련 콘텐츠# Transposed Convolution - Upsampling 기법 Segmentation 태스크 - 평가 지표, 데이터셋">
+  <meta itemprop="wordCount" content="97">
+
+<title>Segmentation | Vision Engineer 지식 가이드</title>
+<link rel="icon" href="/favicon.png" >
+<link rel="manifest" href="/manifest.json">
+<link rel="canonical" href="http://localhost:1313/docs/architecture/segmentation/">
+<link rel="stylesheet" href="/book.min.6970156cec683193d93c9c4edaf0d56574e4361df2e0c1be4f697ae81c3ba55f.css" integrity="sha256-aXAVbOxoMZPZPJxO2vDVZXTkNh3y4MG&#43;T2l66Bw7pV8=" crossorigin="anonymous">
+
+
+  <script defer src="/fuse.min.js"></script>
+  <script defer src="/ko.search.min.26f28136458cea7ff1c69490935901eb5c29bceec55294f9efe562732e8a3b1a.js" integrity="sha256-JvKBNkWM6n/xxpSQk1kB61wpvO7FUpT57&#43;Vicy6KOxo=" crossorigin="anonymous"></script>
+
+
+<link rel="alternate" type="application/rss+xml" href="http://localhost:1313/docs/architecture/segmentation/index.xml" title="Vision Engineer 지식 가이드" />
+
+  
+</head>
+<body dir="ltr" class="book-kind-section book-type-docs">
+  <input type="checkbox" class="hidden toggle" id="menu-control" />
+  <input type="checkbox" class="hidden toggle" id="toc-control" />
+  <main class="container flex">
+    
+<aside class="book-menu">
+  <div class="book-menu-content">
+    
+  <nav>
+<h2 class="book-brand">
+  <a class="flex align-center" href="/"><span>Vision Engineer 지식 가이드</span>
+  </a>
+</h2>
+
+
+<div class="book-search hidden">
+  <input id="book-search-input" type="text" 
+    placeholder="Search"
+    aria-label="Search"
+    maxlength="64" data-hotkeys="s/" />
+  <div class="book-search-spinner hidden"></div>
+  <ul id="book-search-results"></ul>
+</div>
+<script>document.querySelector(".book-search").classList.remove("hidden")</script>
+
+
+
+  
+
+
+  
+    
+  
+
+
+
+<ul class="book-languages">
+  <li>
+    <input type="checkbox" id="languages" class="toggle" />
+    <label for="languages" class="flex">
+      <a role="button">
+        <img src="/icons/translate.svg" class="book-icon" alt="Languages" />
+        한국어
+      </a>
+      <img src="/icons/chevron-right.svg" class="book-icon" alt="Expand" />
+    </label>
+
+    <ul>
+      
+      <li>
+        <a href="/en/" class="flex flex-auto">
+          English
+        </a>
+      </li>
+      
+    </ul>
+  </li>
+</ul>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <input type="checkbox" id="section-14bcba7439f342435c91a57530ca56c8" class="toggle"  />
+    <label for="section-14bcba7439f342435c91a57530ca56c8" class="flex">
+      <a href="/docs/timeline/" class="">
+        타임라인</a>
+      <img src="/icons/chevron-right.svg" class="book-icon" alt="Expand" />
+    </label>
+  
+
+          
+  <ul>
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <input type="checkbox" id="section-cb9657695dbd536c3a44d019c4d6ef98" class="toggle"  />
+    <label for="section-cb9657695dbd536c3a44d019c4d6ef98" class="flex">
+      <a href="/docs/topdown/" class="">
+        Top-Down</a>
+      <img src="/icons/chevron-right.svg" class="book-icon" alt="Expand" />
+    </label>
+  
+
+          
+  <ul>
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <input type="checkbox" id="section-e7f22db027b1c591ed84a4d4d3a6014f" class="toggle"  />
+    <label for="section-e7f22db027b1c591ed84a4d4d3a6014f" class="flex">
+      <a href="/docs/bottomup/" class="">
+        Bottom-Up</a>
+      <img src="/icons/chevron-right.svg" class="book-icon" alt="Expand" />
+    </label>
+  
+
+          
+  <ul>
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <input type="checkbox" id="section-ce31bba1d1f88a1d133a7e7232f1b4ec" class="toggle"  />
+    <label for="section-ce31bba1d1f88a1d133a7e7232f1b4ec" class="flex">
+      <a href="/docs/math/" class="">
+        수학</a>
+      <img src="/icons/chevron-right.svg" class="book-icon" alt="Expand" />
+    </label>
+  
+
+          
+  <ul>
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <input type="checkbox" id="section-32f2aee524dad19f5100855d6e2014e6" class="toggle" checked />
+    <label for="section-32f2aee524dad19f5100855d6e2014e6" class="flex">
+      <a href="/docs/architecture/" class="">
+        아키텍처</a>
+      <img src="/icons/chevron-right.svg" class="book-icon" alt="Expand" />
+    </label>
+  
+
+          
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <input type="checkbox" id="section-47444199c3019e8b479623bc90a9bd74" class="toggle"  />
+    <label for="section-47444199c3019e8b479623bc90a9bd74" class="flex">
+      <a href="/docs/architecture/classical/" class="">
+        Classical CV</a>
+      <img src="/icons/chevron-right.svg" class="book-icon" alt="Expand" />
+    </label>
+  
+
+          
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/architecture/classical/sift-hog/" class="">
+      SIFT &amp; HOG</a>
+  
+
+        </li>
+      
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <input type="checkbox" id="section-7bf44239f7ce2c72600738f8c315efe4" class="toggle"  />
+    <label for="section-7bf44239f7ce2c72600738f8c315efe4" class="flex">
+      <a href="/docs/architecture/cnn/" class="">
+        CNN</a>
+      <img src="/icons/chevron-right.svg" class="book-icon" alt="Expand" />
+    </label>
+  
+
+          
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/architecture/cnn/alexnet/" class="">
+      AlexNet</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/architecture/cnn/vgg/" class="">
+      VGG</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/architecture/cnn/resnet/" class="">
+      ResNet</a>
+  
+
+        </li>
+      
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <input type="checkbox" id="section-274b800b12326ef4e06255cf5f15c308" class="toggle"  />
+    <label for="section-274b800b12326ef4e06255cf5f15c308" class="flex">
+      <a href="/docs/architecture/detection/" class="">
+        Detection</a>
+      <img src="/icons/chevron-right.svg" class="book-icon" alt="Expand" />
+    </label>
+  
+
+          
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/architecture/detection/faster-rcnn/" class="">
+      Faster R-CNN</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/architecture/detection/yolo/" class="">
+      YOLO</a>
+  
+
+        </li>
+      
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <input type="checkbox" id="section-7246e67fd6c549f3bd6240d998b23a6f" class="toggle" checked />
+    <label for="section-7246e67fd6c549f3bd6240d998b23a6f" class="flex">
+      <a href="/docs/architecture/segmentation/" class="active">
+        Segmentation</a>
+      <img src="/icons/chevron-right.svg" class="book-icon" alt="Expand" />
+    </label>
+  
+
+          
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/architecture/segmentation/unet/" class="">
+      U-Net</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/architecture/segmentation/mask-rcnn/" class="">
+      Mask R-CNN</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/architecture/segmentation/sam/" class="">
+      SAM</a>
+  
+
+        </li>
+      
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <input type="checkbox" id="section-3a9f4e0826e1b9e72550db30b2adcad7" class="toggle"  />
+    <label for="section-3a9f4e0826e1b9e72550db30b2adcad7" class="flex">
+      <a href="/docs/architecture/transformer/" class="">
+        Transformer</a>
+      <img src="/icons/chevron-right.svg" class="book-icon" alt="Expand" />
+    </label>
+  
+
+          
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/architecture/transformer/vit/" class="">
+      ViT</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/architecture/transformer/dit/" class="">
+      DiT</a>
+  
+
+        </li>
+      
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <input type="checkbox" id="section-2902afa0a62febfd7a5eb243df871e8c" class="toggle"  />
+    <label for="section-2902afa0a62febfd7a5eb243df871e8c" class="flex">
+      <a href="/docs/architecture/generative/" class="">
+        Generative</a>
+      <img src="/icons/chevron-right.svg" class="book-icon" alt="Expand" />
+    </label>
+  
+
+          
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/architecture/generative/vae/" class="">
+      VAE</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/architecture/generative/gan/" class="">
+      GAN</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/architecture/generative/stable-diffusion/" class="">
+      Stable Diffusion</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/architecture/generative/controlnet/" class="">
+      ControlNet</a>
+  
+
+        </li>
+      
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <input type="checkbox" id="section-1670f136e85bf39bce97c9ee224d29d9" class="toggle"  />
+    <label for="section-1670f136e85bf39bce97c9ee224d29d9" class="flex">
+      <a href="/docs/architecture/multimodal/" class="">
+        Multimodal</a>
+      <img src="/icons/chevron-right.svg" class="book-icon" alt="Expand" />
+    </label>
+  
+
+          
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/architecture/multimodal/clip/" class="">
+      CLIP</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/architecture/multimodal/vlm/" class="">
+      VLM</a>
+  
+
+        </li>
+      
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <input type="checkbox" id="section-fc1b0b4545ce791b47ab3fe55b854e56" class="toggle"  />
+    <label for="section-fc1b0b4545ce791b47ab3fe55b854e56" class="flex">
+      <a href="/docs/architecture/3d/" class="">
+        3D Vision</a>
+      <img src="/icons/chevron-right.svg" class="book-icon" alt="Expand" />
+    </label>
+  
+
+          
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/architecture/3d/nerf/" class="">
+      NeRF</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/architecture/3d/3dgs/" class="">
+      3D Gaussian Splatting</a>
+  
+
+        </li>
+      
+    
+  </ul>
+
+        </li>
+      
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <input type="checkbox" id="section-cd575cc6fd4e25b684b552791b7a009a" class="toggle"  />
+    <label for="section-cd575cc6fd4e25b684b552791b7a009a" class="flex">
+      <a href="/docs/task/" class="">
+        태스크</a>
+      <img src="/icons/chevron-right.svg" class="book-icon" alt="Expand" />
+    </label>
+  
+
+          
+  <ul>
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <input type="checkbox" id="section-fb690f19903e1435676f710c928c9ad4" class="toggle"  />
+    <label for="section-fb690f19903e1435676f710c928c9ad4" class="flex">
+      <a href="/docs/etc/" class="">
+        기타 자료</a>
+      <img src="/icons/chevron-right.svg" class="book-icon" alt="Expand" />
+    </label>
+  
+
+          
+  <ul>
+    
+  </ul>
+
+        </li>
+      
+    
+  </ul>
+
+
+
+
+
+
+
+
+
+
+
+
+
+</nav>
+
+
+
+
+  <script>(function(){var e=document.querySelector("aside .book-menu-content");addEventListener("beforeunload",function(){localStorage.setItem("menu.scrollTop",e.scrollTop)}),e.scrollTop=localStorage.getItem("menu.scrollTop")})()</script>
+
+
+
+  </div>
+</aside>
+ 
+
+    <div class="book-page">
+      <header class="book-header hidden">
+        
+  <div class="flex align-center justify-between">
+  <label for="menu-control">
+    <img src="/icons/menu.svg" class="book-icon" alt="Menu" />
+  </label>
+
+  <h3>Segmentation</h3>
+
+  <label for="toc-control">
+    
+    <img src="/icons/toc.svg" class="book-icon" alt="Table of Contents" />
+    
+  </label>
+</div>
+
+
+  
+  <aside class="hidden">
+    
+  
+<nav id="TableOfContents">
+  <ul>
+    <li><a href="#segmentation-유형">Segmentation 유형</a>
+      <ul>
+        <li><a href="#semantic-segmentation">Semantic Segmentation</a></li>
+        <li><a href="#instance-segmentation">Instance Segmentation</a></li>
+        <li><a href="#panoptic-segmentation">Panoptic Segmentation</a></li>
+      </ul>
+    </li>
+    <li><a href="#주요-모델">주요 모델</a></li>
+    <li><a href="#관련-콘텐츠">관련 콘텐츠</a></li>
+  </ul>
+</nav>
+
+
+
+  </aside>
+  
+ 
+      </header>
+
+      
+      
+  <article class="markdown book-article"><h1 id="segmentation-모델">Segmentation 모델<a class="anchor" href="#segmentation-%eb%aa%a8%eb%8d%b8">#</a></h1>
+<p>이미지의 각 픽셀에 레이블을 할당하는 모델들입니다.</p>
+<h2 id="segmentation-유형">Segmentation 유형<a class="anchor" href="#segmentation-%ec%9c%a0%ed%98%95">#</a></h2>
+<h3 id="semantic-segmentation">Semantic Segmentation<a class="anchor" href="#semantic-segmentation">#</a></h3>
+<p>각 픽셀을 클래스로 분류 (객체 구분 X)</p>
+<pre tabindex="0"><code>Input: 고양이 2마리 이미지
+Output: 모든 고양이 픽셀 → &#34;고양이&#34; 클래스</code></pre><h3 id="instance-segmentation">Instance Segmentation<a class="anchor" href="#instance-segmentation">#</a></h3>
+<p>각 객체 인스턴스를 구분</p>
+<pre tabindex="0"><code>Input: 고양이 2마리 이미지
+Output: 고양이1 픽셀, 고양이2 픽셀 (분리)</code></pre><h3 id="panoptic-segmentation">Panoptic Segmentation<a class="anchor" href="#panoptic-segmentation">#</a></h3>
+<p>Semantic + Instance 통합</p>
+<pre tabindex="0"><code>Output: 배경(semantic) + 각 객체(instance)</code></pre><hr>
+<h2 id="주요-모델">주요 모델<a class="anchor" href="#%ec%a3%bc%ec%9a%94-%eb%aa%a8%eb%8d%b8">#</a></h2>
+<table>
+  <thead>
+      <tr>
+          <th>모델</th>
+          <th>유형</th>
+          <th>연도</th>
+          <th>특징</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td><a href="/docs/architecture/segmentation/unet">U-Net</a></td>
+          <td>Semantic</td>
+          <td>2015</td>
+          <td>Encoder-Decoder, 의료영상</td>
+      </tr>
+      <tr>
+          <td><a href="/docs/architecture/segmentation/mask-rcnn">Mask R-CNN</a></td>
+          <td>Instance</td>
+          <td>2017</td>
+          <td>Faster R-CNN + Mask</td>
+      </tr>
+      <tr>
+          <td>DeepLab</td>
+          <td>Semantic</td>
+          <td>2017</td>
+          <td>Atrous Convolution</td>
+      </tr>
+      <tr>
+          <td><a href="/docs/architecture/segmentation/sam">SAM</a></td>
+          <td>Promptable</td>
+          <td>2023</td>
+          <td>Foundation Model</td>
+      </tr>
+  </tbody>
+</table>
+<hr>
+<h2 id="관련-콘텐츠">관련 콘텐츠<a class="anchor" href="#%ea%b4%80%eb%a0%a8-%ec%bd%98%ed%85%90%ec%b8%a0">#</a></h2>
+<ul>
+<li><a href="/docs/math/transposed-conv">Transposed Convolution</a> - Upsampling 기법</li>
+<li><a href="/docs/task/segmentation">Segmentation 태스크</a> - 평가 지표, 데이터셋</li>
+</ul>
+</article>
+ 
+      
+
+      <footer class="book-footer">
+        
+  <div class="flex flex-wrap justify-between">
+
+<div>
+
+</div>
+
+<div>
+
+</div>
+
+</div>
+
+
+
+
+
+  
+  
+  
+  <div class="flex flex-wrap justify-between">
+    <span>
+    
+      <a href="/docs/architecture/detection/yolo/" class="flex align-center">
+        <img src="/icons/backward.svg" class="book-icon" alt="Backward" />
+        <span>YOLO</span>
+      </a>
+    
+    </span>
+    <span>
+    
+      <a href="/docs/architecture/segmentation/unet/" class="flex align-center">
+        <span>U-Net</span>
+        <img src="/icons/forward.svg" class="book-icon" alt="Forward" />
+      </a>
+    
+    </span>
+  </div>
+  
+
+
+ 
+        
+  
+  <div class="book-comments">
+
+</div>
+  
+ 
+        
+        
+  
+ 
+        
+  
+  
+    <script>(function(){document.querySelectorAll("pre:has(code)").forEach(e=>{e.addEventListener("click",e.focus),e.addEventListener("copy",function(t){if(t.preventDefault(),navigator.clipboard){const t=window.getSelection().toString()||e.textContent;navigator.clipboard.writeText(t)}})})})()</script>
+  
+
+      </footer>
+
+      <label for="menu-control" class="hidden book-menu-overlay"></label>
+    </div>
+
+    
+  
+  <aside class="book-toc">
+    <div class="book-toc-content">
+      
+  
+<nav id="TableOfContents">
+  <ul>
+    <li><a href="#segmentation-유형">Segmentation 유형</a>
+      <ul>
+        <li><a href="#semantic-segmentation">Semantic Segmentation</a></li>
+        <li><a href="#instance-segmentation">Instance Segmentation</a></li>
+        <li><a href="#panoptic-segmentation">Panoptic Segmentation</a></li>
+      </ul>
+    </li>
+    <li><a href="#주요-모델">주요 모델</a></li>
+    <li><a href="#관련-콘텐츠">관련 콘텐츠</a></li>
+  </ul>
+</nav>
+
+
+
+    </div>
+  </aside>
+  
+ 
+  </main>
+
+  
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,1069 @@
+<!DOCTYPE html>
+<html lang="ko-KR" dir="ltr">
+<head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
+  <!--
+Made with Book Theme
+https://github.com/alex-shpak/hugo-book
+-->
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="SIFT &amp; HOG# 개요# 딥러닝 이전 시대의 대표적인 특징 추출 기법입니다.
+기법 연도 핵심 아이디어 SIFT 2004 스케일 불변 키포인트 검출 HOG 2005 그래디언트 방향 히스토그램 SIFT (Scale-Invariant Feature Transform)# 핵심 아이디어# 이미지의 크기나 회전에 관계없이 동일한 특징점을 찾아내는 알고리즘입니다.
+동작 과정# Scale-space 생성: Gaussian blur를 다양한 스케일로 적용 DoG (Difference of Gaussian): 인접한 스케일 간 차이 계산 키포인트 검출: DoG에서 극값(extrema) 찾기 방향 할당: 키포인트 주변의 그래디언트 방향 계산 디스크립터 생성: 128차원 벡터로 특징 표현 수식# Gaussian blur: $$L(x, y, \sigma) = G(x, y, \sigma) * I(x, y)$$
+">
+<meta name="theme-color" media="(prefers-color-scheme: light)" content="#ffffff">
+<meta name="theme-color" media="(prefers-color-scheme: dark)" content="#343a40">
+<meta name="color-scheme" content="light dark"><meta property="og:url" content="http://localhost:1313/docs/architecture/classical/sift-hog/">
+  <meta property="og:site_name" content="Vision Engineer 지식 가이드">
+  <meta property="og:title" content="SIFT & HOG">
+  <meta property="og:description" content="SIFT &amp; HOG# 개요# 딥러닝 이전 시대의 대표적인 특징 추출 기법입니다.
+기법 연도 핵심 아이디어 SIFT 2004 스케일 불변 키포인트 검출 HOG 2005 그래디언트 방향 히스토그램 SIFT (Scale-Invariant Feature Transform)# 핵심 아이디어# 이미지의 크기나 회전에 관계없이 동일한 특징점을 찾아내는 알고리즘입니다.
+동작 과정# Scale-space 생성: Gaussian blur를 다양한 스케일로 적용 DoG (Difference of Gaussian): 인접한 스케일 간 차이 계산 키포인트 검출: DoG에서 극값(extrema) 찾기 방향 할당: 키포인트 주변의 그래디언트 방향 계산 디스크립터 생성: 128차원 벡터로 특징 표현 수식# Gaussian blur: $$L(x, y, \sigma) = G(x, y, \sigma) * I(x, y)$$">
+  <meta property="og:locale" content="ko_KR">
+  <meta property="og:type" content="article">
+    <meta property="article:section" content="docs">
+
+
+  <meta itemprop="name" content="SIFT & HOG">
+  <meta itemprop="description" content="SIFT &amp; HOG# 개요# 딥러닝 이전 시대의 대표적인 특징 추출 기법입니다.
+기법 연도 핵심 아이디어 SIFT 2004 스케일 불변 키포인트 검출 HOG 2005 그래디언트 방향 히스토그램 SIFT (Scale-Invariant Feature Transform)# 핵심 아이디어# 이미지의 크기나 회전에 관계없이 동일한 특징점을 찾아내는 알고리즘입니다.
+동작 과정# Scale-space 생성: Gaussian blur를 다양한 스케일로 적용 DoG (Difference of Gaussian): 인접한 스케일 간 차이 계산 키포인트 검출: DoG에서 극값(extrema) 찾기 방향 할당: 키포인트 주변의 그래디언트 방향 계산 디스크립터 생성: 128차원 벡터로 특징 표현 수식# Gaussian blur: $$L(x, y, \sigma) = G(x, y, \sigma) * I(x, y)$$">
+  <meta itemprop="wordCount" content="281">
+
+<title>SIFT &amp; HOG | Vision Engineer 지식 가이드</title>
+<link rel="icon" href="/favicon.png" >
+<link rel="manifest" href="/manifest.json">
+<link rel="canonical" href="http://localhost:1313/docs/architecture/classical/sift-hog/">
+<link rel="stylesheet" href="/book.min.6970156cec683193d93c9c4edaf0d56574e4361df2e0c1be4f697ae81c3ba55f.css" integrity="sha256-aXAVbOxoMZPZPJxO2vDVZXTkNh3y4MG&#43;T2l66Bw7pV8=" crossorigin="anonymous">
+
+
+  <script defer src="/fuse.min.js"></script>
+  <script defer src="/ko.search.min.26f28136458cea7ff1c69490935901eb5c29bceec55294f9efe562732e8a3b1a.js" integrity="sha256-JvKBNkWM6n/xxpSQk1kB61wpvO7FUpT57&#43;Vicy6KOxo=" crossorigin="anonymous"></script>
+
+
+
+  
+</head>
+<body dir="ltr" class="book-kind-page book-type-docs">
+  <input type="checkbox" class="hidden toggle" id="menu-control" />
+  <input type="checkbox" class="hidden toggle" id="toc-control" />
+  <main class="container flex">
+    
+<aside class="book-menu">
+  <div class="book-menu-content">
+    
+  <nav>
+<h2 class="book-brand">
+  <a class="flex align-center" href="/"><span>Vision Engineer 지식 가이드</span>
+  </a>
+</h2>
+
+
+<div class="book-search hidden">
+  <input id="book-search-input" type="text" 
+    placeholder="Search"
+    aria-label="Search"
+    maxlength="64" data-hotkeys="s/" />
+  <div class="book-search-spinner hidden"></div>
+  <ul id="book-search-results"></ul>
+</div>
+<script>document.querySelector(".book-search").classList.remove("hidden")</script>
+
+
+
+  
+
+
+  
+    
+  
+
+
+
+<ul class="book-languages">
+  <li>
+    <input type="checkbox" id="languages" class="toggle" />
+    <label for="languages" class="flex">
+      <a role="button">
+        <img src="/icons/translate.svg" class="book-icon" alt="Languages" />
+        한국어
+      </a>
+      <img src="/icons/chevron-right.svg" class="book-icon" alt="Expand" />
+    </label>
+
+    <ul>
+      
+      <li>
+        <a href="/en/" class="flex flex-auto">
+          English
+        </a>
+      </li>
+      
+    </ul>
+  </li>
+</ul>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <input type="checkbox" id="section-14bcba7439f342435c91a57530ca56c8" class="toggle"  />
+    <label for="section-14bcba7439f342435c91a57530ca56c8" class="flex">
+      <a href="/docs/timeline/" class="">
+        타임라인</a>
+      <img src="/icons/chevron-right.svg" class="book-icon" alt="Expand" />
+    </label>
+  
+
+          
+  <ul>
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <input type="checkbox" id="section-cb9657695dbd536c3a44d019c4d6ef98" class="toggle"  />
+    <label for="section-cb9657695dbd536c3a44d019c4d6ef98" class="flex">
+      <a href="/docs/topdown/" class="">
+        Top-Down</a>
+      <img src="/icons/chevron-right.svg" class="book-icon" alt="Expand" />
+    </label>
+  
+
+          
+  <ul>
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <input type="checkbox" id="section-e7f22db027b1c591ed84a4d4d3a6014f" class="toggle"  />
+    <label for="section-e7f22db027b1c591ed84a4d4d3a6014f" class="flex">
+      <a href="/docs/bottomup/" class="">
+        Bottom-Up</a>
+      <img src="/icons/chevron-right.svg" class="book-icon" alt="Expand" />
+    </label>
+  
+
+          
+  <ul>
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <input type="checkbox" id="section-ce31bba1d1f88a1d133a7e7232f1b4ec" class="toggle"  />
+    <label for="section-ce31bba1d1f88a1d133a7e7232f1b4ec" class="flex">
+      <a href="/docs/math/" class="">
+        수학</a>
+      <img src="/icons/chevron-right.svg" class="book-icon" alt="Expand" />
+    </label>
+  
+
+          
+  <ul>
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <input type="checkbox" id="section-32f2aee524dad19f5100855d6e2014e6" class="toggle" checked />
+    <label for="section-32f2aee524dad19f5100855d6e2014e6" class="flex">
+      <a href="/docs/architecture/" class="">
+        아키텍처</a>
+      <img src="/icons/chevron-right.svg" class="book-icon" alt="Expand" />
+    </label>
+  
+
+          
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <input type="checkbox" id="section-47444199c3019e8b479623bc90a9bd74" class="toggle" checked />
+    <label for="section-47444199c3019e8b479623bc90a9bd74" class="flex">
+      <a href="/docs/architecture/classical/" class="">
+        Classical CV</a>
+      <img src="/icons/chevron-right.svg" class="book-icon" alt="Expand" />
+    </label>
+  
+
+          
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/architecture/classical/sift-hog/" class="active">
+      SIFT &amp; HOG</a>
+  
+
+        </li>
+      
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <input type="checkbox" id="section-7bf44239f7ce2c72600738f8c315efe4" class="toggle"  />
+    <label for="section-7bf44239f7ce2c72600738f8c315efe4" class="flex">
+      <a href="/docs/architecture/cnn/" class="">
+        CNN</a>
+      <img src="/icons/chevron-right.svg" class="book-icon" alt="Expand" />
+    </label>
+  
+
+          
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/architecture/cnn/alexnet/" class="">
+      AlexNet</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/architecture/cnn/vgg/" class="">
+      VGG</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/architecture/cnn/resnet/" class="">
+      ResNet</a>
+  
+
+        </li>
+      
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <input type="checkbox" id="section-274b800b12326ef4e06255cf5f15c308" class="toggle"  />
+    <label for="section-274b800b12326ef4e06255cf5f15c308" class="flex">
+      <a href="/docs/architecture/detection/" class="">
+        Detection</a>
+      <img src="/icons/chevron-right.svg" class="book-icon" alt="Expand" />
+    </label>
+  
+
+          
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/architecture/detection/faster-rcnn/" class="">
+      Faster R-CNN</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/architecture/detection/yolo/" class="">
+      YOLO</a>
+  
+
+        </li>
+      
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <input type="checkbox" id="section-7246e67fd6c549f3bd6240d998b23a6f" class="toggle"  />
+    <label for="section-7246e67fd6c549f3bd6240d998b23a6f" class="flex">
+      <a href="/docs/architecture/segmentation/" class="">
+        Segmentation</a>
+      <img src="/icons/chevron-right.svg" class="book-icon" alt="Expand" />
+    </label>
+  
+
+          
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/architecture/segmentation/unet/" class="">
+      U-Net</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/architecture/segmentation/mask-rcnn/" class="">
+      Mask R-CNN</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/architecture/segmentation/sam/" class="">
+      SAM</a>
+  
+
+        </li>
+      
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <input type="checkbox" id="section-3a9f4e0826e1b9e72550db30b2adcad7" class="toggle"  />
+    <label for="section-3a9f4e0826e1b9e72550db30b2adcad7" class="flex">
+      <a href="/docs/architecture/transformer/" class="">
+        Transformer</a>
+      <img src="/icons/chevron-right.svg" class="book-icon" alt="Expand" />
+    </label>
+  
+
+          
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/architecture/transformer/vit/" class="">
+      ViT</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/architecture/transformer/dit/" class="">
+      DiT</a>
+  
+
+        </li>
+      
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <input type="checkbox" id="section-2902afa0a62febfd7a5eb243df871e8c" class="toggle"  />
+    <label for="section-2902afa0a62febfd7a5eb243df871e8c" class="flex">
+      <a href="/docs/architecture/generative/" class="">
+        Generative</a>
+      <img src="/icons/chevron-right.svg" class="book-icon" alt="Expand" />
+    </label>
+  
+
+          
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/architecture/generative/vae/" class="">
+      VAE</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/architecture/generative/gan/" class="">
+      GAN</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/architecture/generative/stable-diffusion/" class="">
+      Stable Diffusion</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/architecture/generative/controlnet/" class="">
+      ControlNet</a>
+  
+
+        </li>
+      
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <input type="checkbox" id="section-1670f136e85bf39bce97c9ee224d29d9" class="toggle"  />
+    <label for="section-1670f136e85bf39bce97c9ee224d29d9" class="flex">
+      <a href="/docs/architecture/multimodal/" class="">
+        Multimodal</a>
+      <img src="/icons/chevron-right.svg" class="book-icon" alt="Expand" />
+    </label>
+  
+
+          
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/architecture/multimodal/clip/" class="">
+      CLIP</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/architecture/multimodal/vlm/" class="">
+      VLM</a>
+  
+
+        </li>
+      
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <input type="checkbox" id="section-fc1b0b4545ce791b47ab3fe55b854e56" class="toggle"  />
+    <label for="section-fc1b0b4545ce791b47ab3fe55b854e56" class="flex">
+      <a href="/docs/architecture/3d/" class="">
+        3D Vision</a>
+      <img src="/icons/chevron-right.svg" class="book-icon" alt="Expand" />
+    </label>
+  
+
+          
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/architecture/3d/nerf/" class="">
+      NeRF</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/architecture/3d/3dgs/" class="">
+      3D Gaussian Splatting</a>
+  
+
+        </li>
+      
+    
+  </ul>
+
+        </li>
+      
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <input type="checkbox" id="section-cd575cc6fd4e25b684b552791b7a009a" class="toggle"  />
+    <label for="section-cd575cc6fd4e25b684b552791b7a009a" class="flex">
+      <a href="/docs/task/" class="">
+        태스크</a>
+      <img src="/icons/chevron-right.svg" class="book-icon" alt="Expand" />
+    </label>
+  
+
+          
+  <ul>
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <input type="checkbox" id="section-fb690f19903e1435676f710c928c9ad4" class="toggle"  />
+    <label for="section-fb690f19903e1435676f710c928c9ad4" class="flex">
+      <a href="/docs/etc/" class="">
+        기타 자료</a>
+      <img src="/icons/chevron-right.svg" class="book-icon" alt="Expand" />
+    </label>
+  
+
+          
+  <ul>
+    
+  </ul>
+
+        </li>
+      
+    
+  </ul>
+
+
+
+
+
+
+
+
+
+
+
+
+
+</nav>
+
+
+
+
+  <script>(function(){var e=document.querySelector("aside .book-menu-content");addEventListener("beforeunload",function(){localStorage.setItem("menu.scrollTop",e.scrollTop)}),e.scrollTop=localStorage.getItem("menu.scrollTop")})()</script>
+
+
+
+  </div>
+</aside>
+ 
+
+    <div class="book-page">
+      <header class="book-header hidden">
+        
+  <div class="flex align-center justify-between">
+  <label for="menu-control">
+    <img src="/icons/menu.svg" class="book-icon" alt="Menu" />
+  </label>
+
+  <h3>SIFT &amp; HOG</h3>
+
+  <label for="toc-control">
+    
+    <img src="/icons/toc.svg" class="book-icon" alt="Table of Contents" />
+    
+  </label>
+</div>
+
+
+  
+  <aside class="hidden">
+    
+  
+<nav id="TableOfContents">
+  <ul>
+    <li><a href="#개요">개요</a></li>
+    <li><a href="#sift-scale-invariant-feature-transform">SIFT (Scale-Invariant Feature Transform)</a>
+      <ul>
+        <li><a href="#핵심-아이디어">핵심 아이디어</a></li>
+        <li><a href="#동작-과정">동작 과정</a></li>
+        <li><a href="#수식">수식</a></li>
+        <li><a href="#특징">특징</a></li>
+      </ul>
+    </li>
+    <li><a href="#hog-histogram-of-oriented-gradients">HOG (Histogram of Oriented Gradients)</a>
+      <ul>
+        <li><a href="#핵심-아이디어-1">핵심 아이디어</a></li>
+        <li><a href="#동작-과정-1">동작 과정</a></li>
+        <li><a href="#수식-1">수식</a></li>
+        <li><a href="#특징-1">특징</a></li>
+      </ul>
+    </li>
+    <li><a href="#구현-예시">구현 예시</a></li>
+    <li><a href="#딥러닝과의-비교">딥러닝과의 비교</a></li>
+    <li><a href="#관련-콘텐츠">관련 콘텐츠</a></li>
+  </ul>
+</nav>
+
+
+
+  </aside>
+  
+ 
+      </header>
+
+      
+      
+  <article class="markdown book-article"><h1 id="sift--hog">SIFT &amp; HOG<a class="anchor" href="#sift--hog">#</a></h1>
+<h2 id="개요">개요<a class="anchor" href="#%ea%b0%9c%ec%9a%94">#</a></h2>
+<p>딥러닝 이전 시대의 대표적인 특징 추출 기법입니다.</p>
+<table>
+  <thead>
+      <tr>
+          <th>기법</th>
+          <th>연도</th>
+          <th>핵심 아이디어</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>SIFT</td>
+          <td>2004</td>
+          <td>스케일 불변 키포인트 검출</td>
+      </tr>
+      <tr>
+          <td>HOG</td>
+          <td>2005</td>
+          <td>그래디언트 방향 히스토그램</td>
+      </tr>
+  </tbody>
+</table>
+<hr>
+<h2 id="sift-scale-invariant-feature-transform">SIFT (Scale-Invariant Feature Transform)<a class="anchor" href="#sift-scale-invariant-feature-transform">#</a></h2>
+<h3 id="핵심-아이디어">핵심 아이디어<a class="anchor" href="#%ed%95%b5%ec%8b%ac-%ec%95%84%ec%9d%b4%eb%94%94%ec%96%b4">#</a></h3>
+<p>이미지의 크기나 회전에 관계없이 동일한 특징점을 찾아내는 알고리즘입니다.</p>
+<h3 id="동작-과정">동작 과정<a class="anchor" href="#%eb%8f%99%ec%9e%91-%ea%b3%bc%ec%a0%95">#</a></h3>
+<ol>
+<li><strong>Scale-space 생성</strong>: Gaussian blur를 다양한 스케일로 적용</li>
+<li><strong>DoG (Difference of Gaussian)</strong>: 인접한 스케일 간 차이 계산</li>
+<li><strong>키포인트 검출</strong>: DoG에서 극값(extrema) 찾기</li>
+<li><strong>방향 할당</strong>: 키포인트 주변의 그래디언트 방향 계산</li>
+<li><strong>디스크립터 생성</strong>: 128차원 벡터로 특징 표현</li>
+</ol>
+<h3 id="수식">수식<a class="anchor" href="#%ec%88%98%ec%8b%9d">#</a></h3>
+<p>Gaussian blur:
+$$L(x, y, \sigma) = G(x, y, \sigma) * I(x, y)$$</p>
+<p>Difference of Gaussian:
+$$D(x, y, \sigma) = L(x, y, k\sigma) - L(x, y, \sigma)$$</p>
+<h3 id="특징">특징<a class="anchor" href="#%ed%8a%b9%ec%a7%95">#</a></h3>
+<ul>
+<li><strong>장점</strong>: 스케일, 회전, 조명 변화에 강건</li>
+<li><strong>단점</strong>: 계산 비용이 높음, 실시간 처리 어려움</li>
+</ul>
+<hr>
+<h2 id="hog-histogram-of-oriented-gradients">HOG (Histogram of Oriented Gradients)<a class="anchor" href="#hog-histogram-of-oriented-gradients">#</a></h2>
+<h3 id="핵심-아이디어-1">핵심 아이디어<a class="anchor" href="#%ed%95%b5%ec%8b%ac-%ec%95%84%ec%9d%b4%eb%94%94%ec%96%b4-1">#</a></h3>
+<p>이미지를 셀 단위로 나누고, 각 셀에서 그래디언트 방향의 히스토그램을 계산합니다.</p>
+<h3 id="동작-과정-1">동작 과정<a class="anchor" href="#%eb%8f%99%ec%9e%91-%ea%b3%bc%ec%a0%95-1">#</a></h3>
+<ol>
+<li><strong>그래디언트 계산</strong>: 각 픽셀에서 x, y 방향 그래디언트 계산</li>
+<li><strong>셀 분할</strong>: 이미지를 8x8 픽셀 셀로 분할</li>
+<li><strong>히스토그램 생성</strong>: 각 셀에서 9개 방향(0°~180°)의 히스토그램 계산</li>
+<li><strong>블록 정규화</strong>: 2x2 셀을 하나의 블록으로 묶어 정규화</li>
+<li><strong>특징 벡터 생성</strong>: 모든 블록의 히스토그램을 연결</li>
+</ol>
+<h3 id="수식-1">수식<a class="anchor" href="#%ec%88%98%ec%8b%9d-1">#</a></h3>
+<p>그래디언트 크기와 방향:
+$$G = \sqrt{G_x^2 + G_y^2}$$
+$$\theta = \arctan\left(\frac{G_y}{G_x}\right)$$</p>
+<h3 id="특징-1">특징<a class="anchor" href="#%ed%8a%b9%ec%a7%95-1">#</a></h3>
+<ul>
+<li><strong>장점</strong>: 조명 변화에 강건, 계산이 상대적으로 빠름</li>
+<li><strong>단점</strong>: 스케일 변화에 민감</li>
+<li><strong>주요 용도</strong>: 보행자 검출 (Dalal &amp; Triggs, 2005)</li>
+</ul>
+<hr>
+<h2 id="구현-예시">구현 예시<a class="anchor" href="#%ea%b5%ac%ed%98%84-%ec%98%88%ec%8b%9c">#</a></h2>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#f92672">import</span> cv2
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># SIFT</span>
+</span></span><span style="display:flex;"><span>sift <span style="color:#f92672">=</span> cv2<span style="color:#f92672">.</span>SIFT_create()
+</span></span><span style="display:flex;"><span>keypoints, descriptors <span style="color:#f92672">=</span> sift<span style="color:#f92672">.</span>detectAndCompute(image, <span style="color:#66d9ef">None</span>)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># HOG</span>
+</span></span><span style="display:flex;"><span>hog <span style="color:#f92672">=</span> cv2<span style="color:#f92672">.</span>HOGDescriptor()
+</span></span><span style="display:flex;"><span>hog<span style="color:#f92672">.</span>setSVMDetector(cv2<span style="color:#f92672">.</span>HOGDescriptor_getDefaultPeopleDetector())
+</span></span><span style="display:flex;"><span>boxes, weights <span style="color:#f92672">=</span> hog<span style="color:#f92672">.</span>detectMultiScale(image)</span></span></code></pre></div><hr>
+<h2 id="딥러닝과의-비교">딥러닝과의 비교<a class="anchor" href="#%eb%94%a5%eb%9f%ac%eb%8b%9d%ea%b3%bc%ec%9d%98-%eb%b9%84%ea%b5%90">#</a></h2>
+<table>
+  <thead>
+      <tr>
+          <th>측면</th>
+          <th>SIFT/HOG</th>
+          <th>CNN</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>특징 설계</td>
+          <td>수작업</td>
+          <td>학습 기반</td>
+      </tr>
+      <tr>
+          <td>데이터 요구량</td>
+          <td>적음</td>
+          <td>많음</td>
+      </tr>
+      <tr>
+          <td>성능</td>
+          <td>제한적</td>
+          <td>우수</td>
+      </tr>
+      <tr>
+          <td>해석 가능성</td>
+          <td>높음</td>
+          <td>낮음</td>
+      </tr>
+      <tr>
+          <td>일반화</td>
+          <td>제한적</td>
+          <td>우수</td>
+      </tr>
+  </tbody>
+</table>
+<p>현재는 대부분의 태스크에서 딥러닝이 SIFT/HOG를 대체했지만, 특징 매칭이나 엣지 케이스에서는 여전히 사용됩니다.</p>
+<hr>
+<h2 id="관련-콘텐츠">관련 콘텐츠<a class="anchor" href="#%ea%b4%80%eb%a0%a8-%ec%bd%98%ed%85%90%ec%b8%a0">#</a></h2>
+<ul>
+<li><a href="/docs/math/linear-algebra">선형대수</a> - 그래디언트 계산의 기초</li>
+<li><a href="/docs/architecture/cnn">CNN 기초</a> - SIFT/HOG를 대체한 딥러닝 기법</li>
+</ul>
+</article>
+ 
+      
+
+      <footer class="book-footer">
+        
+  <div class="flex flex-wrap justify-between">
+
+<div>
+
+</div>
+
+<div>
+
+</div>
+
+</div>
+
+
+
+
+
+  
+  
+  
+  <div class="flex flex-wrap justify-between">
+    <span>
+    
+      <a href="/docs/architecture/classical/" class="flex align-center">
+        <img src="/icons/backward.svg" class="book-icon" alt="Backward" />
+        <span>Classical CV</span>
+      </a>
+    
+    </span>
+    <span>
+    
+      <a href="/docs/architecture/cnn/" class="flex align-center">
+        <span>CNN</span>
+        <img src="/icons/forward.svg" class="book-icon" alt="Forward" />
+      </a>
+    
+    </span>
+  </div>
+  
+
+
+ 
+        
+  
+  <div class="book-comments">
+
+</div>
+  
+ 
+        
+        
+  
+ 
+        
+  
+  
+    <script>(function(){document.querySelectorAll("pre:has(code)").forEach(e=>{e.addEventListener("click",e.focus),e.addEventListener("copy",function(t){if(t.preventDefault(),navigator.clipboard){const t=window.getSelection().toString()||e.textContent;navigator.clipboard.writeText(t)}})})})()</script>
+  
+
+      </footer>
+
+      <label for="menu-control" class="hidden book-menu-overlay"></label>
+    </div>
+
+    
+  
+  <aside class="book-toc">
+    <div class="book-toc-content">
+      
+  
+<nav id="TableOfContents">
+  <ul>
+    <li><a href="#개요">개요</a></li>
+    <li><a href="#sift-scale-invariant-feature-transform">SIFT (Scale-Invariant Feature Transform)</a>
+      <ul>
+        <li><a href="#핵심-아이디어">핵심 아이디어</a></li>
+        <li><a href="#동작-과정">동작 과정</a></li>
+        <li><a href="#수식">수식</a></li>
+        <li><a href="#특징">특징</a></li>
+      </ul>
+    </li>
+    <li><a href="#hog-histogram-of-oriented-gradients">HOG (Histogram of Oriented Gradients)</a>
+      <ul>
+        <li><a href="#핵심-아이디어-1">핵심 아이디어</a></li>
+        <li><a href="#동작-과정-1">동작 과정</a></li>
+        <li><a href="#수식-1">수식</a></li>
+        <li><a href="#특징-1">특징</a></li>
+      </ul>
+    </li>
+    <li><a href="#구현-예시">구현 예시</a></li>
+    <li><a href="#딥러닝과의-비교">딥러닝과의 비교</a></li>
+    <li><a href="#관련-콘텐츠">관련 콘텐츠</a></li>
+  </ul>
+</nav>
+
+
+
+    </div>
+  </aside>
+  
+ 
+  </main>
+
+  
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

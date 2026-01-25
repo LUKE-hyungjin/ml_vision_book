@@ -1,0 +1,1163 @@
+<!DOCTYPE html>
+<html lang="ko-KR" dir="ltr">
+<head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
+  <!--
+Made with Book Theme
+https://github.com/alex-shpak/hugo-book
+-->
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="Mask R-CNN# 개요# 논문: Mask R-CNN (2017) 저자: Kaiming He, Georgia Gkioxari, Piotr Dollár, Ross Girshick (FAIR) 핵심 기여: Faster R-CNN에 mask branch를 추가하여 instance segmentation 핵심 아이디어# “Faster R-CNN &#43; Mask Branch = Instance Segmentation”
+Detection과 segmentation을 동시에 수행하는 multi-task 모델입니다.
+구조# 전체 아키텍처# Input Image ↓ Backbone (ResNet &#43; FPN) ↓ Region Proposal Network (RPN) ↓ RoI Align (not RoI Pooling!) ↓ ┌─────────────────────────────────────────┐ │ Three Branches │ ├─────────────┬─────────────┬─────────────┤ │ Classification │ Box Regression │ Mask Prediction │ │ (class) │ (x,y,w,h) │ (28×28 binary) │ └─────────────┴─────────────┴─────────────┘Faster R-CNN과의 차이# 구성 요소 Faster R-CNN Mask R-CNN RoI 처리 RoI Pooling RoI Align 출력 class, box class, box, mask Backbone ResNet ResNet &#43; FPN 핵심 컴포넌트# 1. RoI Align# RoI Pooling의 양자화 문제를 해결:
+">
+<meta name="theme-color" media="(prefers-color-scheme: light)" content="#ffffff">
+<meta name="theme-color" media="(prefers-color-scheme: dark)" content="#343a40">
+<meta name="color-scheme" content="light dark"><meta property="og:url" content="http://localhost:1313/docs/architecture/segmentation/mask-rcnn/">
+  <meta property="og:site_name" content="Vision Engineer 지식 가이드">
+  <meta property="og:title" content="Mask R-CNN">
+  <meta property="og:description" content="Mask R-CNN# 개요# 논문: Mask R-CNN (2017) 저자: Kaiming He, Georgia Gkioxari, Piotr Dollár, Ross Girshick (FAIR) 핵심 기여: Faster R-CNN에 mask branch를 추가하여 instance segmentation 핵심 아이디어# “Faster R-CNN &#43; Mask Branch = Instance Segmentation”
+Detection과 segmentation을 동시에 수행하는 multi-task 모델입니다.
+구조# 전체 아키텍처# Input Image ↓ Backbone (ResNet &#43; FPN) ↓ Region Proposal Network (RPN) ↓ RoI Align (not RoI Pooling!) ↓ ┌─────────────────────────────────────────┐ │ Three Branches │ ├─────────────┬─────────────┬─────────────┤ │ Classification │ Box Regression │ Mask Prediction │ │ (class) │ (x,y,w,h) │ (28×28 binary) │ └─────────────┴─────────────┴─────────────┘Faster R-CNN과의 차이# 구성 요소 Faster R-CNN Mask R-CNN RoI 처리 RoI Pooling RoI Align 출력 class, box class, box, mask Backbone ResNet ResNet &#43; FPN 핵심 컴포넌트# 1. RoI Align# RoI Pooling의 양자화 문제를 해결:">
+  <meta property="og:locale" content="ko_KR">
+  <meta property="og:type" content="article">
+    <meta property="article:section" content="docs">
+
+
+  <meta itemprop="name" content="Mask R-CNN">
+  <meta itemprop="description" content="Mask R-CNN# 개요# 논문: Mask R-CNN (2017) 저자: Kaiming He, Georgia Gkioxari, Piotr Dollár, Ross Girshick (FAIR) 핵심 기여: Faster R-CNN에 mask branch를 추가하여 instance segmentation 핵심 아이디어# “Faster R-CNN &#43; Mask Branch = Instance Segmentation”
+Detection과 segmentation을 동시에 수행하는 multi-task 모델입니다.
+구조# 전체 아키텍처# Input Image ↓ Backbone (ResNet &#43; FPN) ↓ Region Proposal Network (RPN) ↓ RoI Align (not RoI Pooling!) ↓ ┌─────────────────────────────────────────┐ │ Three Branches │ ├─────────────┬─────────────┬─────────────┤ │ Classification │ Box Regression │ Mask Prediction │ │ (class) │ (x,y,w,h) │ (28×28 binary) │ └─────────────┴─────────────┴─────────────┘Faster R-CNN과의 차이# 구성 요소 Faster R-CNN Mask R-CNN RoI 처리 RoI Pooling RoI Align 출력 class, box class, box, mask Backbone ResNet ResNet &#43; FPN 핵심 컴포넌트# 1. RoI Align# RoI Pooling의 양자화 문제를 해결:">
+  <meta itemprop="wordCount" content="440">
+
+<title>Mask R-CNN | Vision Engineer 지식 가이드</title>
+<link rel="icon" href="/favicon.png" >
+<link rel="manifest" href="/manifest.json">
+<link rel="canonical" href="http://localhost:1313/docs/architecture/segmentation/mask-rcnn/">
+<link rel="stylesheet" href="/book.min.6970156cec683193d93c9c4edaf0d56574e4361df2e0c1be4f697ae81c3ba55f.css" integrity="sha256-aXAVbOxoMZPZPJxO2vDVZXTkNh3y4MG&#43;T2l66Bw7pV8=" crossorigin="anonymous">
+
+
+  <script defer src="/fuse.min.js"></script>
+  <script defer src="/ko.search.min.26f28136458cea7ff1c69490935901eb5c29bceec55294f9efe562732e8a3b1a.js" integrity="sha256-JvKBNkWM6n/xxpSQk1kB61wpvO7FUpT57&#43;Vicy6KOxo=" crossorigin="anonymous"></script>
+
+
+
+  
+</head>
+<body dir="ltr" class="book-kind-page book-type-docs">
+  <input type="checkbox" class="hidden toggle" id="menu-control" />
+  <input type="checkbox" class="hidden toggle" id="toc-control" />
+  <main class="container flex">
+    
+<aside class="book-menu">
+  <div class="book-menu-content">
+    
+  <nav>
+<h2 class="book-brand">
+  <a class="flex align-center" href="/"><span>Vision Engineer 지식 가이드</span>
+  </a>
+</h2>
+
+
+<div class="book-search hidden">
+  <input id="book-search-input" type="text" 
+    placeholder="Search"
+    aria-label="Search"
+    maxlength="64" data-hotkeys="s/" />
+  <div class="book-search-spinner hidden"></div>
+  <ul id="book-search-results"></ul>
+</div>
+<script>document.querySelector(".book-search").classList.remove("hidden")</script>
+
+
+
+  
+
+
+  
+    
+  
+
+
+
+<ul class="book-languages">
+  <li>
+    <input type="checkbox" id="languages" class="toggle" />
+    <label for="languages" class="flex">
+      <a role="button">
+        <img src="/icons/translate.svg" class="book-icon" alt="Languages" />
+        한국어
+      </a>
+      <img src="/icons/chevron-right.svg" class="book-icon" alt="Expand" />
+    </label>
+
+    <ul>
+      
+      <li>
+        <a href="/en/" class="flex flex-auto">
+          English
+        </a>
+      </li>
+      
+    </ul>
+  </li>
+</ul>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <input type="checkbox" id="section-14bcba7439f342435c91a57530ca56c8" class="toggle"  />
+    <label for="section-14bcba7439f342435c91a57530ca56c8" class="flex">
+      <a href="/docs/timeline/" class="">
+        타임라인</a>
+      <img src="/icons/chevron-right.svg" class="book-icon" alt="Expand" />
+    </label>
+  
+
+          
+  <ul>
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <input type="checkbox" id="section-cb9657695dbd536c3a44d019c4d6ef98" class="toggle"  />
+    <label for="section-cb9657695dbd536c3a44d019c4d6ef98" class="flex">
+      <a href="/docs/topdown/" class="">
+        Top-Down</a>
+      <img src="/icons/chevron-right.svg" class="book-icon" alt="Expand" />
+    </label>
+  
+
+          
+  <ul>
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <input type="checkbox" id="section-e7f22db027b1c591ed84a4d4d3a6014f" class="toggle"  />
+    <label for="section-e7f22db027b1c591ed84a4d4d3a6014f" class="flex">
+      <a href="/docs/bottomup/" class="">
+        Bottom-Up</a>
+      <img src="/icons/chevron-right.svg" class="book-icon" alt="Expand" />
+    </label>
+  
+
+          
+  <ul>
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <input type="checkbox" id="section-ce31bba1d1f88a1d133a7e7232f1b4ec" class="toggle"  />
+    <label for="section-ce31bba1d1f88a1d133a7e7232f1b4ec" class="flex">
+      <a href="/docs/math/" class="">
+        수학</a>
+      <img src="/icons/chevron-right.svg" class="book-icon" alt="Expand" />
+    </label>
+  
+
+          
+  <ul>
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <input type="checkbox" id="section-32f2aee524dad19f5100855d6e2014e6" class="toggle" checked />
+    <label for="section-32f2aee524dad19f5100855d6e2014e6" class="flex">
+      <a href="/docs/architecture/" class="">
+        아키텍처</a>
+      <img src="/icons/chevron-right.svg" class="book-icon" alt="Expand" />
+    </label>
+  
+
+          
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <input type="checkbox" id="section-47444199c3019e8b479623bc90a9bd74" class="toggle"  />
+    <label for="section-47444199c3019e8b479623bc90a9bd74" class="flex">
+      <a href="/docs/architecture/classical/" class="">
+        Classical CV</a>
+      <img src="/icons/chevron-right.svg" class="book-icon" alt="Expand" />
+    </label>
+  
+
+          
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/architecture/classical/sift-hog/" class="">
+      SIFT &amp; HOG</a>
+  
+
+        </li>
+      
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <input type="checkbox" id="section-7bf44239f7ce2c72600738f8c315efe4" class="toggle"  />
+    <label for="section-7bf44239f7ce2c72600738f8c315efe4" class="flex">
+      <a href="/docs/architecture/cnn/" class="">
+        CNN</a>
+      <img src="/icons/chevron-right.svg" class="book-icon" alt="Expand" />
+    </label>
+  
+
+          
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/architecture/cnn/alexnet/" class="">
+      AlexNet</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/architecture/cnn/vgg/" class="">
+      VGG</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/architecture/cnn/resnet/" class="">
+      ResNet</a>
+  
+
+        </li>
+      
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <input type="checkbox" id="section-274b800b12326ef4e06255cf5f15c308" class="toggle"  />
+    <label for="section-274b800b12326ef4e06255cf5f15c308" class="flex">
+      <a href="/docs/architecture/detection/" class="">
+        Detection</a>
+      <img src="/icons/chevron-right.svg" class="book-icon" alt="Expand" />
+    </label>
+  
+
+          
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/architecture/detection/faster-rcnn/" class="">
+      Faster R-CNN</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/architecture/detection/yolo/" class="">
+      YOLO</a>
+  
+
+        </li>
+      
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <input type="checkbox" id="section-7246e67fd6c549f3bd6240d998b23a6f" class="toggle" checked />
+    <label for="section-7246e67fd6c549f3bd6240d998b23a6f" class="flex">
+      <a href="/docs/architecture/segmentation/" class="">
+        Segmentation</a>
+      <img src="/icons/chevron-right.svg" class="book-icon" alt="Expand" />
+    </label>
+  
+
+          
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/architecture/segmentation/unet/" class="">
+      U-Net</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/architecture/segmentation/mask-rcnn/" class="active">
+      Mask R-CNN</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/architecture/segmentation/sam/" class="">
+      SAM</a>
+  
+
+        </li>
+      
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <input type="checkbox" id="section-3a9f4e0826e1b9e72550db30b2adcad7" class="toggle"  />
+    <label for="section-3a9f4e0826e1b9e72550db30b2adcad7" class="flex">
+      <a href="/docs/architecture/transformer/" class="">
+        Transformer</a>
+      <img src="/icons/chevron-right.svg" class="book-icon" alt="Expand" />
+    </label>
+  
+
+          
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/architecture/transformer/vit/" class="">
+      ViT</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/architecture/transformer/dit/" class="">
+      DiT</a>
+  
+
+        </li>
+      
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <input type="checkbox" id="section-2902afa0a62febfd7a5eb243df871e8c" class="toggle"  />
+    <label for="section-2902afa0a62febfd7a5eb243df871e8c" class="flex">
+      <a href="/docs/architecture/generative/" class="">
+        Generative</a>
+      <img src="/icons/chevron-right.svg" class="book-icon" alt="Expand" />
+    </label>
+  
+
+          
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/architecture/generative/vae/" class="">
+      VAE</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/architecture/generative/gan/" class="">
+      GAN</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/architecture/generative/stable-diffusion/" class="">
+      Stable Diffusion</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/architecture/generative/controlnet/" class="">
+      ControlNet</a>
+  
+
+        </li>
+      
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <input type="checkbox" id="section-1670f136e85bf39bce97c9ee224d29d9" class="toggle"  />
+    <label for="section-1670f136e85bf39bce97c9ee224d29d9" class="flex">
+      <a href="/docs/architecture/multimodal/" class="">
+        Multimodal</a>
+      <img src="/icons/chevron-right.svg" class="book-icon" alt="Expand" />
+    </label>
+  
+
+          
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/architecture/multimodal/clip/" class="">
+      CLIP</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/architecture/multimodal/vlm/" class="">
+      VLM</a>
+  
+
+        </li>
+      
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <input type="checkbox" id="section-fc1b0b4545ce791b47ab3fe55b854e56" class="toggle"  />
+    <label for="section-fc1b0b4545ce791b47ab3fe55b854e56" class="flex">
+      <a href="/docs/architecture/3d/" class="">
+        3D Vision</a>
+      <img src="/icons/chevron-right.svg" class="book-icon" alt="Expand" />
+    </label>
+  
+
+          
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/architecture/3d/nerf/" class="">
+      NeRF</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/architecture/3d/3dgs/" class="">
+      3D Gaussian Splatting</a>
+  
+
+        </li>
+      
+    
+  </ul>
+
+        </li>
+      
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <input type="checkbox" id="section-cd575cc6fd4e25b684b552791b7a009a" class="toggle"  />
+    <label for="section-cd575cc6fd4e25b684b552791b7a009a" class="flex">
+      <a href="/docs/task/" class="">
+        태스크</a>
+      <img src="/icons/chevron-right.svg" class="book-icon" alt="Expand" />
+    </label>
+  
+
+          
+  <ul>
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <input type="checkbox" id="section-fb690f19903e1435676f710c928c9ad4" class="toggle"  />
+    <label for="section-fb690f19903e1435676f710c928c9ad4" class="flex">
+      <a href="/docs/etc/" class="">
+        기타 자료</a>
+      <img src="/icons/chevron-right.svg" class="book-icon" alt="Expand" />
+    </label>
+  
+
+          
+  <ul>
+    
+  </ul>
+
+        </li>
+      
+    
+  </ul>
+
+
+
+
+
+
+
+
+
+
+
+
+
+</nav>
+
+
+
+
+  <script>(function(){var e=document.querySelector("aside .book-menu-content");addEventListener("beforeunload",function(){localStorage.setItem("menu.scrollTop",e.scrollTop)}),e.scrollTop=localStorage.getItem("menu.scrollTop")})()</script>
+
+
+
+  </div>
+</aside>
+ 
+
+    <div class="book-page">
+      <header class="book-header hidden">
+        
+  <div class="flex align-center justify-between">
+  <label for="menu-control">
+    <img src="/icons/menu.svg" class="book-icon" alt="Menu" />
+  </label>
+
+  <h3>Mask R-CNN</h3>
+
+  <label for="toc-control">
+    
+    <img src="/icons/toc.svg" class="book-icon" alt="Table of Contents" />
+    
+  </label>
+</div>
+
+
+  
+  <aside class="hidden">
+    
+  
+<nav id="TableOfContents">
+  <ul>
+    <li><a href="#개요">개요</a></li>
+    <li><a href="#핵심-아이디어">핵심 아이디어</a></li>
+    <li><a href="#구조">구조</a>
+      <ul>
+        <li><a href="#전체-아키텍처">전체 아키텍처</a></li>
+        <li><a href="#faster-r-cnn과의-차이">Faster R-CNN과의 차이</a></li>
+      </ul>
+    </li>
+    <li><a href="#핵심-컴포넌트">핵심 컴포넌트</a>
+      <ul>
+        <li><a href="#1-roi-align">1. RoI Align</a></li>
+        <li><a href="#2-mask-branch">2. Mask Branch</a></li>
+        <li><a href="#3-fpn-feature-pyramid-network">3. FPN (Feature Pyramid Network)</a></li>
+      </ul>
+    </li>
+    <li><a href="#학습">학습</a>
+      <ul>
+        <li><a href="#multi-task-loss">Multi-task Loss</a></li>
+        <li><a href="#mask-loss">Mask Loss</a></li>
+      </ul>
+    </li>
+    <li><a href="#구현-예시">구현 예시</a>
+      <ul>
+        <li><a href="#커스텀-학습">커스텀 학습</a></li>
+      </ul>
+    </li>
+    <li><a href="#성능">성능</a>
+      <ul>
+        <li><a href="#coco-dataset">COCO Dataset</a></li>
+      </ul>
+    </li>
+    <li><a href="#mask-r-cnn의-확장">Mask R-CNN의 확장</a>
+      <ul>
+        <li><a href="#keypoint-detection">Keypoint Detection</a></li>
+        <li><a href="#panoptic-segmentation">Panoptic Segmentation</a></li>
+      </ul>
+    </li>
+    <li><a href="#한계점">한계점</a></li>
+    <li><a href="#관련-콘텐츠">관련 콘텐츠</a></li>
+  </ul>
+</nav>
+
+
+
+  </aside>
+  
+ 
+      </header>
+
+      
+      
+  <article class="markdown book-article"><h1 id="mask-r-cnn">Mask R-CNN<a class="anchor" href="#mask-r-cnn">#</a></h1>
+<h2 id="개요">개요<a class="anchor" href="#%ea%b0%9c%ec%9a%94">#</a></h2>
+<ul>
+<li><strong>논문</strong>: Mask R-CNN (2017)</li>
+<li><strong>저자</strong>: Kaiming He, Georgia Gkioxari, Piotr Dollár, Ross Girshick (FAIR)</li>
+<li><strong>핵심 기여</strong>: Faster R-CNN에 mask branch를 추가하여 instance segmentation</li>
+</ul>
+<h2 id="핵심-아이디어">핵심 아이디어<a class="anchor" href="#%ed%95%b5%ec%8b%ac-%ec%95%84%ec%9d%b4%eb%94%94%ec%96%b4">#</a></h2>
+<blockquote class='book-hint '>
+<p>&ldquo;Faster R-CNN + Mask Branch = Instance Segmentation&rdquo;</p>
+</blockquote><p>Detection과 segmentation을 동시에 수행하는 multi-task 모델입니다.</p>
+<hr>
+<h2 id="구조">구조<a class="anchor" href="#%ea%b5%ac%ec%a1%b0">#</a></h2>
+<h3 id="전체-아키텍처">전체 아키텍처<a class="anchor" href="#%ec%a0%84%ec%b2%b4-%ec%95%84%ed%82%a4%ed%85%8d%ec%b2%98">#</a></h3>
+<pre tabindex="0"><code>Input Image
+    ↓
+Backbone (ResNet + FPN)
+    ↓
+Region Proposal Network (RPN)
+    ↓
+RoI Align (not RoI Pooling!)
+    ↓
+┌─────────────────────────────────────────┐
+│           Three Branches                 │
+├─────────────┬─────────────┬─────────────┤
+│ Classification │ Box Regression │ Mask Prediction │
+│   (class)   │   (x,y,w,h)  │  (28×28 binary) │
+└─────────────┴─────────────┴─────────────┘</code></pre><h3 id="faster-r-cnn과의-차이">Faster R-CNN과의 차이<a class="anchor" href="#faster-r-cnn%ea%b3%bc%ec%9d%98-%ec%b0%a8%ec%9d%b4">#</a></h3>
+<table>
+  <thead>
+      <tr>
+          <th>구성 요소</th>
+          <th>Faster R-CNN</th>
+          <th>Mask R-CNN</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>RoI 처리</td>
+          <td>RoI Pooling</td>
+          <td><strong>RoI Align</strong></td>
+      </tr>
+      <tr>
+          <td>출력</td>
+          <td>class, box</td>
+          <td>class, box, <strong>mask</strong></td>
+      </tr>
+      <tr>
+          <td>Backbone</td>
+          <td>ResNet</td>
+          <td>ResNet + <strong>FPN</strong></td>
+      </tr>
+  </tbody>
+</table>
+<hr>
+<h2 id="핵심-컴포넌트">핵심 컴포넌트<a class="anchor" href="#%ed%95%b5%ec%8b%ac-%ec%bb%b4%ed%8f%ac%eb%84%8c%ed%8a%b8">#</a></h2>
+<h3 id="1-roi-align">1. RoI Align<a class="anchor" href="#1-roi-align">#</a></h3>
+<p>RoI Pooling의 양자화 문제를 해결:</p>
+<p><strong>RoI Pooling 문제:</strong></p>
+<pre tabindex="0"><code>RoI: 10.6 → 10 (반올림)
+실제 위치와 오차 발생 → segmentation 품질 저하</code></pre><p><strong>RoI Align 해결:</strong></p>
+<pre tabindex="0"><code>양자화 없이 bilinear interpolation
+정확한 위치에서 특징 추출</code></pre><h3 id="2-mask-branch">2. Mask Branch<a class="anchor" href="#2-mask-branch">#</a></h3>
+<p>각 RoI에 대해 28×28 크기의 마스크 예측:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#75715e"># Mask Head 구조</span>
+</span></span><span style="display:flex;"><span>FCN (<span style="color:#ae81ff">4</span> Conv layers) <span style="color:#960050;background-color:#1e0010">→</span> Deconv <span style="color:#960050;background-color:#1e0010">→</span> <span style="color:#ae81ff">28</span><span style="color:#960050;background-color:#1e0010">×</span><span style="color:#ae81ff">28</span><span style="color:#960050;background-color:#1e0010">×</span>num_classes</span></span></code></pre></div><p><strong>특징:</strong></p>
+<ul>
+<li>클래스별로 독립적인 마스크 예측</li>
+<li>Binary mask (sigmoid)</li>
+<li>최종 마스크는 box 크기로 resize</li>
+</ul>
+<h3 id="3-fpn-feature-pyramid-network">3. FPN (Feature Pyramid Network)<a class="anchor" href="#3-fpn-feature-pyramid-network">#</a></h3>
+<p>다양한 스케일의 객체 검출을 위한 feature pyramid:</p>
+<pre tabindex="0"><code>P5 (작은 해상도, 큰 객체)
+  ↑
+P4
+  ↑
+P3
+  ↑
+P2 (큰 해상도, 작은 객체)</code></pre><hr>
+<h2 id="학습">학습<a class="anchor" href="#%ed%95%99%ec%8a%b5">#</a></h2>
+<h3 id="multi-task-loss">Multi-task Loss<a class="anchor" href="#multi-task-loss">#</a></h3>
+<p>$$L = L_{cls} + L_{box} + L_{mask}$$</p>
+<ul>
+<li>$L_{cls}$: Classification loss (cross-entropy)</li>
+<li>$L_{box}$: Bounding box regression (smooth L1)</li>
+<li>$L_{mask}$: Binary cross-entropy (픽셀별)</li>
+</ul>
+<h3 id="mask-loss">Mask Loss<a class="anchor" href="#mask-loss">#</a></h3>
+<p>Ground truth 클래스에 해당하는 마스크에서만 loss 계산:</p>
+<p>$$L_{mask} = -\frac{1}{m^2} \sum_{i,j} [y_{ij} \log \hat{y}<em>{ij} + (1-y</em>{ij}) \log(1-\hat{y}_{ij})]$$</p>
+<hr>
+<h2 id="구현-예시">구현 예시<a class="anchor" href="#%ea%b5%ac%ed%98%84-%ec%98%88%ec%8b%9c">#</a></h2>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#f92672">import</span> torch
+</span></span><span style="display:flex;"><span><span style="color:#f92672">import</span> torchvision
+</span></span><span style="display:flex;"><span><span style="color:#f92672">from</span> torchvision.models.detection <span style="color:#f92672">import</span> maskrcnn_resnet50_fpn
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># 사전 학습된 모델 로드</span>
+</span></span><span style="display:flex;"><span>model <span style="color:#f92672">=</span> maskrcnn_resnet50_fpn(pretrained<span style="color:#f92672">=</span><span style="color:#66d9ef">True</span>)
+</span></span><span style="display:flex;"><span>model<span style="color:#f92672">.</span>eval()
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># 추론</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">with</span> torch<span style="color:#f92672">.</span>no_grad():
+</span></span><span style="display:flex;"><span>    predictions <span style="color:#f92672">=</span> model([image])
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># 결과 형태</span>
+</span></span><span style="display:flex;"><span>pred <span style="color:#f92672">=</span> predictions[<span style="color:#ae81ff">0</span>]
+</span></span><span style="display:flex;"><span>print(pred[<span style="color:#e6db74">&#39;boxes&#39;</span>]<span style="color:#f92672">.</span>shape)   <span style="color:#75715e"># (N, 4) - bounding boxes</span>
+</span></span><span style="display:flex;"><span>print(pred[<span style="color:#e6db74">&#39;labels&#39;</span>]<span style="color:#f92672">.</span>shape)  <span style="color:#75715e"># (N,) - class labels</span>
+</span></span><span style="display:flex;"><span>print(pred[<span style="color:#e6db74">&#39;scores&#39;</span>]<span style="color:#f92672">.</span>shape)  <span style="color:#75715e"># (N,) - confidence scores</span>
+</span></span><span style="display:flex;"><span>print(pred[<span style="color:#e6db74">&#39;masks&#39;</span>]<span style="color:#f92672">.</span>shape)   <span style="color:#75715e"># (N, 1, H, W) - instance masks</span></span></span></code></pre></div><h3 id="커스텀-학습">커스텀 학습<a class="anchor" href="#%ec%bb%a4%ec%8a%a4%ed%85%80-%ed%95%99%ec%8a%b5">#</a></h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#f92672">from</span> torchvision.models.detection.mask_rcnn <span style="color:#f92672">import</span> MaskRCNNPredictor
+</span></span><span style="display:flex;"><span><span style="color:#f92672">from</span> torchvision.models.detection.faster_rcnn <span style="color:#f92672">import</span> FastRCNNPredictor
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>model <span style="color:#f92672">=</span> maskrcnn_resnet50_fpn(pretrained<span style="color:#f92672">=</span><span style="color:#66d9ef">True</span>)
+</span></span><span style="display:flex;"><span>num_classes <span style="color:#f92672">=</span> <span style="color:#ae81ff">10</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># Box predictor 교체</span>
+</span></span><span style="display:flex;"><span>in_features <span style="color:#f92672">=</span> model<span style="color:#f92672">.</span>roi_heads<span style="color:#f92672">.</span>box_predictor<span style="color:#f92672">.</span>cls_score<span style="color:#f92672">.</span>in_features
+</span></span><span style="display:flex;"><span>model<span style="color:#f92672">.</span>roi_heads<span style="color:#f92672">.</span>box_predictor <span style="color:#f92672">=</span> FastRCNNPredictor(in_features, num_classes)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># Mask predictor 교체</span>
+</span></span><span style="display:flex;"><span>in_features_mask <span style="color:#f92672">=</span> model<span style="color:#f92672">.</span>roi_heads<span style="color:#f92672">.</span>mask_predictor<span style="color:#f92672">.</span>conv5_mask<span style="color:#f92672">.</span>in_channels
+</span></span><span style="display:flex;"><span>hidden_layer <span style="color:#f92672">=</span> <span style="color:#ae81ff">256</span>
+</span></span><span style="display:flex;"><span>model<span style="color:#f92672">.</span>roi_heads<span style="color:#f92672">.</span>mask_predictor <span style="color:#f92672">=</span> MaskRCNNPredictor(
+</span></span><span style="display:flex;"><span>    in_features_mask, hidden_layer, num_classes
+</span></span><span style="display:flex;"><span>)</span></span></code></pre></div><hr>
+<h2 id="성능">성능<a class="anchor" href="#%ec%84%b1%eb%8a%a5">#</a></h2>
+<h3 id="coco-dataset">COCO Dataset<a class="anchor" href="#coco-dataset">#</a></h3>
+<table>
+  <thead>
+      <tr>
+          <th>Backbone</th>
+          <th>box AP</th>
+          <th>mask AP</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>ResNet-50-FPN</td>
+          <td>38.2</td>
+          <td>34.7</td>
+      </tr>
+      <tr>
+          <td>ResNet-101-FPN</td>
+          <td>40.0</td>
+          <td>36.1</td>
+      </tr>
+      <tr>
+          <td>ResNeXt-101-FPN</td>
+          <td>41.3</td>
+          <td>37.1</td>
+      </tr>
+  </tbody>
+</table>
+<hr>
+<h2 id="mask-r-cnn의-확장">Mask R-CNN의 확장<a class="anchor" href="#mask-r-cnn%ec%9d%98-%ed%99%95%ec%9e%a5">#</a></h2>
+<h3 id="keypoint-detection">Keypoint Detection<a class="anchor" href="#keypoint-detection">#</a></h3>
+<p>Mask branch 대신 keypoint branch 추가:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#f92672">from</span> torchvision.models.detection <span style="color:#f92672">import</span> keypointrcnn_resnet50_fpn
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>model <span style="color:#f92672">=</span> keypointrcnn_resnet50_fpn(pretrained<span style="color:#f92672">=</span><span style="color:#66d9ef">True</span>)
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># 17개 keypoint (COCO person keypoints)</span></span></span></code></pre></div><h3 id="panoptic-segmentation">Panoptic Segmentation<a class="anchor" href="#panoptic-segmentation">#</a></h3>
+<p>Instance + semantic segmentation 통합</p>
+<hr>
+<h2 id="한계점">한계점<a class="anchor" href="#%ed%95%9c%ea%b3%84%ec%a0%90">#</a></h2>
+<ul>
+<li>Two-stage라 속도 제한 (~5 FPS)</li>
+<li>겹치는 객체 처리 어려움</li>
+<li>작은 객체 segmentation 품질 저하</li>
+</ul>
+<hr>
+<h2 id="관련-콘텐츠">관련 콘텐츠<a class="anchor" href="#%ea%b4%80%eb%a0%a8-%ec%bd%98%ed%85%90%ec%b8%a0">#</a></h2>
+<ul>
+<li><a href="/docs/architecture/detection/faster-rcnn">Faster R-CNN</a> - 기반 모델</li>
+<li><a href="/docs/architecture/segmentation/unet">U-Net</a> - Semantic segmentation</li>
+<li><a href="/docs/architecture/segmentation/sam">SAM</a> - Promptable segmentation</li>
+<li><a href="/docs/architecture/cnn/resnet">ResNet</a> - Backbone</li>
+<li><a href="/docs/task/segmentation">Segmentation 태스크</a> - 평가 지표</li>
+</ul>
+</article>
+ 
+      
+
+      <footer class="book-footer">
+        
+  <div class="flex flex-wrap justify-between">
+
+<div>
+
+</div>
+
+<div>
+
+</div>
+
+</div>
+
+
+
+
+
+  
+  
+  
+  <div class="flex flex-wrap justify-between">
+    <span>
+    
+      <a href="/docs/architecture/segmentation/unet/" class="flex align-center">
+        <img src="/icons/backward.svg" class="book-icon" alt="Backward" />
+        <span>U-Net</span>
+      </a>
+    
+    </span>
+    <span>
+    
+      <a href="/docs/architecture/segmentation/sam/" class="flex align-center">
+        <span>SAM</span>
+        <img src="/icons/forward.svg" class="book-icon" alt="Forward" />
+      </a>
+    
+    </span>
+  </div>
+  
+
+
+ 
+        
+  
+  <div class="book-comments">
+
+</div>
+  
+ 
+        
+        
+  
+ 
+        
+  
+  
+    <script>(function(){document.querySelectorAll("pre:has(code)").forEach(e=>{e.addEventListener("click",e.focus),e.addEventListener("copy",function(t){if(t.preventDefault(),navigator.clipboard){const t=window.getSelection().toString()||e.textContent;navigator.clipboard.writeText(t)}})})})()</script>
+  
+
+      </footer>
+
+      <label for="menu-control" class="hidden book-menu-overlay"></label>
+    </div>
+
+    
+  
+  <aside class="book-toc">
+    <div class="book-toc-content">
+      
+  
+<nav id="TableOfContents">
+  <ul>
+    <li><a href="#개요">개요</a></li>
+    <li><a href="#핵심-아이디어">핵심 아이디어</a></li>
+    <li><a href="#구조">구조</a>
+      <ul>
+        <li><a href="#전체-아키텍처">전체 아키텍처</a></li>
+        <li><a href="#faster-r-cnn과의-차이">Faster R-CNN과의 차이</a></li>
+      </ul>
+    </li>
+    <li><a href="#핵심-컴포넌트">핵심 컴포넌트</a>
+      <ul>
+        <li><a href="#1-roi-align">1. RoI Align</a></li>
+        <li><a href="#2-mask-branch">2. Mask Branch</a></li>
+        <li><a href="#3-fpn-feature-pyramid-network">3. FPN (Feature Pyramid Network)</a></li>
+      </ul>
+    </li>
+    <li><a href="#학습">학습</a>
+      <ul>
+        <li><a href="#multi-task-loss">Multi-task Loss</a></li>
+        <li><a href="#mask-loss">Mask Loss</a></li>
+      </ul>
+    </li>
+    <li><a href="#구현-예시">구현 예시</a>
+      <ul>
+        <li><a href="#커스텀-학습">커스텀 학습</a></li>
+      </ul>
+    </li>
+    <li><a href="#성능">성능</a>
+      <ul>
+        <li><a href="#coco-dataset">COCO Dataset</a></li>
+      </ul>
+    </li>
+    <li><a href="#mask-r-cnn의-확장">Mask R-CNN의 확장</a>
+      <ul>
+        <li><a href="#keypoint-detection">Keypoint Detection</a></li>
+        <li><a href="#panoptic-segmentation">Panoptic Segmentation</a></li>
+      </ul>
+    </li>
+    <li><a href="#한계점">한계점</a></li>
+    <li><a href="#관련-콘텐츠">관련 콘텐츠</a></li>
+  </ul>
+</nav>
+
+
+
+    </div>
+  </aside>
+  
+ 
+  </main>
+
+  
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,974 @@
+<!DOCTYPE html>
+<html lang="ko-KR" dir="ltr">
+<head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
+  <!--
+Made with Book Theme
+https://github.com/alex-shpak/hugo-book
+-->
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="Multimodal 모델# 이미지와 텍스트 등 여러 모달리티를 함께 이해하는 모델들입니다.
+발전 과정# 2021: CLIP - 이미지-텍스트 contrastive learning ↓ 2022: Flamingo - Few-shot visual reasoning ↓ 2023: LLaVA, GPT-4V - Vision Language Model ↓ 2024: 더 강력한 VLM들 (Claude 3, Gemini) 주요 모델# 모델 유형 특징 CLIP Encoder 이미지-텍스트 임베딩 정렬 VLM LLM 기반 이미지 이해 &#43; 텍스트 생성 두 가지 접근# Dual Encoder (CLIP 방식)# Image → Image Encoder → Image Embedding ↓ (cosine similarity) Text → Text Encoder → Text Embedding 빠른 검색/매칭 Zero-shot classification LLM 기반 (VLM 방식)# Image → Vision Encoder → Visual Tokens ↓ Text ───────────────────────→ LLM → Response 복잡한 추론 가능 자연어로 답변 관련 콘텐츠# Contrastive Learning - CLIP의 수학적 기초 ViT - 이미지 인코더 Vision-Language 태스크 - VQA, Captioning ">
+<meta name="theme-color" media="(prefers-color-scheme: light)" content="#ffffff">
+<meta name="theme-color" media="(prefers-color-scheme: dark)" content="#343a40">
+<meta name="color-scheme" content="light dark"><meta property="og:url" content="http://localhost:1313/docs/architecture/multimodal/">
+  <meta property="og:site_name" content="Vision Engineer 지식 가이드">
+  <meta property="og:title" content="Multimodal">
+  <meta property="og:description" content="Multimodal 모델# 이미지와 텍스트 등 여러 모달리티를 함께 이해하는 모델들입니다.
+발전 과정# 2021: CLIP - 이미지-텍스트 contrastive learning ↓ 2022: Flamingo - Few-shot visual reasoning ↓ 2023: LLaVA, GPT-4V - Vision Language Model ↓ 2024: 더 강력한 VLM들 (Claude 3, Gemini) 주요 모델# 모델 유형 특징 CLIP Encoder 이미지-텍스트 임베딩 정렬 VLM LLM 기반 이미지 이해 &#43; 텍스트 생성 두 가지 접근# Dual Encoder (CLIP 방식)# Image → Image Encoder → Image Embedding ↓ (cosine similarity) Text → Text Encoder → Text Embedding 빠른 검색/매칭 Zero-shot classification LLM 기반 (VLM 방식)# Image → Vision Encoder → Visual Tokens ↓ Text ───────────────────────→ LLM → Response 복잡한 추론 가능 자연어로 답변 관련 콘텐츠# Contrastive Learning - CLIP의 수학적 기초 ViT - 이미지 인코더 Vision-Language 태스크 - VQA, Captioning">
+  <meta property="og:locale" content="ko_KR">
+  <meta property="og:type" content="website">
+
+
+  <meta itemprop="name" content="Multimodal">
+  <meta itemprop="description" content="Multimodal 모델# 이미지와 텍스트 등 여러 모달리티를 함께 이해하는 모델들입니다.
+발전 과정# 2021: CLIP - 이미지-텍스트 contrastive learning ↓ 2022: Flamingo - Few-shot visual reasoning ↓ 2023: LLaVA, GPT-4V - Vision Language Model ↓ 2024: 더 강력한 VLM들 (Claude 3, Gemini) 주요 모델# 모델 유형 특징 CLIP Encoder 이미지-텍스트 임베딩 정렬 VLM LLM 기반 이미지 이해 &#43; 텍스트 생성 두 가지 접근# Dual Encoder (CLIP 방식)# Image → Image Encoder → Image Embedding ↓ (cosine similarity) Text → Text Encoder → Text Embedding 빠른 검색/매칭 Zero-shot classification LLM 기반 (VLM 방식)# Image → Vision Encoder → Visual Tokens ↓ Text ───────────────────────→ LLM → Response 복잡한 추론 가능 자연어로 답변 관련 콘텐츠# Contrastive Learning - CLIP의 수학적 기초 ViT - 이미지 인코더 Vision-Language 태스크 - VQA, Captioning">
+  <meta itemprop="wordCount" content="126">
+
+<title>Multimodal | Vision Engineer 지식 가이드</title>
+<link rel="icon" href="/favicon.png" >
+<link rel="manifest" href="/manifest.json">
+<link rel="canonical" href="http://localhost:1313/docs/architecture/multimodal/">
+<link rel="stylesheet" href="/book.min.6970156cec683193d93c9c4edaf0d56574e4361df2e0c1be4f697ae81c3ba55f.css" integrity="sha256-aXAVbOxoMZPZPJxO2vDVZXTkNh3y4MG&#43;T2l66Bw7pV8=" crossorigin="anonymous">
+
+
+  <script defer src="/fuse.min.js"></script>
+  <script defer src="/ko.search.min.26f28136458cea7ff1c69490935901eb5c29bceec55294f9efe562732e8a3b1a.js" integrity="sha256-JvKBNkWM6n/xxpSQk1kB61wpvO7FUpT57&#43;Vicy6KOxo=" crossorigin="anonymous"></script>
+
+
+<link rel="alternate" type="application/rss+xml" href="http://localhost:1313/docs/architecture/multimodal/index.xml" title="Vision Engineer 지식 가이드" />
+
+  
+</head>
+<body dir="ltr" class="book-kind-section book-type-docs">
+  <input type="checkbox" class="hidden toggle" id="menu-control" />
+  <input type="checkbox" class="hidden toggle" id="toc-control" />
+  <main class="container flex">
+    
+<aside class="book-menu">
+  <div class="book-menu-content">
+    
+  <nav>
+<h2 class="book-brand">
+  <a class="flex align-center" href="/"><span>Vision Engineer 지식 가이드</span>
+  </a>
+</h2>
+
+
+<div class="book-search hidden">
+  <input id="book-search-input" type="text" 
+    placeholder="Search"
+    aria-label="Search"
+    maxlength="64" data-hotkeys="s/" />
+  <div class="book-search-spinner hidden"></div>
+  <ul id="book-search-results"></ul>
+</div>
+<script>document.querySelector(".book-search").classList.remove("hidden")</script>
+
+
+
+  
+
+
+  
+    
+  
+
+
+
+<ul class="book-languages">
+  <li>
+    <input type="checkbox" id="languages" class="toggle" />
+    <label for="languages" class="flex">
+      <a role="button">
+        <img src="/icons/translate.svg" class="book-icon" alt="Languages" />
+        한국어
+      </a>
+      <img src="/icons/chevron-right.svg" class="book-icon" alt="Expand" />
+    </label>
+
+    <ul>
+      
+      <li>
+        <a href="/en/" class="flex flex-auto">
+          English
+        </a>
+      </li>
+      
+    </ul>
+  </li>
+</ul>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <input type="checkbox" id="section-14bcba7439f342435c91a57530ca56c8" class="toggle"  />
+    <label for="section-14bcba7439f342435c91a57530ca56c8" class="flex">
+      <a href="/docs/timeline/" class="">
+        타임라인</a>
+      <img src="/icons/chevron-right.svg" class="book-icon" alt="Expand" />
+    </label>
+  
+
+          
+  <ul>
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <input type="checkbox" id="section-cb9657695dbd536c3a44d019c4d6ef98" class="toggle"  />
+    <label for="section-cb9657695dbd536c3a44d019c4d6ef98" class="flex">
+      <a href="/docs/topdown/" class="">
+        Top-Down</a>
+      <img src="/icons/chevron-right.svg" class="book-icon" alt="Expand" />
+    </label>
+  
+
+          
+  <ul>
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <input type="checkbox" id="section-e7f22db027b1c591ed84a4d4d3a6014f" class="toggle"  />
+    <label for="section-e7f22db027b1c591ed84a4d4d3a6014f" class="flex">
+      <a href="/docs/bottomup/" class="">
+        Bottom-Up</a>
+      <img src="/icons/chevron-right.svg" class="book-icon" alt="Expand" />
+    </label>
+  
+
+          
+  <ul>
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <input type="checkbox" id="section-ce31bba1d1f88a1d133a7e7232f1b4ec" class="toggle"  />
+    <label for="section-ce31bba1d1f88a1d133a7e7232f1b4ec" class="flex">
+      <a href="/docs/math/" class="">
+        수학</a>
+      <img src="/icons/chevron-right.svg" class="book-icon" alt="Expand" />
+    </label>
+  
+
+          
+  <ul>
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <input type="checkbox" id="section-32f2aee524dad19f5100855d6e2014e6" class="toggle" checked />
+    <label for="section-32f2aee524dad19f5100855d6e2014e6" class="flex">
+      <a href="/docs/architecture/" class="">
+        아키텍처</a>
+      <img src="/icons/chevron-right.svg" class="book-icon" alt="Expand" />
+    </label>
+  
+
+          
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <input type="checkbox" id="section-47444199c3019e8b479623bc90a9bd74" class="toggle"  />
+    <label for="section-47444199c3019e8b479623bc90a9bd74" class="flex">
+      <a href="/docs/architecture/classical/" class="">
+        Classical CV</a>
+      <img src="/icons/chevron-right.svg" class="book-icon" alt="Expand" />
+    </label>
+  
+
+          
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/architecture/classical/sift-hog/" class="">
+      SIFT &amp; HOG</a>
+  
+
+        </li>
+      
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <input type="checkbox" id="section-7bf44239f7ce2c72600738f8c315efe4" class="toggle"  />
+    <label for="section-7bf44239f7ce2c72600738f8c315efe4" class="flex">
+      <a href="/docs/architecture/cnn/" class="">
+        CNN</a>
+      <img src="/icons/chevron-right.svg" class="book-icon" alt="Expand" />
+    </label>
+  
+
+          
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/architecture/cnn/alexnet/" class="">
+      AlexNet</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/architecture/cnn/vgg/" class="">
+      VGG</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/architecture/cnn/resnet/" class="">
+      ResNet</a>
+  
+
+        </li>
+      
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <input type="checkbox" id="section-274b800b12326ef4e06255cf5f15c308" class="toggle"  />
+    <label for="section-274b800b12326ef4e06255cf5f15c308" class="flex">
+      <a href="/docs/architecture/detection/" class="">
+        Detection</a>
+      <img src="/icons/chevron-right.svg" class="book-icon" alt="Expand" />
+    </label>
+  
+
+          
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/architecture/detection/faster-rcnn/" class="">
+      Faster R-CNN</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/architecture/detection/yolo/" class="">
+      YOLO</a>
+  
+
+        </li>
+      
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <input type="checkbox" id="section-7246e67fd6c549f3bd6240d998b23a6f" class="toggle"  />
+    <label for="section-7246e67fd6c549f3bd6240d998b23a6f" class="flex">
+      <a href="/docs/architecture/segmentation/" class="">
+        Segmentation</a>
+      <img src="/icons/chevron-right.svg" class="book-icon" alt="Expand" />
+    </label>
+  
+
+          
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/architecture/segmentation/unet/" class="">
+      U-Net</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/architecture/segmentation/mask-rcnn/" class="">
+      Mask R-CNN</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/architecture/segmentation/sam/" class="">
+      SAM</a>
+  
+
+        </li>
+      
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <input type="checkbox" id="section-3a9f4e0826e1b9e72550db30b2adcad7" class="toggle"  />
+    <label for="section-3a9f4e0826e1b9e72550db30b2adcad7" class="flex">
+      <a href="/docs/architecture/transformer/" class="">
+        Transformer</a>
+      <img src="/icons/chevron-right.svg" class="book-icon" alt="Expand" />
+    </label>
+  
+
+          
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/architecture/transformer/vit/" class="">
+      ViT</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/architecture/transformer/dit/" class="">
+      DiT</a>
+  
+
+        </li>
+      
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <input type="checkbox" id="section-2902afa0a62febfd7a5eb243df871e8c" class="toggle"  />
+    <label for="section-2902afa0a62febfd7a5eb243df871e8c" class="flex">
+      <a href="/docs/architecture/generative/" class="">
+        Generative</a>
+      <img src="/icons/chevron-right.svg" class="book-icon" alt="Expand" />
+    </label>
+  
+
+          
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/architecture/generative/vae/" class="">
+      VAE</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/architecture/generative/gan/" class="">
+      GAN</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/architecture/generative/stable-diffusion/" class="">
+      Stable Diffusion</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/architecture/generative/controlnet/" class="">
+      ControlNet</a>
+  
+
+        </li>
+      
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <input type="checkbox" id="section-1670f136e85bf39bce97c9ee224d29d9" class="toggle" checked />
+    <label for="section-1670f136e85bf39bce97c9ee224d29d9" class="flex">
+      <a href="/docs/architecture/multimodal/" class="active">
+        Multimodal</a>
+      <img src="/icons/chevron-right.svg" class="book-icon" alt="Expand" />
+    </label>
+  
+
+          
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/architecture/multimodal/clip/" class="">
+      CLIP</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/architecture/multimodal/vlm/" class="">
+      VLM</a>
+  
+
+        </li>
+      
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <input type="checkbox" id="section-fc1b0b4545ce791b47ab3fe55b854e56" class="toggle"  />
+    <label for="section-fc1b0b4545ce791b47ab3fe55b854e56" class="flex">
+      <a href="/docs/architecture/3d/" class="">
+        3D Vision</a>
+      <img src="/icons/chevron-right.svg" class="book-icon" alt="Expand" />
+    </label>
+  
+
+          
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/architecture/3d/nerf/" class="">
+      NeRF</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/architecture/3d/3dgs/" class="">
+      3D Gaussian Splatting</a>
+  
+
+        </li>
+      
+    
+  </ul>
+
+        </li>
+      
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <input type="checkbox" id="section-cd575cc6fd4e25b684b552791b7a009a" class="toggle"  />
+    <label for="section-cd575cc6fd4e25b684b552791b7a009a" class="flex">
+      <a href="/docs/task/" class="">
+        태스크</a>
+      <img src="/icons/chevron-right.svg" class="book-icon" alt="Expand" />
+    </label>
+  
+
+          
+  <ul>
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <input type="checkbox" id="section-fb690f19903e1435676f710c928c9ad4" class="toggle"  />
+    <label for="section-fb690f19903e1435676f710c928c9ad4" class="flex">
+      <a href="/docs/etc/" class="">
+        기타 자료</a>
+      <img src="/icons/chevron-right.svg" class="book-icon" alt="Expand" />
+    </label>
+  
+
+          
+  <ul>
+    
+  </ul>
+
+        </li>
+      
+    
+  </ul>
+
+
+
+
+
+
+
+
+
+
+
+
+
+</nav>
+
+
+
+
+  <script>(function(){var e=document.querySelector("aside .book-menu-content");addEventListener("beforeunload",function(){localStorage.setItem("menu.scrollTop",e.scrollTop)}),e.scrollTop=localStorage.getItem("menu.scrollTop")})()</script>
+
+
+
+  </div>
+</aside>
+ 
+
+    <div class="book-page">
+      <header class="book-header hidden">
+        
+  <div class="flex align-center justify-between">
+  <label for="menu-control">
+    <img src="/icons/menu.svg" class="book-icon" alt="Menu" />
+  </label>
+
+  <h3>Multimodal</h3>
+
+  <label for="toc-control">
+    
+    <img src="/icons/toc.svg" class="book-icon" alt="Table of Contents" />
+    
+  </label>
+</div>
+
+
+  
+  <aside class="hidden">
+    
+  
+<nav id="TableOfContents">
+  <ul>
+    <li><a href="#발전-과정">발전 과정</a></li>
+    <li><a href="#주요-모델">주요 모델</a></li>
+    <li><a href="#두-가지-접근">두 가지 접근</a>
+      <ul>
+        <li><a href="#dual-encoder-clip-방식">Dual Encoder (CLIP 방식)</a></li>
+        <li><a href="#llm-기반-vlm-방식">LLM 기반 (VLM 방식)</a></li>
+      </ul>
+    </li>
+    <li><a href="#관련-콘텐츠">관련 콘텐츠</a></li>
+  </ul>
+</nav>
+
+
+
+  </aside>
+  
+ 
+      </header>
+
+      
+      
+  <article class="markdown book-article"><h1 id="multimodal-모델">Multimodal 모델<a class="anchor" href="#multimodal-%eb%aa%a8%eb%8d%b8">#</a></h1>
+<p>이미지와 텍스트 등 여러 모달리티를 함께 이해하는 모델들입니다.</p>
+<h2 id="발전-과정">발전 과정<a class="anchor" href="#%eb%b0%9c%ec%a0%84-%ea%b3%bc%ec%a0%95">#</a></h2>
+<pre tabindex="0"><code>2021: CLIP - 이미지-텍스트 contrastive learning
+  ↓
+2022: Flamingo - Few-shot visual reasoning
+  ↓
+2023: LLaVA, GPT-4V - Vision Language Model
+  ↓
+2024: 더 강력한 VLM들 (Claude 3, Gemini)</code></pre><hr>
+<h2 id="주요-모델">주요 모델<a class="anchor" href="#%ec%a3%bc%ec%9a%94-%eb%aa%a8%eb%8d%b8">#</a></h2>
+<table>
+  <thead>
+      <tr>
+          <th>모델</th>
+          <th>유형</th>
+          <th>특징</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td><a href="/docs/architecture/multimodal/clip">CLIP</a></td>
+          <td>Encoder</td>
+          <td>이미지-텍스트 임베딩 정렬</td>
+      </tr>
+      <tr>
+          <td><a href="/docs/architecture/multimodal/vlm">VLM</a></td>
+          <td>LLM 기반</td>
+          <td>이미지 이해 + 텍스트 생성</td>
+      </tr>
+  </tbody>
+</table>
+<hr>
+<h2 id="두-가지-접근">두 가지 접근<a class="anchor" href="#%eb%91%90-%ea%b0%80%ec%a7%80-%ec%a0%91%ea%b7%bc">#</a></h2>
+<h3 id="dual-encoder-clip-방식">Dual Encoder (CLIP 방식)<a class="anchor" href="#dual-encoder-clip-%eb%b0%a9%ec%8b%9d">#</a></h3>
+<pre tabindex="0"><code>Image → Image Encoder → Image Embedding
+                                ↓ (cosine similarity)
+Text  → Text Encoder  → Text Embedding</code></pre><ul>
+<li>빠른 검색/매칭</li>
+<li>Zero-shot classification</li>
+</ul>
+<h3 id="llm-기반-vlm-방식">LLM 기반 (VLM 방식)<a class="anchor" href="#llm-%ea%b8%b0%eb%b0%98-vlm-%eb%b0%a9%ec%8b%9d">#</a></h3>
+<pre tabindex="0"><code>Image → Vision Encoder → Visual Tokens
+                              ↓
+Text  ───────────────────────→ LLM → Response</code></pre><ul>
+<li>복잡한 추론 가능</li>
+<li>자연어로 답변</li>
+</ul>
+<hr>
+<h2 id="관련-콘텐츠">관련 콘텐츠<a class="anchor" href="#%ea%b4%80%eb%a0%a8-%ec%bd%98%ed%85%90%ec%b8%a0">#</a></h2>
+<ul>
+<li><a href="/docs/math/contrastive">Contrastive Learning</a> - CLIP의 수학적 기초</li>
+<li><a href="/docs/architecture/transformer/vit">ViT</a> - 이미지 인코더</li>
+<li><a href="/docs/task/vision-language">Vision-Language 태스크</a> - VQA, Captioning</li>
+</ul>
+</article>
+ 
+      
+
+      <footer class="book-footer">
+        
+  <div class="flex flex-wrap justify-between">
+
+<div>
+
+</div>
+
+<div>
+
+</div>
+
+</div>
+
+
+
+
+
+  
+  
+  
+  <div class="flex flex-wrap justify-between">
+    <span>
+    
+      <a href="/docs/architecture/generative/controlnet/" class="flex align-center">
+        <img src="/icons/backward.svg" class="book-icon" alt="Backward" />
+        <span>ControlNet</span>
+      </a>
+    
+    </span>
+    <span>
+    
+      <a href="/docs/architecture/multimodal/clip/" class="flex align-center">
+        <span>CLIP</span>
+        <img src="/icons/forward.svg" class="book-icon" alt="Forward" />
+      </a>
+    
+    </span>
+  </div>
+  
+
+
+ 
+        
+  
+  <div class="book-comments">
+
+</div>
+  
+ 
+        
+        
+  
+ 
+        
+  
+  
+    <script>(function(){document.querySelectorAll("pre:has(code)").forEach(e=>{e.addEventListener("click",e.focus),e.addEventListener("copy",function(t){if(t.preventDefault(),navigator.clipboard){const t=window.getSelection().toString()||e.textContent;navigator.clipboard.writeText(t)}})})})()</script>
+  
+
+      </footer>
+
+      <label for="menu-control" class="hidden book-menu-overlay"></label>
+    </div>
+
+    
+  
+  <aside class="book-toc">
+    <div class="book-toc-content">
+      
+  
+<nav id="TableOfContents">
+  <ul>
+    <li><a href="#발전-과정">발전 과정</a></li>
+    <li><a href="#주요-모델">주요 모델</a></li>
+    <li><a href="#두-가지-접근">두 가지 접근</a>
+      <ul>
+        <li><a href="#dual-encoder-clip-방식">Dual Encoder (CLIP 방식)</a></li>
+        <li><a href="#llm-기반-vlm-방식">LLM 기반 (VLM 방식)</a></li>
+      </ul>
+    </li>
+    <li><a href="#관련-콘텐츠">관련 콘텐츠</a></li>
+  </ul>
+</nav>
+
+
+
+    </div>
+  </aside>
+  
+ 
+  </main>
+
+  
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,1212 @@
+<!DOCTYPE html>
+<html lang="ko-KR" dir="ltr">
+<head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
+  <!--
+Made with Book Theme
+https://github.com/alex-shpak/hugo-book
+-->
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="SAM (Segment Anything Model)# 개요# 논문: Segment Anything (2023) 저자: Alexander Kirillov et al. (Meta AI) 핵심 기여: 프롬프트 기반의 범용 segmentation foundation model 핵심 아이디어# “한 번 학습으로 모든 객체를 segmentation”
+Point, box, text 등 다양한 프롬프트로 원하는 객체를 분할합니다.
+프로젝트 구성# 세 가지 요소# Task: Promptable segmentation Model: SAM 아키텍처 Data: SA-1B 데이터셋 (11M 이미지, 1.1B 마스크) 구조# 전체 아키텍처# ┌─────────────────────────────────────────┐ │ Image Encoder │ │ (ViT-H, 실행 1회) │ │ Image → Image Embeddings │ └─────────────────────────────────────────┘ ↓ ┌─────────────────────────────────────────┐ │ Prompt Encoder │ │ Points/Boxes/Text → Prompt Tokens │ └─────────────────────────────────────────┘ ↓ ┌─────────────────────────────────────────┐ │ Mask Decoder │ │ Image Emb &#43; Prompt → Masks │ └─────────────────────────────────────────┘ ↓ Output Masks1. Image Encoder# 모델: ViT-H (Vision Transformer Huge) 입력: 1024×1024 이미지 출력: 64×64 feature embedding 특징: 이미지당 한 번만 실행 (0.15초) 2. Prompt Encoder# 다양한 프롬프트 처리:
+">
+<meta name="theme-color" media="(prefers-color-scheme: light)" content="#ffffff">
+<meta name="theme-color" media="(prefers-color-scheme: dark)" content="#343a40">
+<meta name="color-scheme" content="light dark"><meta property="og:url" content="http://localhost:1313/docs/architecture/segmentation/sam/">
+  <meta property="og:site_name" content="Vision Engineer 지식 가이드">
+  <meta property="og:title" content="SAM">
+  <meta property="og:description" content="SAM (Segment Anything Model)# 개요# 논문: Segment Anything (2023) 저자: Alexander Kirillov et al. (Meta AI) 핵심 기여: 프롬프트 기반의 범용 segmentation foundation model 핵심 아이디어# “한 번 학습으로 모든 객체를 segmentation”
+Point, box, text 등 다양한 프롬프트로 원하는 객체를 분할합니다.
+프로젝트 구성# 세 가지 요소# Task: Promptable segmentation Model: SAM 아키텍처 Data: SA-1B 데이터셋 (11M 이미지, 1.1B 마스크) 구조# 전체 아키텍처# ┌─────────────────────────────────────────┐ │ Image Encoder │ │ (ViT-H, 실행 1회) │ │ Image → Image Embeddings │ └─────────────────────────────────────────┘ ↓ ┌─────────────────────────────────────────┐ │ Prompt Encoder │ │ Points/Boxes/Text → Prompt Tokens │ └─────────────────────────────────────────┘ ↓ ┌─────────────────────────────────────────┐ │ Mask Decoder │ │ Image Emb &#43; Prompt → Masks │ └─────────────────────────────────────────┘ ↓ Output Masks1. Image Encoder# 모델: ViT-H (Vision Transformer Huge) 입력: 1024×1024 이미지 출력: 64×64 feature embedding 특징: 이미지당 한 번만 실행 (0.15초) 2. Prompt Encoder# 다양한 프롬프트 처리:">
+  <meta property="og:locale" content="ko_KR">
+  <meta property="og:type" content="article">
+    <meta property="article:section" content="docs">
+
+
+  <meta itemprop="name" content="SAM">
+  <meta itemprop="description" content="SAM (Segment Anything Model)# 개요# 논문: Segment Anything (2023) 저자: Alexander Kirillov et al. (Meta AI) 핵심 기여: 프롬프트 기반의 범용 segmentation foundation model 핵심 아이디어# “한 번 학습으로 모든 객체를 segmentation”
+Point, box, text 등 다양한 프롬프트로 원하는 객체를 분할합니다.
+프로젝트 구성# 세 가지 요소# Task: Promptable segmentation Model: SAM 아키텍처 Data: SA-1B 데이터셋 (11M 이미지, 1.1B 마스크) 구조# 전체 아키텍처# ┌─────────────────────────────────────────┐ │ Image Encoder │ │ (ViT-H, 실행 1회) │ │ Image → Image Embeddings │ └─────────────────────────────────────────┘ ↓ ┌─────────────────────────────────────────┐ │ Prompt Encoder │ │ Points/Boxes/Text → Prompt Tokens │ └─────────────────────────────────────────┘ ↓ ┌─────────────────────────────────────────┐ │ Mask Decoder │ │ Image Emb &#43; Prompt → Masks │ └─────────────────────────────────────────┘ ↓ Output Masks1. Image Encoder# 모델: ViT-H (Vision Transformer Huge) 입력: 1024×1024 이미지 출력: 64×64 feature embedding 특징: 이미지당 한 번만 실행 (0.15초) 2. Prompt Encoder# 다양한 프롬프트 처리:">
+  <meta itemprop="wordCount" content="485">
+
+<title>SAM | Vision Engineer 지식 가이드</title>
+<link rel="icon" href="/favicon.png" >
+<link rel="manifest" href="/manifest.json">
+<link rel="canonical" href="http://localhost:1313/docs/architecture/segmentation/sam/">
+<link rel="stylesheet" href="/book.min.6970156cec683193d93c9c4edaf0d56574e4361df2e0c1be4f697ae81c3ba55f.css" integrity="sha256-aXAVbOxoMZPZPJxO2vDVZXTkNh3y4MG&#43;T2l66Bw7pV8=" crossorigin="anonymous">
+
+
+  <script defer src="/fuse.min.js"></script>
+  <script defer src="/ko.search.min.26f28136458cea7ff1c69490935901eb5c29bceec55294f9efe562732e8a3b1a.js" integrity="sha256-JvKBNkWM6n/xxpSQk1kB61wpvO7FUpT57&#43;Vicy6KOxo=" crossorigin="anonymous"></script>
+
+
+
+  
+</head>
+<body dir="ltr" class="book-kind-page book-type-docs">
+  <input type="checkbox" class="hidden toggle" id="menu-control" />
+  <input type="checkbox" class="hidden toggle" id="toc-control" />
+  <main class="container flex">
+    
+<aside class="book-menu">
+  <div class="book-menu-content">
+    
+  <nav>
+<h2 class="book-brand">
+  <a class="flex align-center" href="/"><span>Vision Engineer 지식 가이드</span>
+  </a>
+</h2>
+
+
+<div class="book-search hidden">
+  <input id="book-search-input" type="text" 
+    placeholder="Search"
+    aria-label="Search"
+    maxlength="64" data-hotkeys="s/" />
+  <div class="book-search-spinner hidden"></div>
+  <ul id="book-search-results"></ul>
+</div>
+<script>document.querySelector(".book-search").classList.remove("hidden")</script>
+
+
+
+  
+
+
+  
+    
+  
+
+
+
+<ul class="book-languages">
+  <li>
+    <input type="checkbox" id="languages" class="toggle" />
+    <label for="languages" class="flex">
+      <a role="button">
+        <img src="/icons/translate.svg" class="book-icon" alt="Languages" />
+        한국어
+      </a>
+      <img src="/icons/chevron-right.svg" class="book-icon" alt="Expand" />
+    </label>
+
+    <ul>
+      
+      <li>
+        <a href="/en/" class="flex flex-auto">
+          English
+        </a>
+      </li>
+      
+    </ul>
+  </li>
+</ul>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <input type="checkbox" id="section-14bcba7439f342435c91a57530ca56c8" class="toggle"  />
+    <label for="section-14bcba7439f342435c91a57530ca56c8" class="flex">
+      <a href="/docs/timeline/" class="">
+        타임라인</a>
+      <img src="/icons/chevron-right.svg" class="book-icon" alt="Expand" />
+    </label>
+  
+
+          
+  <ul>
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <input type="checkbox" id="section-cb9657695dbd536c3a44d019c4d6ef98" class="toggle"  />
+    <label for="section-cb9657695dbd536c3a44d019c4d6ef98" class="flex">
+      <a href="/docs/topdown/" class="">
+        Top-Down</a>
+      <img src="/icons/chevron-right.svg" class="book-icon" alt="Expand" />
+    </label>
+  
+
+          
+  <ul>
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <input type="checkbox" id="section-e7f22db027b1c591ed84a4d4d3a6014f" class="toggle"  />
+    <label for="section-e7f22db027b1c591ed84a4d4d3a6014f" class="flex">
+      <a href="/docs/bottomup/" class="">
+        Bottom-Up</a>
+      <img src="/icons/chevron-right.svg" class="book-icon" alt="Expand" />
+    </label>
+  
+
+          
+  <ul>
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <input type="checkbox" id="section-ce31bba1d1f88a1d133a7e7232f1b4ec" class="toggle"  />
+    <label for="section-ce31bba1d1f88a1d133a7e7232f1b4ec" class="flex">
+      <a href="/docs/math/" class="">
+        수학</a>
+      <img src="/icons/chevron-right.svg" class="book-icon" alt="Expand" />
+    </label>
+  
+
+          
+  <ul>
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <input type="checkbox" id="section-32f2aee524dad19f5100855d6e2014e6" class="toggle" checked />
+    <label for="section-32f2aee524dad19f5100855d6e2014e6" class="flex">
+      <a href="/docs/architecture/" class="">
+        아키텍처</a>
+      <img src="/icons/chevron-right.svg" class="book-icon" alt="Expand" />
+    </label>
+  
+
+          
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <input type="checkbox" id="section-47444199c3019e8b479623bc90a9bd74" class="toggle"  />
+    <label for="section-47444199c3019e8b479623bc90a9bd74" class="flex">
+      <a href="/docs/architecture/classical/" class="">
+        Classical CV</a>
+      <img src="/icons/chevron-right.svg" class="book-icon" alt="Expand" />
+    </label>
+  
+
+          
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/architecture/classical/sift-hog/" class="">
+      SIFT &amp; HOG</a>
+  
+
+        </li>
+      
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <input type="checkbox" id="section-7bf44239f7ce2c72600738f8c315efe4" class="toggle"  />
+    <label for="section-7bf44239f7ce2c72600738f8c315efe4" class="flex">
+      <a href="/docs/architecture/cnn/" class="">
+        CNN</a>
+      <img src="/icons/chevron-right.svg" class="book-icon" alt="Expand" />
+    </label>
+  
+
+          
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/architecture/cnn/alexnet/" class="">
+      AlexNet</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/architecture/cnn/vgg/" class="">
+      VGG</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/architecture/cnn/resnet/" class="">
+      ResNet</a>
+  
+
+        </li>
+      
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <input type="checkbox" id="section-274b800b12326ef4e06255cf5f15c308" class="toggle"  />
+    <label for="section-274b800b12326ef4e06255cf5f15c308" class="flex">
+      <a href="/docs/architecture/detection/" class="">
+        Detection</a>
+      <img src="/icons/chevron-right.svg" class="book-icon" alt="Expand" />
+    </label>
+  
+
+          
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/architecture/detection/faster-rcnn/" class="">
+      Faster R-CNN</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/architecture/detection/yolo/" class="">
+      YOLO</a>
+  
+
+        </li>
+      
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <input type="checkbox" id="section-7246e67fd6c549f3bd6240d998b23a6f" class="toggle" checked />
+    <label for="section-7246e67fd6c549f3bd6240d998b23a6f" class="flex">
+      <a href="/docs/architecture/segmentation/" class="">
+        Segmentation</a>
+      <img src="/icons/chevron-right.svg" class="book-icon" alt="Expand" />
+    </label>
+  
+
+          
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/architecture/segmentation/unet/" class="">
+      U-Net</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/architecture/segmentation/mask-rcnn/" class="">
+      Mask R-CNN</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/architecture/segmentation/sam/" class="active">
+      SAM</a>
+  
+
+        </li>
+      
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <input type="checkbox" id="section-3a9f4e0826e1b9e72550db30b2adcad7" class="toggle"  />
+    <label for="section-3a9f4e0826e1b9e72550db30b2adcad7" class="flex">
+      <a href="/docs/architecture/transformer/" class="">
+        Transformer</a>
+      <img src="/icons/chevron-right.svg" class="book-icon" alt="Expand" />
+    </label>
+  
+
+          
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/architecture/transformer/vit/" class="">
+      ViT</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/architecture/transformer/dit/" class="">
+      DiT</a>
+  
+
+        </li>
+      
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <input type="checkbox" id="section-2902afa0a62febfd7a5eb243df871e8c" class="toggle"  />
+    <label for="section-2902afa0a62febfd7a5eb243df871e8c" class="flex">
+      <a href="/docs/architecture/generative/" class="">
+        Generative</a>
+      <img src="/icons/chevron-right.svg" class="book-icon" alt="Expand" />
+    </label>
+  
+
+          
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/architecture/generative/vae/" class="">
+      VAE</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/architecture/generative/gan/" class="">
+      GAN</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/architecture/generative/stable-diffusion/" class="">
+      Stable Diffusion</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/architecture/generative/controlnet/" class="">
+      ControlNet</a>
+  
+
+        </li>
+      
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <input type="checkbox" id="section-1670f136e85bf39bce97c9ee224d29d9" class="toggle"  />
+    <label for="section-1670f136e85bf39bce97c9ee224d29d9" class="flex">
+      <a href="/docs/architecture/multimodal/" class="">
+        Multimodal</a>
+      <img src="/icons/chevron-right.svg" class="book-icon" alt="Expand" />
+    </label>
+  
+
+          
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/architecture/multimodal/clip/" class="">
+      CLIP</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/architecture/multimodal/vlm/" class="">
+      VLM</a>
+  
+
+        </li>
+      
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <input type="checkbox" id="section-fc1b0b4545ce791b47ab3fe55b854e56" class="toggle"  />
+    <label for="section-fc1b0b4545ce791b47ab3fe55b854e56" class="flex">
+      <a href="/docs/architecture/3d/" class="">
+        3D Vision</a>
+      <img src="/icons/chevron-right.svg" class="book-icon" alt="Expand" />
+    </label>
+  
+
+          
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/architecture/3d/nerf/" class="">
+      NeRF</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/architecture/3d/3dgs/" class="">
+      3D Gaussian Splatting</a>
+  
+
+        </li>
+      
+    
+  </ul>
+
+        </li>
+      
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <input type="checkbox" id="section-cd575cc6fd4e25b684b552791b7a009a" class="toggle"  />
+    <label for="section-cd575cc6fd4e25b684b552791b7a009a" class="flex">
+      <a href="/docs/task/" class="">
+        태스크</a>
+      <img src="/icons/chevron-right.svg" class="book-icon" alt="Expand" />
+    </label>
+  
+
+          
+  <ul>
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <input type="checkbox" id="section-fb690f19903e1435676f710c928c9ad4" class="toggle"  />
+    <label for="section-fb690f19903e1435676f710c928c9ad4" class="flex">
+      <a href="/docs/etc/" class="">
+        기타 자료</a>
+      <img src="/icons/chevron-right.svg" class="book-icon" alt="Expand" />
+    </label>
+  
+
+          
+  <ul>
+    
+  </ul>
+
+        </li>
+      
+    
+  </ul>
+
+
+
+
+
+
+
+
+
+
+
+
+
+</nav>
+
+
+
+
+  <script>(function(){var e=document.querySelector("aside .book-menu-content");addEventListener("beforeunload",function(){localStorage.setItem("menu.scrollTop",e.scrollTop)}),e.scrollTop=localStorage.getItem("menu.scrollTop")})()</script>
+
+
+
+  </div>
+</aside>
+ 
+
+    <div class="book-page">
+      <header class="book-header hidden">
+        
+  <div class="flex align-center justify-between">
+  <label for="menu-control">
+    <img src="/icons/menu.svg" class="book-icon" alt="Menu" />
+  </label>
+
+  <h3>SAM</h3>
+
+  <label for="toc-control">
+    
+    <img src="/icons/toc.svg" class="book-icon" alt="Table of Contents" />
+    
+  </label>
+</div>
+
+
+  
+  <aside class="hidden">
+    
+  
+<nav id="TableOfContents">
+  <ul>
+    <li><a href="#개요">개요</a></li>
+    <li><a href="#핵심-아이디어">핵심 아이디어</a></li>
+    <li><a href="#프로젝트-구성">프로젝트 구성</a>
+      <ul>
+        <li><a href="#세-가지-요소">세 가지 요소</a></li>
+      </ul>
+    </li>
+    <li><a href="#구조">구조</a>
+      <ul>
+        <li><a href="#전체-아키텍처">전체 아키텍처</a></li>
+        <li><a href="#1-image-encoder">1. Image Encoder</a></li>
+        <li><a href="#2-prompt-encoder">2. Prompt Encoder</a></li>
+        <li><a href="#3-mask-decoder">3. Mask Decoder</a></li>
+      </ul>
+    </li>
+    <li><a href="#프롬프트-유형">프롬프트 유형</a>
+      <ul>
+        <li><a href="#point-prompt">Point Prompt</a></li>
+        <li><a href="#box-prompt">Box Prompt</a></li>
+        <li><a href="#mask-prompt">Mask Prompt</a></li>
+      </ul>
+    </li>
+    <li><a href="#구현-예시">구현 예시</a>
+      <ul>
+        <li><a href="#automatic-mask-generation">Automatic Mask Generation</a></li>
+      </ul>
+    </li>
+    <li><a href="#모델-변형">모델 변형</a>
+      <ul>
+        <li><a href="#경량화-버전">경량화 버전</a></li>
+      </ul>
+    </li>
+    <li><a href="#sa-1b-데이터셋">SA-1B 데이터셋</a>
+      <ul>
+        <li><a href="#데이터-엔진">데이터 엔진</a></li>
+        <li><a href="#규모">규모</a></li>
+      </ul>
+    </li>
+    <li><a href="#활용">활용</a>
+      <ul>
+        <li><a href="#zero-shot-transfer">Zero-shot Transfer</a></li>
+        <li><a href="#응용-분야">응용 분야</a></li>
+      </ul>
+    </li>
+    <li><a href="#sam-2-2024">SAM 2 (2024)</a></li>
+    <li><a href="#한계점">한계점</a></li>
+    <li><a href="#관련-콘텐츠">관련 콘텐츠</a></li>
+  </ul>
+</nav>
+
+
+
+  </aside>
+  
+ 
+      </header>
+
+      
+      
+  <article class="markdown book-article"><h1 id="sam-segment-anything-model">SAM (Segment Anything Model)<a class="anchor" href="#sam-segment-anything-model">#</a></h1>
+<h2 id="개요">개요<a class="anchor" href="#%ea%b0%9c%ec%9a%94">#</a></h2>
+<ul>
+<li><strong>논문</strong>: Segment Anything (2023)</li>
+<li><strong>저자</strong>: Alexander Kirillov et al. (Meta AI)</li>
+<li><strong>핵심 기여</strong>: 프롬프트 기반의 범용 segmentation foundation model</li>
+</ul>
+<h2 id="핵심-아이디어">핵심 아이디어<a class="anchor" href="#%ed%95%b5%ec%8b%ac-%ec%95%84%ec%9d%b4%eb%94%94%ec%96%b4">#</a></h2>
+<blockquote class='book-hint '>
+<p>&ldquo;한 번 학습으로 모든 객체를 segmentation&rdquo;</p>
+</blockquote><p>Point, box, text 등 다양한 프롬프트로 원하는 객체를 분할합니다.</p>
+<hr>
+<h2 id="프로젝트-구성">프로젝트 구성<a class="anchor" href="#%ed%94%84%eb%a1%9c%ec%a0%9d%ed%8a%b8-%ea%b5%ac%ec%84%b1">#</a></h2>
+<h3 id="세-가지-요소">세 가지 요소<a class="anchor" href="#%ec%84%b8-%ea%b0%80%ec%a7%80-%ec%9a%94%ec%86%8c">#</a></h3>
+<ol>
+<li><strong>Task</strong>: Promptable segmentation</li>
+<li><strong>Model</strong>: SAM 아키텍처</li>
+<li><strong>Data</strong>: SA-1B 데이터셋 (11M 이미지, 1.1B 마스크)</li>
+</ol>
+<hr>
+<h2 id="구조">구조<a class="anchor" href="#%ea%b5%ac%ec%a1%b0">#</a></h2>
+<h3 id="전체-아키텍처">전체 아키텍처<a class="anchor" href="#%ec%a0%84%ec%b2%b4-%ec%95%84%ed%82%a4%ed%85%8d%ec%b2%98">#</a></h3>
+<pre tabindex="0"><code>┌─────────────────────────────────────────┐
+│            Image Encoder                 │
+│         (ViT-H, 실행 1회)                │
+│    Image → Image Embeddings             │
+└─────────────────────────────────────────┘
+                    ↓
+┌─────────────────────────────────────────┐
+│           Prompt Encoder                 │
+│   Points/Boxes/Text → Prompt Tokens     │
+└─────────────────────────────────────────┘
+                    ↓
+┌─────────────────────────────────────────┐
+│           Mask Decoder                   │
+│   Image Emb + Prompt → Masks            │
+└─────────────────────────────────────────┘
+                    ↓
+            Output Masks</code></pre><h3 id="1-image-encoder">1. Image Encoder<a class="anchor" href="#1-image-encoder">#</a></h3>
+<ul>
+<li><strong>모델</strong>: ViT-H (Vision Transformer Huge)</li>
+<li><strong>입력</strong>: 1024×1024 이미지</li>
+<li><strong>출력</strong>: 64×64 feature embedding</li>
+<li><strong>특징</strong>: 이미지당 한 번만 실행 (0.15초)</li>
+</ul>
+<h3 id="2-prompt-encoder">2. Prompt Encoder<a class="anchor" href="#2-prompt-encoder">#</a></h3>
+<p>다양한 프롬프트 처리:</p>
+<table>
+  <thead>
+      <tr>
+          <th>프롬프트</th>
+          <th>인코딩 방식</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>Point</td>
+          <td>Positional encoding + learned embedding</td>
+      </tr>
+      <tr>
+          <td>Box</td>
+          <td>Corner points의 positional encoding</td>
+      </tr>
+      <tr>
+          <td>Mask</td>
+          <td>Convolution으로 downsampling</td>
+      </tr>
+      <tr>
+          <td>Text</td>
+          <td>CLIP text encoder (연구 중)</td>
+      </tr>
+  </tbody>
+</table>
+<h3 id="3-mask-decoder">3. Mask Decoder<a class="anchor" href="#3-mask-decoder">#</a></h3>
+<ul>
+<li>Transformer 기반 경량 디코더</li>
+<li>양방향 attention (prompt ↔ image)</li>
+<li>다중 마스크 출력 (모호성 해결)</li>
+</ul>
+<hr>
+<h2 id="프롬프트-유형">프롬프트 유형<a class="anchor" href="#%ed%94%84%eb%a1%ac%ed%94%84%ed%8a%b8-%ec%9c%a0%ed%98%95">#</a></h2>
+<h3 id="point-prompt">Point Prompt<a class="anchor" href="#point-prompt">#</a></h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#75715e"># 클릭 한 번으로 객체 선택</span>
+</span></span><span style="display:flex;"><span>point_coords <span style="color:#f92672">=</span> [[<span style="color:#ae81ff">500</span>, <span style="color:#ae81ff">375</span>]]  <span style="color:#75715e"># x, y</span>
+</span></span><span style="display:flex;"><span>point_labels <span style="color:#f92672">=</span> [<span style="color:#ae81ff">1</span>]  <span style="color:#75715e"># 1: foreground, 0: background</span></span></span></code></pre></div><h3 id="box-prompt">Box Prompt<a class="anchor" href="#box-prompt">#</a></h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#75715e"># Bounding box로 객체 범위 지정</span>
+</span></span><span style="display:flex;"><span>box <span style="color:#f92672">=</span> [<span style="color:#ae81ff">100</span>, <span style="color:#ae81ff">100</span>, <span style="color:#ae81ff">400</span>, <span style="color:#ae81ff">400</span>]  <span style="color:#75715e"># x1, y1, x2, y2</span></span></span></code></pre></div><h3 id="mask-prompt">Mask Prompt<a class="anchor" href="#mask-prompt">#</a></h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#75715e"># 이전 마스크를 프롬프트로 사용 (iterative refinement)</span>
+</span></span><span style="display:flex;"><span>mask_input <span style="color:#f92672">=</span> previous_mask</span></span></code></pre></div><hr>
+<h2 id="구현-예시">구현 예시<a class="anchor" href="#%ea%b5%ac%ed%98%84-%ec%98%88%ec%8b%9c">#</a></h2>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#f92672">from</span> segment_anything <span style="color:#f92672">import</span> sam_model_registry, SamPredictor
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># 모델 로드</span>
+</span></span><span style="display:flex;"><span>sam <span style="color:#f92672">=</span> sam_model_registry[<span style="color:#e6db74">&#34;vit_h&#34;</span>](checkpoint<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;sam_vit_h.pth&#34;</span>)
+</span></span><span style="display:flex;"><span>predictor <span style="color:#f92672">=</span> SamPredictor(sam)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># 이미지 설정 (한 번만 실행)</span>
+</span></span><span style="display:flex;"><span>predictor<span style="color:#f92672">.</span>set_image(image)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># Point prompt로 예측</span>
+</span></span><span style="display:flex;"><span>masks, scores, logits <span style="color:#f92672">=</span> predictor<span style="color:#f92672">.</span>predict(
+</span></span><span style="display:flex;"><span>    point_coords<span style="color:#f92672">=</span>np<span style="color:#f92672">.</span>array([[<span style="color:#ae81ff">500</span>, <span style="color:#ae81ff">375</span>]]),
+</span></span><span style="display:flex;"><span>    point_labels<span style="color:#f92672">=</span>np<span style="color:#f92672">.</span>array([<span style="color:#ae81ff">1</span>]),
+</span></span><span style="display:flex;"><span>    multimask_output<span style="color:#f92672">=</span><span style="color:#66d9ef">True</span>,  <span style="color:#75715e"># 3개 마스크 출력</span>
+</span></span><span style="display:flex;"><span>)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># Box prompt로 예측</span>
+</span></span><span style="display:flex;"><span>masks, scores, logits <span style="color:#f92672">=</span> predictor<span style="color:#f92672">.</span>predict(
+</span></span><span style="display:flex;"><span>    box<span style="color:#f92672">=</span>np<span style="color:#f92672">.</span>array([<span style="color:#ae81ff">100</span>, <span style="color:#ae81ff">100</span>, <span style="color:#ae81ff">400</span>, <span style="color:#ae81ff">400</span>]),
+</span></span><span style="display:flex;"><span>    multimask_output<span style="color:#f92672">=</span><span style="color:#66d9ef">False</span>,
+</span></span><span style="display:flex;"><span>)</span></span></code></pre></div><h3 id="automatic-mask-generation">Automatic Mask Generation<a class="anchor" href="#automatic-mask-generation">#</a></h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#f92672">from</span> segment_anything <span style="color:#f92672">import</span> SamAutomaticMaskGenerator
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>mask_generator <span style="color:#f92672">=</span> SamAutomaticMaskGenerator(sam)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># 이미지의 모든 객체 자동 분할</span>
+</span></span><span style="display:flex;"><span>masks <span style="color:#f92672">=</span> mask_generator<span style="color:#f92672">.</span>generate(image)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># 각 마스크 정보</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">for</span> mask <span style="color:#f92672">in</span> masks:
+</span></span><span style="display:flex;"><span>    print(mask[<span style="color:#e6db74">&#39;segmentation&#39;</span>]<span style="color:#f92672">.</span>shape)  <span style="color:#75715e"># binary mask</span>
+</span></span><span style="display:flex;"><span>    print(mask[<span style="color:#e6db74">&#39;area&#39;</span>])  <span style="color:#75715e"># 마스크 면적</span>
+</span></span><span style="display:flex;"><span>    print(mask[<span style="color:#e6db74">&#39;bbox&#39;</span>])  <span style="color:#75715e"># bounding box</span>
+</span></span><span style="display:flex;"><span>    print(mask[<span style="color:#e6db74">&#39;predicted_iou&#39;</span>])  <span style="color:#75715e"># 예측 IoU</span>
+</span></span><span style="display:flex;"><span>    print(mask[<span style="color:#e6db74">&#39;stability_score&#39;</span>])  <span style="color:#75715e"># 안정성 점수</span></span></span></code></pre></div><hr>
+<h2 id="모델-변형">모델 변형<a class="anchor" href="#%eb%aa%a8%eb%8d%b8-%eb%b3%80%ed%98%95">#</a></h2>
+<table>
+  <thead>
+      <tr>
+          <th>모델</th>
+          <th>Encoder</th>
+          <th>파라미터</th>
+          <th>속도</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>SAM ViT-H</td>
+          <td>ViT-Huge</td>
+          <td>636M</td>
+          <td>0.15s/image</td>
+      </tr>
+      <tr>
+          <td>SAM ViT-L</td>
+          <td>ViT-Large</td>
+          <td>308M</td>
+          <td>0.1s/image</td>
+      </tr>
+      <tr>
+          <td>SAM ViT-B</td>
+          <td>ViT-Base</td>
+          <td>91M</td>
+          <td>0.06s/image</td>
+      </tr>
+  </tbody>
+</table>
+<h3 id="경량화-버전">경량화 버전<a class="anchor" href="#%ea%b2%bd%eb%9f%89%ed%99%94-%eb%b2%84%ec%a0%84">#</a></h3>
+<ul>
+<li><strong>MobileSAM</strong>: 모바일용 경량 모델</li>
+<li><strong>FastSAM</strong>: YOLO 기반 실시간 버전</li>
+<li><strong>EfficientSAM</strong>: 효율적인 학습 방법</li>
+</ul>
+<hr>
+<h2 id="sa-1b-데이터셋">SA-1B 데이터셋<a class="anchor" href="#sa-1b-%eb%8d%b0%ec%9d%b4%ed%84%b0%ec%85%8b">#</a></h2>
+<h3 id="데이터-엔진">데이터 엔진<a class="anchor" href="#%eb%8d%b0%ec%9d%b4%ed%84%b0-%ec%97%94%ec%a7%84">#</a></h3>
+<pre tabindex="0"><code>1. Manual Phase: 전문가가 마스크 생성
+2. Semi-Automatic: SAM 제안 + 사람 수정
+3. Fully Automatic: SAM 자동 생성 + 검증</code></pre><h3 id="규모">규모<a class="anchor" href="#%ea%b7%9c%eb%aa%a8">#</a></h3>
+<ul>
+<li>11M 이미지</li>
+<li>1.1B 마스크</li>
+<li>평균 이미지당 100개 마스크</li>
+</ul>
+<hr>
+<h2 id="활용">활용<a class="anchor" href="#%ed%99%9c%ec%9a%a9">#</a></h2>
+<h3 id="zero-shot-transfer">Zero-shot Transfer<a class="anchor" href="#zero-shot-transfer">#</a></h3>
+<p>학습하지 않은 도메인에서도 동작:</p>
+<ul>
+<li>의료 영상</li>
+<li>위성 영상</li>
+<li>현미경 이미지</li>
+</ul>
+<h3 id="응용-분야">응용 분야<a class="anchor" href="#%ec%9d%91%ec%9a%a9-%eb%b6%84%ec%95%bc">#</a></h3>
+<ul>
+<li><strong>이미지 편집</strong>: 객체 선택 및 제거</li>
+<li><strong>Annotation 도구</strong>: 라벨링 자동화</li>
+<li><strong>AR/VR</strong>: 실시간 객체 분할</li>
+<li><strong>비디오 분석</strong>: 프레임별 segmentation</li>
+</ul>
+<hr>
+<h2 id="sam-2-2024">SAM 2 (2024)<a class="anchor" href="#sam-2-2024">#</a></h2>
+<p>SAM의 비디오 확장:</p>
+<ul>
+<li>비디오 전체에서 객체 추적</li>
+<li>시간적 일관성 유지</li>
+<li>메모리 효율적 처리</li>
+</ul>
+<hr>
+<h2 id="한계점">한계점<a class="anchor" href="#%ed%95%9c%ea%b3%84%ec%a0%90">#</a></h2>
+<ul>
+<li>큰 모델 크기 (ViT-H)</li>
+<li>세밀한 경계에서 부정확</li>
+<li>Text prompt 지원 제한적</li>
+<li>Real-time 어려움</li>
+</ul>
+<hr>
+<h2 id="관련-콘텐츠">관련 콘텐츠<a class="anchor" href="#%ea%b4%80%eb%a0%a8-%ec%bd%98%ed%85%90%ec%b8%a0">#</a></h2>
+<ul>
+<li><a href="/docs/architecture/transformer/vit">ViT</a> - Image encoder 기반</li>
+<li><a href="/docs/architecture/segmentation/mask-rcnn">Mask R-CNN</a> - Instance segmentation</li>
+<li><a href="/docs/architecture/multimodal/clip">CLIP</a> - Text-image 연결</li>
+<li><a href="/docs/task/segmentation">Segmentation 태스크</a> - 평가 지표</li>
+</ul>
+</article>
+ 
+      
+
+      <footer class="book-footer">
+        
+  <div class="flex flex-wrap justify-between">
+
+<div>
+
+</div>
+
+<div>
+
+</div>
+
+</div>
+
+
+
+
+
+  
+  
+  
+  <div class="flex flex-wrap justify-between">
+    <span>
+    
+      <a href="/docs/architecture/segmentation/mask-rcnn/" class="flex align-center">
+        <img src="/icons/backward.svg" class="book-icon" alt="Backward" />
+        <span>Mask R-CNN</span>
+      </a>
+    
+    </span>
+    <span>
+    
+      <a href="/docs/architecture/transformer/" class="flex align-center">
+        <span>Transformer</span>
+        <img src="/icons/forward.svg" class="book-icon" alt="Forward" />
+      </a>
+    
+    </span>
+  </div>
+  
+
+
+ 
+        
+  
+  <div class="book-comments">
+
+</div>
+  
+ 
+        
+        
+  
+ 
+        
+  
+  
+    <script>(function(){document.querySelectorAll("pre:has(code)").forEach(e=>{e.addEventListener("click",e.focus),e.addEventListener("copy",function(t){if(t.preventDefault(),navigator.clipboard){const t=window.getSelection().toString()||e.textContent;navigator.clipboard.writeText(t)}})})})()</script>
+  
+
+      </footer>
+
+      <label for="menu-control" class="hidden book-menu-overlay"></label>
+    </div>
+
+    
+  
+  <aside class="book-toc">
+    <div class="book-toc-content">
+      
+  
+<nav id="TableOfContents">
+  <ul>
+    <li><a href="#개요">개요</a></li>
+    <li><a href="#핵심-아이디어">핵심 아이디어</a></li>
+    <li><a href="#프로젝트-구성">프로젝트 구성</a>
+      <ul>
+        <li><a href="#세-가지-요소">세 가지 요소</a></li>
+      </ul>
+    </li>
+    <li><a href="#구조">구조</a>
+      <ul>
+        <li><a href="#전체-아키텍처">전체 아키텍처</a></li>
+        <li><a href="#1-image-encoder">1. Image Encoder</a></li>
+        <li><a href="#2-prompt-encoder">2. Prompt Encoder</a></li>
+        <li><a href="#3-mask-decoder">3. Mask Decoder</a></li>
+      </ul>
+    </li>
+    <li><a href="#프롬프트-유형">프롬프트 유형</a>
+      <ul>
+        <li><a href="#point-prompt">Point Prompt</a></li>
+        <li><a href="#box-prompt">Box Prompt</a></li>
+        <li><a href="#mask-prompt">Mask Prompt</a></li>
+      </ul>
+    </li>
+    <li><a href="#구현-예시">구현 예시</a>
+      <ul>
+        <li><a href="#automatic-mask-generation">Automatic Mask Generation</a></li>
+      </ul>
+    </li>
+    <li><a href="#모델-변형">모델 변형</a>
+      <ul>
+        <li><a href="#경량화-버전">경량화 버전</a></li>
+      </ul>
+    </li>
+    <li><a href="#sa-1b-데이터셋">SA-1B 데이터셋</a>
+      <ul>
+        <li><a href="#데이터-엔진">데이터 엔진</a></li>
+        <li><a href="#규모">규모</a></li>
+      </ul>
+    </li>
+    <li><a href="#활용">활용</a>
+      <ul>
+        <li><a href="#zero-shot-transfer">Zero-shot Transfer</a></li>
+        <li><a href="#응용-분야">응용 분야</a></li>
+      </ul>
+    </li>
+    <li><a href="#sam-2-2024">SAM 2 (2024)</a></li>
+    <li><a href="#한계점">한계점</a></li>
+    <li><a href="#관련-콘텐츠">관련 콘텐츠</a></li>
+  </ul>
+</nav>
+
+
+
+    </div>
+  </aside>
+  
+ 
+  </main>
+
+  
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

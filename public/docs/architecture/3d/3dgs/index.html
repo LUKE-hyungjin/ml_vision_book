@@ -1,0 +1,1349 @@
+<!DOCTYPE html>
+<html lang="ko-KR" dir="ltr">
+<head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
+  <!--
+Made with Book Theme
+https://github.com/alex-shpak/hugo-book
+-->
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="3D Gaussian Splatting# 개요# 논문: 3D Gaussian Splatting for Real-Time Radiance Field Rendering (2023) 저자: Bernhard Kerbl et al. (Inria, Max Planck Institute) 핵심 기여: 실시간 렌더링이 가능한 명시적 3D 표현 핵심 아이디어# “3D 점들을 Gaussian으로 표현하여 빠르게 렌더링”
+NeRF와 달리 명시적인 점 기반 표현으로 실시간 렌더링을 달성합니다.
+NeRF vs 3D Gaussian Splatting# 측면 NeRF 3DGS 표현 암시적 (MLP) 명시적 (점 집합) 렌더링 Ray marching Rasterization 속도 느림 (분 단위) 실시간 (100&#43; FPS) 학습 느림 (시간~일) 빠름 (분~시간) 편집 어려움 용이 구조# 3D Gaussian 표현# 각 점은 다음 속성을 가짐:
+">
+<meta name="theme-color" media="(prefers-color-scheme: light)" content="#ffffff">
+<meta name="theme-color" media="(prefers-color-scheme: dark)" content="#343a40">
+<meta name="color-scheme" content="light dark"><meta property="og:url" content="http://localhost:1313/docs/architecture/3d/3dgs/">
+  <meta property="og:site_name" content="Vision Engineer 지식 가이드">
+  <meta property="og:title" content="3D Gaussian Splatting">
+  <meta property="og:description" content="3D Gaussian Splatting# 개요# 논문: 3D Gaussian Splatting for Real-Time Radiance Field Rendering (2023) 저자: Bernhard Kerbl et al. (Inria, Max Planck Institute) 핵심 기여: 실시간 렌더링이 가능한 명시적 3D 표현 핵심 아이디어# “3D 점들을 Gaussian으로 표현하여 빠르게 렌더링”
+NeRF와 달리 명시적인 점 기반 표현으로 실시간 렌더링을 달성합니다.
+NeRF vs 3D Gaussian Splatting# 측면 NeRF 3DGS 표현 암시적 (MLP) 명시적 (점 집합) 렌더링 Ray marching Rasterization 속도 느림 (분 단위) 실시간 (100&#43; FPS) 학습 느림 (시간~일) 빠름 (분~시간) 편집 어려움 용이 구조# 3D Gaussian 표현# 각 점은 다음 속성을 가짐:">
+  <meta property="og:locale" content="ko_KR">
+  <meta property="og:type" content="article">
+    <meta property="article:section" content="docs">
+
+
+  <meta itemprop="name" content="3D Gaussian Splatting">
+  <meta itemprop="description" content="3D Gaussian Splatting# 개요# 논문: 3D Gaussian Splatting for Real-Time Radiance Field Rendering (2023) 저자: Bernhard Kerbl et al. (Inria, Max Planck Institute) 핵심 기여: 실시간 렌더링이 가능한 명시적 3D 표현 핵심 아이디어# “3D 점들을 Gaussian으로 표현하여 빠르게 렌더링”
+NeRF와 달리 명시적인 점 기반 표현으로 실시간 렌더링을 달성합니다.
+NeRF vs 3D Gaussian Splatting# 측면 NeRF 3DGS 표현 암시적 (MLP) 명시적 (점 집합) 렌더링 Ray marching Rasterization 속도 느림 (분 단위) 실시간 (100&#43; FPS) 학습 느림 (시간~일) 빠름 (분~시간) 편집 어려움 용이 구조# 3D Gaussian 표현# 각 점은 다음 속성을 가짐:">
+  <meta itemprop="wordCount" content="699">
+
+<title>3D Gaussian Splatting | Vision Engineer 지식 가이드</title>
+<link rel="icon" href="/favicon.png" >
+<link rel="manifest" href="/manifest.json">
+<link rel="canonical" href="http://localhost:1313/docs/architecture/3d/3dgs/">
+<link rel="stylesheet" href="/book.min.6970156cec683193d93c9c4edaf0d56574e4361df2e0c1be4f697ae81c3ba55f.css" integrity="sha256-aXAVbOxoMZPZPJxO2vDVZXTkNh3y4MG&#43;T2l66Bw7pV8=" crossorigin="anonymous">
+
+
+  <script defer src="/fuse.min.js"></script>
+  <script defer src="/ko.search.min.26f28136458cea7ff1c69490935901eb5c29bceec55294f9efe562732e8a3b1a.js" integrity="sha256-JvKBNkWM6n/xxpSQk1kB61wpvO7FUpT57&#43;Vicy6KOxo=" crossorigin="anonymous"></script>
+
+
+
+  
+</head>
+<body dir="ltr" class="book-kind-page book-type-docs">
+  <input type="checkbox" class="hidden toggle" id="menu-control" />
+  <input type="checkbox" class="hidden toggle" id="toc-control" />
+  <main class="container flex">
+    
+<aside class="book-menu">
+  <div class="book-menu-content">
+    
+  <nav>
+<h2 class="book-brand">
+  <a class="flex align-center" href="/"><span>Vision Engineer 지식 가이드</span>
+  </a>
+</h2>
+
+
+<div class="book-search hidden">
+  <input id="book-search-input" type="text" 
+    placeholder="Search"
+    aria-label="Search"
+    maxlength="64" data-hotkeys="s/" />
+  <div class="book-search-spinner hidden"></div>
+  <ul id="book-search-results"></ul>
+</div>
+<script>document.querySelector(".book-search").classList.remove("hidden")</script>
+
+
+
+  
+
+
+  
+    
+  
+
+
+
+<ul class="book-languages">
+  <li>
+    <input type="checkbox" id="languages" class="toggle" />
+    <label for="languages" class="flex">
+      <a role="button">
+        <img src="/icons/translate.svg" class="book-icon" alt="Languages" />
+        한국어
+      </a>
+      <img src="/icons/chevron-right.svg" class="book-icon" alt="Expand" />
+    </label>
+
+    <ul>
+      
+      <li>
+        <a href="/en/" class="flex flex-auto">
+          English
+        </a>
+      </li>
+      
+    </ul>
+  </li>
+</ul>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <input type="checkbox" id="section-14bcba7439f342435c91a57530ca56c8" class="toggle"  />
+    <label for="section-14bcba7439f342435c91a57530ca56c8" class="flex">
+      <a href="/docs/timeline/" class="">
+        타임라인</a>
+      <img src="/icons/chevron-right.svg" class="book-icon" alt="Expand" />
+    </label>
+  
+
+          
+  <ul>
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <input type="checkbox" id="section-cb9657695dbd536c3a44d019c4d6ef98" class="toggle"  />
+    <label for="section-cb9657695dbd536c3a44d019c4d6ef98" class="flex">
+      <a href="/docs/topdown/" class="">
+        Top-Down</a>
+      <img src="/icons/chevron-right.svg" class="book-icon" alt="Expand" />
+    </label>
+  
+
+          
+  <ul>
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <input type="checkbox" id="section-e7f22db027b1c591ed84a4d4d3a6014f" class="toggle"  />
+    <label for="section-e7f22db027b1c591ed84a4d4d3a6014f" class="flex">
+      <a href="/docs/bottomup/" class="">
+        Bottom-Up</a>
+      <img src="/icons/chevron-right.svg" class="book-icon" alt="Expand" />
+    </label>
+  
+
+          
+  <ul>
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <input type="checkbox" id="section-ce31bba1d1f88a1d133a7e7232f1b4ec" class="toggle"  />
+    <label for="section-ce31bba1d1f88a1d133a7e7232f1b4ec" class="flex">
+      <a href="/docs/math/" class="">
+        수학</a>
+      <img src="/icons/chevron-right.svg" class="book-icon" alt="Expand" />
+    </label>
+  
+
+          
+  <ul>
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <input type="checkbox" id="section-32f2aee524dad19f5100855d6e2014e6" class="toggle" checked />
+    <label for="section-32f2aee524dad19f5100855d6e2014e6" class="flex">
+      <a href="/docs/architecture/" class="">
+        아키텍처</a>
+      <img src="/icons/chevron-right.svg" class="book-icon" alt="Expand" />
+    </label>
+  
+
+          
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <input type="checkbox" id="section-47444199c3019e8b479623bc90a9bd74" class="toggle"  />
+    <label for="section-47444199c3019e8b479623bc90a9bd74" class="flex">
+      <a href="/docs/architecture/classical/" class="">
+        Classical CV</a>
+      <img src="/icons/chevron-right.svg" class="book-icon" alt="Expand" />
+    </label>
+  
+
+          
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/architecture/classical/sift-hog/" class="">
+      SIFT &amp; HOG</a>
+  
+
+        </li>
+      
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <input type="checkbox" id="section-7bf44239f7ce2c72600738f8c315efe4" class="toggle"  />
+    <label for="section-7bf44239f7ce2c72600738f8c315efe4" class="flex">
+      <a href="/docs/architecture/cnn/" class="">
+        CNN</a>
+      <img src="/icons/chevron-right.svg" class="book-icon" alt="Expand" />
+    </label>
+  
+
+          
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/architecture/cnn/alexnet/" class="">
+      AlexNet</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/architecture/cnn/vgg/" class="">
+      VGG</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/architecture/cnn/resnet/" class="">
+      ResNet</a>
+  
+
+        </li>
+      
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <input type="checkbox" id="section-274b800b12326ef4e06255cf5f15c308" class="toggle"  />
+    <label for="section-274b800b12326ef4e06255cf5f15c308" class="flex">
+      <a href="/docs/architecture/detection/" class="">
+        Detection</a>
+      <img src="/icons/chevron-right.svg" class="book-icon" alt="Expand" />
+    </label>
+  
+
+          
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/architecture/detection/faster-rcnn/" class="">
+      Faster R-CNN</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/architecture/detection/yolo/" class="">
+      YOLO</a>
+  
+
+        </li>
+      
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <input type="checkbox" id="section-7246e67fd6c549f3bd6240d998b23a6f" class="toggle"  />
+    <label for="section-7246e67fd6c549f3bd6240d998b23a6f" class="flex">
+      <a href="/docs/architecture/segmentation/" class="">
+        Segmentation</a>
+      <img src="/icons/chevron-right.svg" class="book-icon" alt="Expand" />
+    </label>
+  
+
+          
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/architecture/segmentation/unet/" class="">
+      U-Net</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/architecture/segmentation/mask-rcnn/" class="">
+      Mask R-CNN</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/architecture/segmentation/sam/" class="">
+      SAM</a>
+  
+
+        </li>
+      
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <input type="checkbox" id="section-3a9f4e0826e1b9e72550db30b2adcad7" class="toggle"  />
+    <label for="section-3a9f4e0826e1b9e72550db30b2adcad7" class="flex">
+      <a href="/docs/architecture/transformer/" class="">
+        Transformer</a>
+      <img src="/icons/chevron-right.svg" class="book-icon" alt="Expand" />
+    </label>
+  
+
+          
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/architecture/transformer/vit/" class="">
+      ViT</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/architecture/transformer/dit/" class="">
+      DiT</a>
+  
+
+        </li>
+      
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <input type="checkbox" id="section-2902afa0a62febfd7a5eb243df871e8c" class="toggle"  />
+    <label for="section-2902afa0a62febfd7a5eb243df871e8c" class="flex">
+      <a href="/docs/architecture/generative/" class="">
+        Generative</a>
+      <img src="/icons/chevron-right.svg" class="book-icon" alt="Expand" />
+    </label>
+  
+
+          
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/architecture/generative/vae/" class="">
+      VAE</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/architecture/generative/gan/" class="">
+      GAN</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/architecture/generative/stable-diffusion/" class="">
+      Stable Diffusion</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/architecture/generative/controlnet/" class="">
+      ControlNet</a>
+  
+
+        </li>
+      
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <input type="checkbox" id="section-1670f136e85bf39bce97c9ee224d29d9" class="toggle"  />
+    <label for="section-1670f136e85bf39bce97c9ee224d29d9" class="flex">
+      <a href="/docs/architecture/multimodal/" class="">
+        Multimodal</a>
+      <img src="/icons/chevron-right.svg" class="book-icon" alt="Expand" />
+    </label>
+  
+
+          
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/architecture/multimodal/clip/" class="">
+      CLIP</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/architecture/multimodal/vlm/" class="">
+      VLM</a>
+  
+
+        </li>
+      
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <input type="checkbox" id="section-fc1b0b4545ce791b47ab3fe55b854e56" class="toggle" checked />
+    <label for="section-fc1b0b4545ce791b47ab3fe55b854e56" class="flex">
+      <a href="/docs/architecture/3d/" class="">
+        3D Vision</a>
+      <img src="/icons/chevron-right.svg" class="book-icon" alt="Expand" />
+    </label>
+  
+
+          
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/architecture/3d/nerf/" class="">
+      NeRF</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/architecture/3d/3dgs/" class="active">
+      3D Gaussian Splatting</a>
+  
+
+        </li>
+      
+    
+  </ul>
+
+        </li>
+      
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <input type="checkbox" id="section-cd575cc6fd4e25b684b552791b7a009a" class="toggle"  />
+    <label for="section-cd575cc6fd4e25b684b552791b7a009a" class="flex">
+      <a href="/docs/task/" class="">
+        태스크</a>
+      <img src="/icons/chevron-right.svg" class="book-icon" alt="Expand" />
+    </label>
+  
+
+          
+  <ul>
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <input type="checkbox" id="section-fb690f19903e1435676f710c928c9ad4" class="toggle"  />
+    <label for="section-fb690f19903e1435676f710c928c9ad4" class="flex">
+      <a href="/docs/etc/" class="">
+        기타 자료</a>
+      <img src="/icons/chevron-right.svg" class="book-icon" alt="Expand" />
+    </label>
+  
+
+          
+  <ul>
+    
+  </ul>
+
+        </li>
+      
+    
+  </ul>
+
+
+
+
+
+
+
+
+
+
+
+
+
+</nav>
+
+
+
+
+  <script>(function(){var e=document.querySelector("aside .book-menu-content");addEventListener("beforeunload",function(){localStorage.setItem("menu.scrollTop",e.scrollTop)}),e.scrollTop=localStorage.getItem("menu.scrollTop")})()</script>
+
+
+
+  </div>
+</aside>
+ 
+
+    <div class="book-page">
+      <header class="book-header hidden">
+        
+  <div class="flex align-center justify-between">
+  <label for="menu-control">
+    <img src="/icons/menu.svg" class="book-icon" alt="Menu" />
+  </label>
+
+  <h3>3D Gaussian Splatting</h3>
+
+  <label for="toc-control">
+    
+    <img src="/icons/toc.svg" class="book-icon" alt="Table of Contents" />
+    
+  </label>
+</div>
+
+
+  
+  <aside class="hidden">
+    
+  
+<nav id="TableOfContents">
+  <ul>
+    <li><a href="#개요">개요</a></li>
+    <li><a href="#핵심-아이디어">핵심 아이디어</a></li>
+    <li><a href="#nerf-vs-3d-gaussian-splatting">NeRF vs 3D Gaussian Splatting</a></li>
+    <li><a href="#구조">구조</a>
+      <ul>
+        <li><a href="#3d-gaussian-표현">3D Gaussian 표현</a></li>
+        <li><a href="#수학적-정의">수학적 정의</a></li>
+        <li><a href="#공분산-행렬-분해">공분산 행렬 분해</a></li>
+      </ul>
+    </li>
+    <li><a href="#spherical-harmonics-sh">Spherical Harmonics (SH)</a>
+      <ul>
+        <li><a href="#왜-sh를-사용하는가">왜 SH를 사용하는가?</a></li>
+        <li><a href="#sh-계수">SH 계수</a></li>
+      </ul>
+    </li>
+    <li><a href="#렌더링-파이프라인">렌더링 파이프라인</a>
+      <ul>
+        <li><a href="#splatting-과정">Splatting 과정</a></li>
+        <li><a href="#2d-투영">2D 투영</a></li>
+        <li><a href="#alpha-blending">Alpha Blending</a></li>
+      </ul>
+    </li>
+    <li><a href="#학습">학습</a>
+      <ul>
+        <li><a href="#adaptive-density-control">Adaptive Density Control</a></li>
+        <li><a href="#손실-함수">손실 함수</a></li>
+        <li><a href="#학습-과정">학습 과정</a></li>
+      </ul>
+    </li>
+    <li><a href="#구현-예시">구현 예시</a>
+      <ul>
+        <li><a href="#데이터-구조">데이터 구조</a></li>
+        <li><a href="#초기화-from-point-cloud">초기화 (from Point Cloud)</a></li>
+        <li><a href="#cuda-렌더러">CUDA 렌더러</a></li>
+      </ul>
+    </li>
+    <li><a href="#성능">성능</a>
+      <ul>
+        <li><a href="#품질-비교-psnr">품질 비교 (PSNR)</a></li>
+        <li><a href="#속도">속도</a></li>
+      </ul>
+    </li>
+    <li><a href="#장점과-단점">장점과 단점</a>
+      <ul>
+        <li><a href="#장점">장점</a></li>
+        <li><a href="#단점">단점</a></li>
+      </ul>
+    </li>
+    <li><a href="#응용">응용</a>
+      <ul>
+        <li><a href="#1-vrar">1. VR/AR</a></li>
+        <li><a href="#2-게임">2. 게임</a></li>
+        <li><a href="#3-디지털-트윈">3. 디지털 트윈</a></li>
+        <li><a href="#4-영화vfx">4. 영화/VFX</a></li>
+      </ul>
+    </li>
+    <li><a href="#후속-연구">후속 연구</a></li>
+    <li><a href="#관련-콘텐츠">관련 콘텐츠</a></li>
+  </ul>
+</nav>
+
+
+
+  </aside>
+  
+ 
+      </header>
+
+      
+      
+  <article class="markdown book-article"><h1 id="3d-gaussian-splatting">3D Gaussian Splatting<a class="anchor" href="#3d-gaussian-splatting">#</a></h1>
+<h2 id="개요">개요<a class="anchor" href="#%ea%b0%9c%ec%9a%94">#</a></h2>
+<ul>
+<li><strong>논문</strong>: 3D Gaussian Splatting for Real-Time Radiance Field Rendering (2023)</li>
+<li><strong>저자</strong>: Bernhard Kerbl et al. (Inria, Max Planck Institute)</li>
+<li><strong>핵심 기여</strong>: 실시간 렌더링이 가능한 명시적 3D 표현</li>
+</ul>
+<h2 id="핵심-아이디어">핵심 아이디어<a class="anchor" href="#%ed%95%b5%ec%8b%ac-%ec%95%84%ec%9d%b4%eb%94%94%ec%96%b4">#</a></h2>
+<blockquote class='book-hint '>
+<p>&ldquo;3D 점들을 Gaussian으로 표현하여 빠르게 렌더링&rdquo;</p>
+</blockquote><p>NeRF와 달리 명시적인 점 기반 표현으로 실시간 렌더링을 달성합니다.</p>
+<hr>
+<h2 id="nerf-vs-3d-gaussian-splatting">NeRF vs 3D Gaussian Splatting<a class="anchor" href="#nerf-vs-3d-gaussian-splatting">#</a></h2>
+<table>
+  <thead>
+      <tr>
+          <th>측면</th>
+          <th>NeRF</th>
+          <th>3DGS</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>표현</td>
+          <td>암시적 (MLP)</td>
+          <td>명시적 (점 집합)</td>
+      </tr>
+      <tr>
+          <td>렌더링</td>
+          <td>Ray marching</td>
+          <td>Rasterization</td>
+      </tr>
+      <tr>
+          <td>속도</td>
+          <td>느림 (분 단위)</td>
+          <td>실시간 (100+ FPS)</td>
+      </tr>
+      <tr>
+          <td>학습</td>
+          <td>느림 (시간~일)</td>
+          <td>빠름 (분~시간)</td>
+      </tr>
+      <tr>
+          <td>편집</td>
+          <td>어려움</td>
+          <td>용이</td>
+      </tr>
+  </tbody>
+</table>
+<hr>
+<h2 id="구조">구조<a class="anchor" href="#%ea%b5%ac%ec%a1%b0">#</a></h2>
+<h3 id="3d-gaussian-표현">3D Gaussian 표현<a class="anchor" href="#3d-gaussian-%ed%91%9c%ed%98%84">#</a></h3>
+<p>각 점은 다음 속성을 가짐:</p>
+<pre tabindex="0"><code>┌─────────────────────────────────────────┐
+│           3D Gaussian                    │
+│                                          │
+│   위치 (μ):     (x, y, z)               │
+│   공분산 (Σ):   3×3 행렬                │
+│   색상 (c):     SH coefficients         │
+│   불투명도 (α): scalar                   │
+│                                          │
+└─────────────────────────────────────────┘</code></pre><h3 id="수학적-정의">수학적 정의<a class="anchor" href="#%ec%88%98%ed%95%99%ec%a0%81-%ec%a0%95%ec%9d%98">#</a></h3>
+<p>3D Gaussian 분포:</p>
+<p>$$G(x) = \exp\left(-\frac{1}{2}(x-\mu)^T \Sigma^{-1} (x-\mu)\right)$$</p>
+<h3 id="공분산-행렬-분해">공분산 행렬 분해<a class="anchor" href="#%ea%b3%b5%eb%b6%84%ec%82%b0-%ed%96%89%eb%a0%ac-%eb%b6%84%ed%95%b4">#</a></h3>
+<p>양의 준정부호를 보장하기 위해:</p>
+<p>$$\Sigma = RSS^TR^T$$</p>
+<ul>
+<li>$R$: 회전 행렬 (quaternion으로 표현)</li>
+<li>$S$: 스케일 행렬 (대각 행렬)</li>
+</ul>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#75715e"># 학습 가능한 파라미터</span>
+</span></span><span style="display:flex;"><span>position <span style="color:#f92672">=</span> torch<span style="color:#f92672">.</span>zeros(N, <span style="color:#ae81ff">3</span>)      <span style="color:#75715e"># 위치</span>
+</span></span><span style="display:flex;"><span>scale <span style="color:#f92672">=</span> torch<span style="color:#f92672">.</span>ones(N, <span style="color:#ae81ff">3</span>)          <span style="color:#75715e"># 스케일</span>
+</span></span><span style="display:flex;"><span>rotation <span style="color:#f92672">=</span> torch<span style="color:#f92672">.</span>zeros(N, <span style="color:#ae81ff">4</span>)      <span style="color:#75715e"># 쿼터니언</span>
+</span></span><span style="display:flex;"><span>opacity <span style="color:#f92672">=</span> torch<span style="color:#f92672">.</span>zeros(N, <span style="color:#ae81ff">1</span>)       <span style="color:#75715e"># 불투명도</span>
+</span></span><span style="display:flex;"><span>sh_coeffs <span style="color:#f92672">=</span> torch<span style="color:#f92672">.</span>zeros(N, <span style="color:#ae81ff">16</span>, <span style="color:#ae81ff">3</span>) <span style="color:#75715e"># 색상 (SH)</span></span></span></code></pre></div><hr>
+<h2 id="spherical-harmonics-sh">Spherical Harmonics (SH)<a class="anchor" href="#spherical-harmonics-sh">#</a></h2>
+<h3 id="왜-sh를-사용하는가">왜 SH를 사용하는가?<a class="anchor" href="#%ec%99%9c-sh%eb%a5%bc-%ec%82%ac%ec%9a%a9%ed%95%98%eb%8a%94%ea%b0%80">#</a></h3>
+<p>시점에 따른 색상 변화(반사, 하이라이트)를 표현:</p>
+<pre tabindex="0"><code>정면에서 본 색: 밝은 빨강
+측면에서 본 색: 어두운 빨강</code></pre><h3 id="sh-계수">SH 계수<a class="anchor" href="#sh-%ea%b3%84%ec%88%98">#</a></h3>
+<p>0차부터 3차까지 총 16개 계수:</p>
+<p>$$c(d) = \sum_{l=0}^{3} \sum_{m=-l}^{l} c_{lm} Y_{lm}(d)$$</p>
+<hr>
+<h2 id="렌더링-파이프라인">렌더링 파이프라인<a class="anchor" href="#%eb%a0%8c%eb%8d%94%eb%a7%81-%ed%8c%8c%ec%9d%b4%ed%94%84%eb%9d%bc%ec%9d%b8">#</a></h2>
+<h3 id="splatting-과정">Splatting 과정<a class="anchor" href="#splatting-%ea%b3%bc%ec%a0%95">#</a></h3>
+<pre tabindex="0"><code>┌─────────────────────────────────────────────────────────┐
+│              Gaussian Splatting Pipeline                 │
+│                                                          │
+│   1. 3D Gaussians ──→ Project to 2D                     │
+│                              ↓                           │
+│   2. 2D Gaussians ──→ Sort by depth                     │
+│                              ↓                           │
+│   3. Sorted Gaussians ──→ Alpha blending (front-to-back)│
+│                              ↓                           │
+│   4. Final Image                                         │
+│                                                          │
+└─────────────────────────────────────────────────────────┘</code></pre><h3 id="2d-투영">2D 투영<a class="anchor" href="#2d-%ed%88%ac%ec%98%81">#</a></h3>
+<p>3D Gaussian을 2D로 투영:</p>
+<p>$$\Sigma_{2D} = JW\Sigma W^TJ^T$$</p>
+<ul>
+<li>$W$: 뷰 변환 행렬</li>
+<li>$J$: 야코비안 (어파인 근사)</li>
+</ul>
+<h3 id="alpha-blending">Alpha Blending<a class="anchor" href="#alpha-blending">#</a></h3>
+<p>깊이 순서대로 색상 합성:</p>
+<p>$$C = \sum_{i=1}^{N} c_i \alpha_i \prod_{j=1}^{i-1}(1-\alpha_j)$$</p>
+<hr>
+<h2 id="학습">학습<a class="anchor" href="#%ed%95%99%ec%8a%b5">#</a></h2>
+<h3 id="adaptive-density-control">Adaptive Density Control<a class="anchor" href="#adaptive-density-control">#</a></h3>
+<p>학습 중 Gaussian 개수를 동적으로 조절:</p>
+<pre tabindex="0"><code>┌─────────────────────────────────────────┐
+│        Adaptive Density Control          │
+│                                          │
+│   큰 gradient + 작은 scale → Clone      │
+│   큰 gradient + 큰 scale   → Split      │
+│   낮은 opacity            → Remove      │
+│                                          │
+└─────────────────────────────────────────┘</code></pre><h3 id="손실-함수">손실 함수<a class="anchor" href="#%ec%86%90%ec%8b%a4-%ed%95%a8%ec%88%98">#</a></h3>
+<p>$$L = (1-\lambda)L_1 + \lambda L_{D-SSIM}$$</p>
+<ul>
+<li>$L_1$: 픽셀 단위 손실</li>
+<li>$L_{D-SSIM}$: 구조적 유사도 손실</li>
+</ul>
+<h3 id="학습-과정">학습 과정<a class="anchor" href="#%ed%95%99%ec%8a%b5-%ea%b3%bc%ec%a0%95">#</a></h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#66d9ef">for</span> iteration <span style="color:#f92672">in</span> range(<span style="color:#ae81ff">30000</span>):
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e"># 1. 렌더링</span>
+</span></span><span style="display:flex;"><span>    rendered <span style="color:#f92672">=</span> render(gaussians, camera)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e"># 2. 손실 계산</span>
+</span></span><span style="display:flex;"><span>    loss <span style="color:#f92672">=</span> l1_loss(rendered, gt_image) <span style="color:#f92672">+</span> ssim_loss(rendered, gt_image)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e"># 3. 역전파</span>
+</span></span><span style="display:flex;"><span>    loss<span style="color:#f92672">.</span>backward()
+</span></span><span style="display:flex;"><span>    optimizer<span style="color:#f92672">.</span>step()
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e"># 4. Adaptive control (매 100 iteration)</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">if</span> iteration <span style="color:#f92672">%</span> <span style="color:#ae81ff">100</span> <span style="color:#f92672">==</span> <span style="color:#ae81ff">0</span>:
+</span></span><span style="display:flex;"><span>        densify_and_prune(gaussians)</span></span></code></pre></div><hr>
+<h2 id="구현-예시">구현 예시<a class="anchor" href="#%ea%b5%ac%ed%98%84-%ec%98%88%ec%8b%9c">#</a></h2>
+<h3 id="데이터-구조">데이터 구조<a class="anchor" href="#%eb%8d%b0%ec%9d%b4%ed%84%b0-%ea%b5%ac%ec%a1%b0">#</a></h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">GaussianModel</span>:
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">__init__</span>(self):
+</span></span><span style="display:flex;"><span>        <span style="color:#75715e"># 위치</span>
+</span></span><span style="display:flex;"><span>        self<span style="color:#f92672">.</span>_xyz <span style="color:#f92672">=</span> torch<span style="color:#f92672">.</span>empty(<span style="color:#ae81ff">0</span>)
+</span></span><span style="display:flex;"><span>        <span style="color:#75715e"># 색상 (SH coefficients)</span>
+</span></span><span style="display:flex;"><span>        self<span style="color:#f92672">.</span>_features_dc <span style="color:#f92672">=</span> torch<span style="color:#f92672">.</span>empty(<span style="color:#ae81ff">0</span>)
+</span></span><span style="display:flex;"><span>        self<span style="color:#f92672">.</span>_features_rest <span style="color:#f92672">=</span> torch<span style="color:#f92672">.</span>empty(<span style="color:#ae81ff">0</span>)
+</span></span><span style="display:flex;"><span>        <span style="color:#75715e"># 스케일</span>
+</span></span><span style="display:flex;"><span>        self<span style="color:#f92672">.</span>_scaling <span style="color:#f92672">=</span> torch<span style="color:#f92672">.</span>empty(<span style="color:#ae81ff">0</span>)
+</span></span><span style="display:flex;"><span>        <span style="color:#75715e"># 회전 (quaternion)</span>
+</span></span><span style="display:flex;"><span>        self<span style="color:#f92672">.</span>_rotation <span style="color:#f92672">=</span> torch<span style="color:#f92672">.</span>empty(<span style="color:#ae81ff">0</span>)
+</span></span><span style="display:flex;"><span>        <span style="color:#75715e"># 불투명도</span>
+</span></span><span style="display:flex;"><span>        self<span style="color:#f92672">.</span>_opacity <span style="color:#f92672">=</span> torch<span style="color:#f92672">.</span>empty(<span style="color:#ae81ff">0</span>)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">@property</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">get_covariance</span>(self):
+</span></span><span style="display:flex;"><span>        <span style="color:#e6db74">&#34;&#34;&#34;공분산 행렬 계산&#34;&#34;&#34;</span>
+</span></span><span style="display:flex;"><span>        S <span style="color:#f92672">=</span> self<span style="color:#f92672">.</span>scaling_activation(self<span style="color:#f92672">.</span>_scaling)
+</span></span><span style="display:flex;"><span>        R <span style="color:#f92672">=</span> self<span style="color:#f92672">.</span>rotation_activation(self<span style="color:#f92672">.</span>_rotation)
+</span></span><span style="display:flex;"><span>        L <span style="color:#f92672">=</span> build_scaling_rotation(S, R)
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> L <span style="color:#f92672">@</span> L<span style="color:#f92672">.</span>transpose(<span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">2</span>)</span></span></code></pre></div><h3 id="초기화-from-point-cloud">초기화 (from Point Cloud)<a class="anchor" href="#%ec%b4%88%ea%b8%b0%ed%99%94-from-point-cloud">#</a></h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#66d9ef">def</span> <span style="color:#a6e22e">create_from_pcd</span>(self, pcd):
+</span></span><span style="display:flex;"><span>    <span style="color:#e6db74">&#34;&#34;&#34;SfM 점군으로부터 초기화&#34;&#34;&#34;</span>
+</span></span><span style="display:flex;"><span>    points <span style="color:#f92672">=</span> torch<span style="color:#f92672">.</span>tensor(pcd<span style="color:#f92672">.</span>points)
+</span></span><span style="display:flex;"><span>    colors <span style="color:#f92672">=</span> torch<span style="color:#f92672">.</span>tensor(pcd<span style="color:#f92672">.</span>colors)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    self<span style="color:#f92672">.</span>_xyz <span style="color:#f92672">=</span> nn<span style="color:#f92672">.</span>Parameter(points)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e"># 색상을 SH로 변환</span>
+</span></span><span style="display:flex;"><span>    fused_color <span style="color:#f92672">=</span> RGB2SH(colors)
+</span></span><span style="display:flex;"><span>    self<span style="color:#f92672">.</span>_features_dc <span style="color:#f92672">=</span> nn<span style="color:#f92672">.</span>Parameter(fused_color)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e"># 초기 스케일: 인접 점까지 거리</span>
+</span></span><span style="display:flex;"><span>    dist <span style="color:#f92672">=</span> torch<span style="color:#f92672">.</span>cdist(points, points)
+</span></span><span style="display:flex;"><span>    dist[dist <span style="color:#f92672">==</span> <span style="color:#ae81ff">0</span>] <span style="color:#f92672">=</span> float(<span style="color:#e6db74">&#39;inf&#39;</span>)
+</span></span><span style="display:flex;"><span>    init_scale <span style="color:#f92672">=</span> torch<span style="color:#f92672">.</span>log(dist<span style="color:#f92672">.</span>min(dim<span style="color:#f92672">=</span><span style="color:#ae81ff">1</span>)[<span style="color:#ae81ff">0</span>])
+</span></span><span style="display:flex;"><span>    self<span style="color:#f92672">.</span>_scaling <span style="color:#f92672">=</span> nn<span style="color:#f92672">.</span>Parameter(init_scale<span style="color:#f92672">.</span>repeat(<span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">3</span>))
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e"># 초기 회전: identity</span>
+</span></span><span style="display:flex;"><span>    self<span style="color:#f92672">.</span>_rotation <span style="color:#f92672">=</span> nn<span style="color:#f92672">.</span>Parameter(torch<span style="color:#f92672">.</span>zeros(len(points), <span style="color:#ae81ff">4</span>))
+</span></span><span style="display:flex;"><span>    self<span style="color:#f92672">.</span>_rotation[:, <span style="color:#ae81ff">0</span>] <span style="color:#f92672">=</span> <span style="color:#ae81ff">1</span>  <span style="color:#75715e"># w=1 for identity quaternion</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e"># 초기 불투명도</span>
+</span></span><span style="display:flex;"><span>    self<span style="color:#f92672">.</span>_opacity <span style="color:#f92672">=</span> nn<span style="color:#f92672">.</span>Parameter(inverse_sigmoid(<span style="color:#ae81ff">0.1</span> <span style="color:#f92672">*</span> torch<span style="color:#f92672">.</span>ones(len(points), <span style="color:#ae81ff">1</span>)))</span></span></code></pre></div><h3 id="cuda-렌더러">CUDA 렌더러<a class="anchor" href="#cuda-%eb%a0%8c%eb%8d%94%eb%9f%ac">#</a></h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#66d9ef">def</span> <span style="color:#a6e22e">render</span>(viewpoint_camera, gaussians, bg_color):
+</span></span><span style="display:flex;"><span>    <span style="color:#e6db74">&#34;&#34;&#34;CUDA 기반 고속 렌더링&#34;&#34;&#34;</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e"># 2D 투영</span>
+</span></span><span style="display:flex;"><span>    screenspace_points <span style="color:#f92672">=</span> project_to_screen(gaussians, viewpoint_camera)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e"># 타일 기반 래스터라이제이션</span>
+</span></span><span style="display:flex;"><span>    rendered_image, radii <span style="color:#f92672">=</span> rasterize_gaussians(
+</span></span><span style="display:flex;"><span>        means3D<span style="color:#f92672">=</span>gaussians<span style="color:#f92672">.</span>get_xyz,
+</span></span><span style="display:flex;"><span>        means2D<span style="color:#f92672">=</span>screenspace_points,
+</span></span><span style="display:flex;"><span>        shs<span style="color:#f92672">=</span>gaussians<span style="color:#f92672">.</span>get_features,
+</span></span><span style="display:flex;"><span>        colors_precomp<span style="color:#f92672">=</span><span style="color:#66d9ef">None</span>,
+</span></span><span style="display:flex;"><span>        opacities<span style="color:#f92672">=</span>gaussians<span style="color:#f92672">.</span>get_opacity,
+</span></span><span style="display:flex;"><span>        scales<span style="color:#f92672">=</span>gaussians<span style="color:#f92672">.</span>get_scaling,
+</span></span><span style="display:flex;"><span>        rotations<span style="color:#f92672">=</span>gaussians<span style="color:#f92672">.</span>get_rotation,
+</span></span><span style="display:flex;"><span>        cov3D_precomp<span style="color:#f92672">=</span><span style="color:#66d9ef">None</span>,
+</span></span><span style="display:flex;"><span>        viewmatrix<span style="color:#f92672">=</span>viewpoint_camera<span style="color:#f92672">.</span>world_view_transform,
+</span></span><span style="display:flex;"><span>        projmatrix<span style="color:#f92672">=</span>viewpoint_camera<span style="color:#f92672">.</span>full_proj_transform,
+</span></span><span style="display:flex;"><span>        sh_degree<span style="color:#f92672">=</span>gaussians<span style="color:#f92672">.</span>active_sh_degree,
+</span></span><span style="display:flex;"><span>        campos<span style="color:#f92672">=</span>viewpoint_camera<span style="color:#f92672">.</span>camera_center,
+</span></span><span style="display:flex;"><span>        prefiltered<span style="color:#f92672">=</span><span style="color:#66d9ef">False</span>,
+</span></span><span style="display:flex;"><span>        bg<span style="color:#f92672">=</span>bg_color
+</span></span><span style="display:flex;"><span>    )
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">return</span> rendered_image</span></span></code></pre></div><hr>
+<h2 id="성능">성능<a class="anchor" href="#%ec%84%b1%eb%8a%a5">#</a></h2>
+<h3 id="품질-비교-psnr">품질 비교 (PSNR)<a class="anchor" href="#%ed%92%88%ec%a7%88-%eb%b9%84%ea%b5%90-psnr">#</a></h3>
+<table>
+  <thead>
+      <tr>
+          <th>데이터셋</th>
+          <th>NeRF</th>
+          <th>Instant-NGP</th>
+          <th>3DGS</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>Synthetic</td>
+          <td>31.0</td>
+          <td>33.2</td>
+          <td><strong>33.3</strong></td>
+      </tr>
+      <tr>
+          <td>Real-World</td>
+          <td>26.8</td>
+          <td>29.5</td>
+          <td><strong>29.4</strong></td>
+      </tr>
+  </tbody>
+</table>
+<h3 id="속도">속도<a class="anchor" href="#%ec%86%8d%eb%8f%84">#</a></h3>
+<table>
+  <thead>
+      <tr>
+          <th>방법</th>
+          <th>학습 시간</th>
+          <th>렌더링 FPS</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>NeRF</td>
+          <td>수 일</td>
+          <td>0.05</td>
+      </tr>
+      <tr>
+          <td>Instant-NGP</td>
+          <td>5분</td>
+          <td>10</td>
+      </tr>
+      <tr>
+          <td>3DGS</td>
+          <td>30분</td>
+          <td><strong>100+</strong></td>
+      </tr>
+  </tbody>
+</table>
+<hr>
+<h2 id="장점과-단점">장점과 단점<a class="anchor" href="#%ec%9e%a5%ec%a0%90%ea%b3%bc-%eb%8b%a8%ec%a0%90">#</a></h2>
+<h3 id="장점">장점<a class="anchor" href="#%ec%9e%a5%ec%a0%90">#</a></h3>
+<ul>
+<li>실시간 렌더링 (100+ FPS)</li>
+<li>빠른 학습 (30분)</li>
+<li>명시적 표현으로 편집 용이</li>
+<li>고품질 결과</li>
+</ul>
+<h3 id="단점">단점<a class="anchor" href="#%eb%8b%a8%ec%a0%90">#</a></h3>
+<ul>
+<li>메모리 사용량 (수백만 점)</li>
+<li>초기 점군 품질 의존</li>
+<li>복잡한 기하학에서 아티팩트</li>
+</ul>
+<hr>
+<h2 id="응용">응용<a class="anchor" href="#%ec%9d%91%ec%9a%a9">#</a></h2>
+<h3 id="1-vrar">1. VR/AR<a class="anchor" href="#1-vrar">#</a></h3>
+<p>실시간 렌더링으로 몰입형 경험</p>
+<h3 id="2-게임">2. 게임<a class="anchor" href="#2-%ea%b2%8c%ec%9e%84">#</a></h3>
+<p>사실적인 환경 재구성</p>
+<h3 id="3-디지털-트윈">3. 디지털 트윈<a class="anchor" href="#3-%eb%94%94%ec%a7%80%ed%84%b8-%ed%8a%b8%ec%9c%88">#</a></h3>
+<p>실제 공간의 3D 복제</p>
+<h3 id="4-영화vfx">4. 영화/VFX<a class="anchor" href="#4-%ec%98%81%ed%99%94vfx">#</a></h3>
+<p>빠른 프리비주얼라이제이션</p>
+<hr>
+<h2 id="후속-연구">후속 연구<a class="anchor" href="#%ed%9b%84%ec%86%8d-%ec%97%b0%ea%b5%ac">#</a></h2>
+<table>
+  <thead>
+      <tr>
+          <th>모델</th>
+          <th>개선점</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td><strong>4D-GS</strong></td>
+          <td>동적 장면</td>
+      </tr>
+      <tr>
+          <td><strong>GSGEN</strong></td>
+          <td>텍스트→3D 생성</td>
+      </tr>
+      <tr>
+          <td><strong>GaussianAvatar</strong></td>
+          <td>사람 모델링</td>
+      </tr>
+      <tr>
+          <td><strong>Compact-3DGS</strong></td>
+          <td>압축</td>
+      </tr>
+      <tr>
+          <td><strong>Mip-Splatting</strong></td>
+          <td>안티앨리어싱</td>
+      </tr>
+  </tbody>
+</table>
+<hr>
+<h2 id="관련-콘텐츠">관련 콘텐츠<a class="anchor" href="#%ea%b4%80%eb%a0%a8-%ec%bd%98%ed%85%90%ec%b8%a0">#</a></h2>
+<ul>
+<li><a href="/docs/architecture/3d/nerf">NeRF</a> - 암시적 표현</li>
+<li><a href="/docs/architecture/transformer">Transformer</a> - 최신 3D 모델에서 활용</li>
+</ul>
+</article>
+ 
+      
+
+      <footer class="book-footer">
+        
+  <div class="flex flex-wrap justify-between">
+
+<div>
+
+</div>
+
+<div>
+
+</div>
+
+</div>
+
+
+
+
+
+  
+  
+  
+  <div class="flex flex-wrap justify-between">
+    <span>
+    
+      <a href="/docs/architecture/3d/nerf/" class="flex align-center">
+        <img src="/icons/backward.svg" class="book-icon" alt="Backward" />
+        <span>NeRF</span>
+      </a>
+    
+    </span>
+    <span>
+    
+      <a href="/docs/task/" class="flex align-center">
+        <span>태스크</span>
+        <img src="/icons/forward.svg" class="book-icon" alt="Forward" />
+      </a>
+    
+    </span>
+  </div>
+  
+
+
+ 
+        
+  
+  <div class="book-comments">
+
+</div>
+  
+ 
+        
+        
+  
+ 
+        
+  
+  
+    <script>(function(){document.querySelectorAll("pre:has(code)").forEach(e=>{e.addEventListener("click",e.focus),e.addEventListener("copy",function(t){if(t.preventDefault(),navigator.clipboard){const t=window.getSelection().toString()||e.textContent;navigator.clipboard.writeText(t)}})})})()</script>
+  
+
+      </footer>
+
+      <label for="menu-control" class="hidden book-menu-overlay"></label>
+    </div>
+
+    
+  
+  <aside class="book-toc">
+    <div class="book-toc-content">
+      
+  
+<nav id="TableOfContents">
+  <ul>
+    <li><a href="#개요">개요</a></li>
+    <li><a href="#핵심-아이디어">핵심 아이디어</a></li>
+    <li><a href="#nerf-vs-3d-gaussian-splatting">NeRF vs 3D Gaussian Splatting</a></li>
+    <li><a href="#구조">구조</a>
+      <ul>
+        <li><a href="#3d-gaussian-표현">3D Gaussian 표현</a></li>
+        <li><a href="#수학적-정의">수학적 정의</a></li>
+        <li><a href="#공분산-행렬-분해">공분산 행렬 분해</a></li>
+      </ul>
+    </li>
+    <li><a href="#spherical-harmonics-sh">Spherical Harmonics (SH)</a>
+      <ul>
+        <li><a href="#왜-sh를-사용하는가">왜 SH를 사용하는가?</a></li>
+        <li><a href="#sh-계수">SH 계수</a></li>
+      </ul>
+    </li>
+    <li><a href="#렌더링-파이프라인">렌더링 파이프라인</a>
+      <ul>
+        <li><a href="#splatting-과정">Splatting 과정</a></li>
+        <li><a href="#2d-투영">2D 투영</a></li>
+        <li><a href="#alpha-blending">Alpha Blending</a></li>
+      </ul>
+    </li>
+    <li><a href="#학습">학습</a>
+      <ul>
+        <li><a href="#adaptive-density-control">Adaptive Density Control</a></li>
+        <li><a href="#손실-함수">손실 함수</a></li>
+        <li><a href="#학습-과정">학습 과정</a></li>
+      </ul>
+    </li>
+    <li><a href="#구현-예시">구현 예시</a>
+      <ul>
+        <li><a href="#데이터-구조">데이터 구조</a></li>
+        <li><a href="#초기화-from-point-cloud">초기화 (from Point Cloud)</a></li>
+        <li><a href="#cuda-렌더러">CUDA 렌더러</a></li>
+      </ul>
+    </li>
+    <li><a href="#성능">성능</a>
+      <ul>
+        <li><a href="#품질-비교-psnr">품질 비교 (PSNR)</a></li>
+        <li><a href="#속도">속도</a></li>
+      </ul>
+    </li>
+    <li><a href="#장점과-단점">장점과 단점</a>
+      <ul>
+        <li><a href="#장점">장점</a></li>
+        <li><a href="#단점">단점</a></li>
+      </ul>
+    </li>
+    <li><a href="#응용">응용</a>
+      <ul>
+        <li><a href="#1-vrar">1. VR/AR</a></li>
+        <li><a href="#2-게임">2. 게임</a></li>
+        <li><a href="#3-디지털-트윈">3. 디지털 트윈</a></li>
+        <li><a href="#4-영화vfx">4. 영화/VFX</a></li>
+      </ul>
+    </li>
+    <li><a href="#후속-연구">후속 연구</a></li>
+    <li><a href="#관련-콘텐츠">관련 콘텐츠</a></li>
+  </ul>
+</nav>
+
+
+
+    </div>
+  </aside>
+  
+ 
+  </main>
+
+  
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

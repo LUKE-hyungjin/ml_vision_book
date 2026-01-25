@@ -1,0 +1,28 @@
+baseURL = 'https://example.org/'
+defaultContentLanguage = 'en'
+theme = 'hugo-book'
+
+[params]
+  BookTheme = 'auto'
+  BookToC = true
+  BookSection = 'docs'
+  BookRepo = ''
+  BookMenuBundle = '/menu'
+  BookDateFormat = 'January 2, 2006'
+  BookMath = true
+
+[languages]
+  [languages.ko]
+    languageCode = 'ko-KR'
+    languageName = '한국어'
+    title = 'Vision Engineer 지식 가이드'
+    weight = 1
+    contentDir = 'content/ko'
+  [languages.en]
+    languageCode = 'en-US'
+    languageName = 'English'
+    title = 'Vision Engineer Knowledge Guide'
+    weight = 2
+    contentDir = 'content/en'
+
+[menu]
