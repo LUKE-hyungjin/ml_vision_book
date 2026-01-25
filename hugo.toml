@@ -15,7 +15,7 @@ enableRobotsTXT = false  # Using static/robots.txt instead
   # SEO Parameters
   description = 'Comprehensive guide to Computer Vision and Deep Learning fundamentals for engineers'
   author = 'Vision Engineer Knowledge Guide'
-  # ogImage = '/images/og-default.png'  # Uncomment and add image for social sharing
+  ogImage = '/images/og-default.svg'  # Social sharing image (1200x630)
   # twitterHandle = 'yourhandle'  # Uncomment and add your Twitter handle
 
 [languages]
