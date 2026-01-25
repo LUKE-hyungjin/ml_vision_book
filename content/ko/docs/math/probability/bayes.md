@@ -23,7 +23,7 @@ $$
 
 ### 시각적 이해
 
-![베이즈 정리](/images/probability/bayes-theorem.svg)
+![베이즈 정리](/images/probability/ko/bayes-theorem.svg)
 
 ## 직관적 이해
 
@@ -113,6 +113,6 @@ $$
 
 ## 관련 콘텐츠
 
-- [확률분포](/docs/math/probability/distribution)
-- [Cross-Entropy](/docs/math/training/loss/cross-entropy) - 가능도 기반 손실
-- [Weight Decay](/docs/math/training/regularization/weight-decay) - 사전 분포의 효과
+- [확률분포](/ko/docs/math/probability/distribution)
+- [Cross-Entropy](/ko/docs/math/training/loss/cross-entropy) - 가능도 기반 손실
+- [Weight Decay](/ko/docs/math/training/regularization/weight-decay) - 사전 분포의 효과

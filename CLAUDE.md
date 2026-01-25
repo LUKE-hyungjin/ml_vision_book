@@ -299,12 +299,12 @@ weight: 10
 | Dataset1 | Size | Features |
 
 ## Main Approaches
-1. Approach1: Brief description → [Details](/docs/architecture/xxx)
-2. Approach2: Brief description → [Details](/docs/architecture/xxx)
+1. Approach1: Brief description → [Details](/en/docs/architecture/xxx)
+2. Approach2: Brief description → [Details](/en/docs/architecture/xxx)
 
 ## Related Content
-- [Required math](/docs/math/xxx)
-- [Related architectures](/docs/architecture/xxx)
+- [Required math](/en/docs/math/xxx)
+- [Related architectures](/en/docs/architecture/xxx)
 ```
 
 ### etc/ 템플릿
@@ -371,16 +371,24 @@ bookHidden: true              # 메뉴에서 숨기기
 
 ## 링크 문법
 
-Hugo Book 테마에서 내부 링크 (언어 prefix 없이):
+Hugo Book 테마에서 내부 링크 (언어 prefix 포함):
 ```markdown
-[표시 텍스트](/docs/카테고리/파일명)
+# 한국어 콘텐츠에서
+[표시 텍스트](/ko/docs/카테고리/파일명)
+
+# 영어 콘텐츠에서
+[표시 텍스트](/en/docs/카테고리/파일명)
 ```
 
 예시:
 ```markdown
-[Convolution](/docs/math/convolution)
-[ResNet](/docs/architecture/resnet)
-[Detection](/docs/task/detection)
+# 한국어
+[Convolution](/ko/docs/math/convolution)
+[ResNet](/ko/docs/architecture/resnet)
+
+# 영어
+[Convolution](/en/docs/math/convolution)
+[ResNet](/en/docs/architecture/resnet)
 ```
 
 ## 체크리스트

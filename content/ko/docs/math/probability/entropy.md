@@ -17,7 +17,7 @@ Cross-Entropy Loss의 핵심 개념입니다!
 
 ### 시각적 이해
 
-![엔트로피와 Cross-Entropy](/images/probability/entropy-crossentropy.svg)
+![엔트로피와 Cross-Entropy](/images/probability/ko/entropy-crossentropy.svg)
 
 ---
 
@@ -263,6 +263,6 @@ X와 Y가 공유하는 정보량.
 
 ## 관련 콘텐츠
 
-- [KL 발산](/docs/math/probability/kl-divergence) - 분포 간 거리
-- [Cross-Entropy Loss](/docs/math/training/loss/cross-entropy) - 손실 함수로의 적용
-- [확률분포](/docs/math/probability/distribution) - 분포별 엔트로피
+- [KL 발산](/ko/docs/math/probability/kl-divergence) - 분포 간 거리
+- [Cross-Entropy Loss](/ko/docs/math/training/loss/cross-entropy) - 손실 함수로의 적용
+- [확률분포](/ko/docs/math/probability/distribution) - 분포별 엔트로피

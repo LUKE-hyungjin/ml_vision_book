@@ -14,7 +14,7 @@ math: true
 
 ### 시각적 이해
 
-![PMF vs PDF vs CDF](/images/probability/pmf-pdf-cdf.svg)
+![PMF vs PDF vs CDF](/images/probability/ko/pmf-pdf-cdf.svg)
 
 ---
 
@@ -246,7 +246,7 @@ print(f"Shape: {samples.shape}")  # (1000, 2)
 
 ## 관련 콘텐츠
 
-- [확률의 기초](/docs/math/probability/basics) - 선수 지식
-- [기댓값과 분산](/docs/math/probability/expectation) - 확률 변수의 특성
-- [확률분포](/docs/math/probability/distribution) - 주요 분포 상세
-- [샘플링](/docs/math/probability/sampling) - 분포에서 값 추출
+- [확률의 기초](/ko/docs/math/probability/basics) - 선수 지식
+- [기댓값과 분산](/ko/docs/math/probability/expectation) - 확률 변수의 특성
+- [확률분포](/ko/docs/math/probability/distribution) - 주요 분포 상세
+- [샘플링](/ko/docs/math/probability/sampling) - 분포에서 값 추출

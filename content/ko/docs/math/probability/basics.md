@@ -43,7 +43,7 @@ $$
 
 ### 시각적 이해
 
-![조건부 확률](/images/probability/conditional-probability.svg)
+![조건부 확률](/images/probability/ko/conditional-probability.svg)
 
 ### 쉬운 비유
 
@@ -62,7 +62,7 @@ $$
 
 ### 시각적 이해
 
-![결합 확률과 주변 확률](/images/probability/joint-marginal.svg)
+![결합 확률과 주변 확률](/images/probability/ko/joint-marginal.svg)
 
 ### 결합 확률 (Joint Probability)
 
@@ -136,7 +136,7 @@ $$
 
 ### 시각적 이해
 
-![전확률 법칙](/images/probability/total-probability.svg)
+![전확률 법칙](/images/probability/ko/total-probability.svg)
 
 ### 예시
 
@@ -195,6 +195,6 @@ print(f"독립 여부: {independent}")  # False (0.3 ≠ 0.4 × 0.5 = 0.2)
 
 ## 관련 콘텐츠
 
-- [베이즈 정리](/docs/math/probability/bayes) - 조건부 확률의 역산
-- [확률 변수](/docs/math/probability/random-variable) - 확률의 함수적 표현
-- [확률분포](/docs/math/probability/distribution) - 주요 분포들
+- [베이즈 정리](/ko/docs/math/probability/bayes) - 조건부 확률의 역산
+- [확률 변수](/ko/docs/math/probability/random-variable) - 확률의 함수적 표현
+- [확률분포](/ko/docs/math/probability/distribution) - 주요 분포들
