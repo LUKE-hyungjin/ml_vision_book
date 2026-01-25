@@ -1,0 +1,98 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 400">
+  <defs>
+    <linearGradient id="layer1" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#3498db;stop-opacity:0.6" />
+      <stop offset="100%" style="stop-color:#2980b9;stop-opacity:0.6" />
+    </linearGradient>
+    <linearGradient id="layer2" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#2ecc71;stop-opacity:0.6" />
+      <stop offset="100%" style="stop-color:#27ae60;stop-opacity:0.6" />
+    </linearGradient>
+    <linearGradient id="layer3" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#e74c3c;stop-opacity:0.6" />
+      <stop offset="100%" style="stop-color:#c0392b;stop-opacity:0.6" />
+    </linearGradient>
+  </defs>
+
+  <rect width="800" height="400" fill="#1a1a2e"/>
+  <text x="400" y="30" text-anchor="middle" fill="#ffffff" font-family="Arial, sans-serif" font-size="18" font-weight="bold">Receptive Field: 3x3 두 번 = 5x5</text>
+
+  <text x="100" y="70" text-anchor="middle" fill="#f39c12" font-family="Arial, sans-serif" font-size="14" font-weight="bold">입력</text>
+
+  <g transform="translate(30, 85)">
+    <rect x="0" y="0" width="140" height="140" fill="#2c3e50" stroke="#34495e" stroke-width="1" rx="2"/>
+    <g stroke="#444" stroke-width="0.5">
+      <line x1="20" y1="0" x2="20" y2="140"/><line x1="40" y1="0" x2="40" y2="140"/>
+      <line x1="60" y1="0" x2="60" y2="140"/><line x1="80" y1="0" x2="80" y2="140"/>
+      <line x1="100" y1="0" x2="100" y2="140"/><line x1="120" y1="0" x2="120" y2="140"/>
+      <line x1="0" y1="20" x2="140" y2="20"/><line x1="0" y1="40" x2="140" y2="40"/>
+      <line x1="0" y1="60" x2="140" y2="60"/><line x1="0" y1="80" x2="140" y2="80"/>
+      <line x1="0" y1="100" x2="140" y2="100"/><line x1="0" y1="120" x2="140" y2="120"/>
+    </g>
+    <rect x="20" y="20" width="100" height="100" fill="#e74c3c" fill-opacity="0.3" stroke="#e74c3c" stroke-width="2"/>
+    <rect x="40" y="40" width="60" height="60" fill="#2ecc71" fill-opacity="0.3" stroke="#2ecc71" stroke-width="2"/>
+    <rect x="60" y="60" width="20" height="20" fill="#3498db" stroke="#3498db" stroke-width="2"/>
+  </g>
+
+  <text x="100" y="245" text-anchor="middle" fill="#888" font-family="Arial, sans-serif" font-size="10">7x7 입력</text>
+
+  <defs><marker id="arrowGray" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto"><path d="M0,0 L0,6 L9,3 z" fill="#666"/></marker></defs>
+  <path d="M 180 155 L 220 155" stroke="#666" stroke-width="2" fill="none" marker-end="url(#arrowGray)"/>
+
+  <text x="310" y="70" text-anchor="middle" fill="#2ecc71" font-family="Arial, sans-serif" font-size="14" font-weight="bold">Conv 3x3 (1층)</text>
+
+  <g transform="translate(250, 95)">
+    <rect x="0" y="0" width="120" height="120" fill="#2c3e50" stroke="#34495e" stroke-width="1" rx="2"/>
+    <g stroke="#444" stroke-width="0.5">
+      <line x1="24" y1="0" x2="24" y2="120"/><line x1="48" y1="0" x2="48" y2="120"/>
+      <line x1="72" y1="0" x2="72" y2="120"/><line x1="96" y1="0" x2="96" y2="120"/>
+      <line x1="0" y1="24" x2="120" y2="24"/><line x1="0" y1="48" x2="120" y2="48"/>
+      <line x1="0" y1="72" x2="120" y2="72"/><line x1="0" y1="96" x2="120" y2="96"/>
+    </g>
+    <rect x="24" y="24" width="72" height="72" fill="#2ecc71" fill-opacity="0.3" stroke="#2ecc71" stroke-width="2"/>
+    <rect x="48" y="48" width="24" height="24" fill="#3498db" stroke="#3498db" stroke-width="2"/>
+  </g>
+
+  <text x="310" y="235" text-anchor="middle" fill="#2ecc71" font-family="Arial, sans-serif" font-size="11">RF = 3x3</text>
+  <text x="310" y="250" text-anchor="middle" fill="#888" font-family="Arial, sans-serif" font-size="10">5x5 특징맵</text>
+
+  <path d="M 380 155 L 420 155" stroke="#666" stroke-width="2" fill="none" marker-end="url(#arrowGray)"/>
+
+  <text x="510" y="70" text-anchor="middle" fill="#e74c3c" font-family="Arial, sans-serif" font-size="14" font-weight="bold">Conv 3x3 (2층)</text>
+
+  <g transform="translate(460, 115)">
+    <rect x="0" y="0" width="100" height="100" fill="#2c3e50" stroke="#34495e" stroke-width="1" rx="2"/>
+    <g stroke="#444" stroke-width="0.5">
+      <line x1="33.33" y1="0" x2="33.33" y2="100"/><line x1="66.67" y1="0" x2="66.67" y2="100"/>
+      <line x1="0" y1="33.33" x2="100" y2="33.33"/><line x1="0" y1="66.67" x2="100" y2="66.67"/>
+    </g>
+    <rect x="33.33" y="33.33" width="33.34" height="33.34" fill="#e74c3c" stroke="#e74c3c" stroke-width="2"/>
+  </g>
+
+  <text x="510" y="235" text-anchor="middle" fill="#e74c3c" font-family="Arial, sans-serif" font-size="11">RF = 5x5</text>
+  <text x="510" y="250" text-anchor="middle" fill="#888" font-family="Arial, sans-serif" font-size="10">3x3 특징맵</text>
+
+  <g stroke="#e74c3c" stroke-width="1" stroke-dasharray="3,3" fill="none" opacity="0.5">
+    <line x1="130" y1="125" x2="250" y2="95"/><line x1="130" y1="125" x2="250" y2="215"/>
+    <line x1="130" y1="205" x2="250" y2="95"/><line x1="130" y1="205" x2="250" y2="215"/>
+  </g>
+
+  <rect x="580" y="90" width="200" height="160" fill="#2c3e50" rx="5" stroke="#34495e" stroke-width="1"/>
+  <text x="680" y="115" text-anchor="middle" fill="#f39c12" font-family="Arial, sans-serif" font-size="13" font-weight="bold">핵심 포인트</text>
+  <text x="590" y="140" fill="#fff" font-family="Arial, sans-serif" font-size="11">1층 뉴런이 보는 영역:</text>
+  <text x="590" y="158" fill="#2ecc71" font-family="Arial, sans-serif" font-size="12" font-weight="bold">  3x3 = 9 픽셀</text>
+  <text x="590" y="183" fill="#fff" font-family="Arial, sans-serif" font-size="11">2층 뉴런이 보는 영역:</text>
+  <text x="590" y="201" fill="#e74c3c" font-family="Arial, sans-serif" font-size="12" font-weight="bold">  5x5 = 25 픽셀</text>
+  <text x="590" y="230" fill="#888" font-family="Arial, sans-serif" font-size="10">RF = (k-1) × 층수 + 1</text>
+  <text x="590" y="245" fill="#888" font-family="Arial, sans-serif" font-size="10">= (3-1) × 2 + 1 = 5</text>
+
+  <rect x="50" y="280" width="700" height="100" fill="#2c3e50" rx="5" stroke="#34495e" stroke-width="1"/>
+  <text x="400" y="305" text-anchor="middle" fill="#f39c12" font-family="Arial, sans-serif" font-size="14" font-weight="bold">VGG가 5x5 대신 3x3을 쓰는 이유?</text>
+  <text x="200" y="335" text-anchor="middle" fill="#e74c3c" font-family="Arial, sans-serif" font-size="12" font-weight="bold">5x5 Conv (1층)</text>
+  <text x="200" y="355" text-anchor="middle" fill="#aaa" font-family="Arial, sans-serif" font-size="11">파라미터: 25 × C²</text>
+  <text x="200" y="370" text-anchor="middle" fill="#aaa" font-family="Arial, sans-serif" font-size="11">비선형성: 1 ReLU</text>
+  <text x="400" y="340" text-anchor="middle" fill="#888" font-family="Arial, sans-serif" font-size="20">vs</text>
+  <text x="600" y="335" text-anchor="middle" fill="#2ecc71" font-family="Arial, sans-serif" font-size="12" font-weight="bold">3x3 Conv × 2 (2층)</text>
+  <text x="600" y="355" text-anchor="middle" fill="#aaa" font-family="Arial, sans-serif" font-size="11">파라미터: 18 × C² (28% 절약)</text>
+  <text x="600" y="370" text-anchor="middle" fill="#aaa" font-family="Arial, sans-serif" font-size="11">비선형성: 2 ReLU (더 표현력 높음)</text>
+</svg>

@@ -16,7 +16,7 @@ math: true
 
 > "3×3 필터를 여러 번 쌓으면 큰 필터와 같은 receptive field를 가지면서 파라미터는 더 적다"
 
-**예시**: 3×3 두 번 = 5×5 한 번의 receptive field
+{{< figure src="/images/architecture/cnn/ko/receptive-field.svg" caption="Receptive Field: 3x3 Conv 2번 = 5x5 receptive field, 파라미터는 28% 절약" >}}
 
 | 방식 | Receptive Field | 파라미터 |
 |------|-----------------|----------|
@@ -28,6 +28,8 @@ math: true
 ## 구조
 
 ### VGG-16 아키텍처
+
+{{< figure src="/images/architecture/cnn/vgg-paper-table1.png" caption="Table 1 from paper: VGG 변형별 구성 (Simonyan & Zisserman, 2014)" >}}
 
 ```
 Input (224×224×3)

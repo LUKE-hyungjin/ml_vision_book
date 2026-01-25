@@ -7,3 +7,12 @@
 <!-- Google AdSense -->
 <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2669081885065363"
      crossorigin="anonymous"></script>
+
+<!-- KaTeX for Math Rendering -->
+{{- if or .Params.math (default false .Site.Params.BookMath) -}}
+<link rel="stylesheet" href="{{ "katex/katex.min.css" | relURL }}" />
+<script defer src="{{ "katex/katex.min.js" | relURL }}"></script>
+{{- with resources.Get "katex.json" | minify -}}
+<script defer src="{{ "katex/auto-render.min.js" | relURL }}" onload="renderMathInElement(document.body, {{ .Content | safeJS }});"></script>
+{{- end -}}
+{{- end -}}

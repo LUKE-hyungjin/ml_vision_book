@@ -1,0 +1,88 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 850 480">
+  <defs>
+    <marker id="arrowRed" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto"><path d="M0,0 L0,6 L9,3 z" fill="#e74c3c"/></marker>
+    <marker id="arrowGreen" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto"><path d="M0,0 L0,6 L9,3 z" fill="#2ecc71"/></marker>
+    <marker id="arrowBlue" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto"><path d="M0,0 L0,6 L9,3 z" fill="#3498db"/></marker>
+    <linearGradient id="gradientFade" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#e74c3c;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#e74c3c;stop-opacity:0.2" />
+    </linearGradient>
+  </defs>
+
+  <rect width="850" height="480" fill="#1a1a2e"/>
+  <text x="400" y="30" text-anchor="middle" fill="#ffffff" font-family="Arial, sans-serif" font-size="18" font-weight="bold">Skip Connection: Gradient 고속도로</text>
+
+  <text x="200" y="70" text-anchor="middle" fill="#e74c3c" font-family="Arial, sans-serif" font-size="14" font-weight="bold">Skip Connection 없음 (Plain Network)</text>
+
+  <g transform="translate(50, 90)">
+    <rect x="0" y="30" width="60" height="40" fill="#34495e" stroke="#3498db" stroke-width="2" rx="3"/>
+    <text x="30" y="55" text-anchor="middle" fill="#fff" font-family="Arial, sans-serif" font-size="11">입력 x</text>
+
+    <path d="M 70 50 L 100 50" stroke="#666" stroke-width="2" marker-end="url(#arrowBlue)"/>
+    <rect x="110" y="30" width="60" height="40" fill="#2c3e50" stroke="#666" stroke-width="2" rx="3"/>
+    <text x="140" y="55" text-anchor="middle" fill="#fff" font-family="Arial, sans-serif" font-size="10">레이어 1</text>
+
+    <path d="M 180 50 L 210 50" stroke="#666" stroke-width="2" marker-end="url(#arrowBlue)"/>
+    <rect x="220" y="30" width="60" height="40" fill="#2c3e50" stroke="#666" stroke-width="2" rx="3"/>
+    <text x="250" y="55" text-anchor="middle" fill="#fff" font-family="Arial, sans-serif" font-size="10">레이어 2</text>
+
+    <path d="M 290 50 L 320 50" stroke="#666" stroke-width="2" marker-end="url(#arrowBlue)"/>
+    <rect x="330" y="30" width="60" height="40" fill="#2c3e50" stroke="#666" stroke-width="2" rx="3"/>
+    <text x="360" y="55" text-anchor="middle" fill="#fff" font-family="Arial, sans-serif" font-size="10">레이어 N</text>
+
+    <path d="M 400 50 L 430 50" stroke="#666" stroke-width="2" marker-end="url(#arrowBlue)"/>
+    <rect x="440" y="30" width="60" height="40" fill="#34495e" stroke="#2ecc71" stroke-width="2" rx="3"/>
+    <text x="470" y="55" text-anchor="middle" fill="#fff" font-family="Arial, sans-serif" font-size="11">Loss</text>
+
+    <text x="250" y="15" text-anchor="middle" fill="#888" font-family="Arial, sans-serif" font-size="10">← Gradient 흐름 (역전파) ←</text>
+    <rect x="60" y="85" width="380" height="8" fill="url(#gradientFade)" rx="2"/>
+    <text x="250" y="110" text-anchor="middle" fill="#e74c3c" font-family="Arial, sans-serif" font-size="10">Gradient가 역전파되면서 소실됨!</text>
+  </g>
+
+  <text x="650" y="120" text-anchor="middle" fill="#aaa" font-family="Arial, sans-serif" font-size="11">∂L/∂x = ∂L/∂H × ∂H/∂x</text>
+  <text x="650" y="140" text-anchor="middle" fill="#e74c3c" font-family="Arial, sans-serif" font-size="11">= ∂L/∂H × (∂F/∂x)</text>
+  <text x="650" y="160" text-anchor="middle" fill="#888" font-family="Arial, sans-serif" font-size="10">∂F/∂x가 작으면 소실 가능</text>
+
+  <text x="200" y="225" text-anchor="middle" fill="#2ecc71" font-family="Arial, sans-serif" font-size="14" font-weight="bold">Skip Connection 있음 (Residual Network)</text>
+
+  <g transform="translate(50, 245)">
+    <rect x="0" y="50" width="60" height="40" fill="#34495e" stroke="#3498db" stroke-width="2" rx="3"/>
+    <text x="30" y="75" text-anchor="middle" fill="#fff" font-family="Arial, sans-serif" font-size="11">입력 x</text>
+
+    <path d="M 30 50 L 30 20 L 360 20 L 360 50" stroke="#2ecc71" stroke-width="3" fill="none" stroke-dasharray="5,3"/>
+    <text x="195" y="15" text-anchor="middle" fill="#2ecc71" font-family="Arial, sans-serif" font-size="10" font-weight="bold">Identity Shortcut (x)</text>
+
+    <path d="M 70 70 L 100 70" stroke="#666" stroke-width="2" marker-end="url(#arrowBlue)"/>
+    <rect x="110" y="50" width="60" height="40" fill="#2c3e50" stroke="#666" stroke-width="2" rx="3"/>
+    <text x="140" y="68" text-anchor="middle" fill="#fff" font-family="Arial, sans-serif" font-size="9">Conv</text>
+    <text x="140" y="82" text-anchor="middle" fill="#888" font-family="Arial, sans-serif" font-size="8">BN+ReLU</text>
+
+    <path d="M 180 70 L 210 70" stroke="#666" stroke-width="2" marker-end="url(#arrowBlue)"/>
+    <rect x="220" y="50" width="60" height="40" fill="#2c3e50" stroke="#666" stroke-width="2" rx="3"/>
+    <text x="250" y="68" text-anchor="middle" fill="#fff" font-family="Arial, sans-serif" font-size="9">Conv</text>
+    <text x="250" y="82" text-anchor="middle" fill="#888" font-family="Arial, sans-serif" font-size="8">BN</text>
+
+    <path d="M 290 70 L 320 70" stroke="#666" stroke-width="2"/>
+
+    <circle cx="360" cy="70" r="18" fill="#2ecc71" stroke="#27ae60" stroke-width="2"/>
+    <text x="360" y="76" text-anchor="middle" fill="#fff" font-family="Arial, sans-serif" font-size="18" font-weight="bold">+</text>
+
+    <path d="M 385 70 L 415 70" stroke="#666" stroke-width="2" marker-end="url(#arrowBlue)"/>
+    <rect x="425" y="50" width="60" height="40" fill="#f39c12" stroke="#d35400" stroke-width="2" rx="3"/>
+    <text x="455" y="75" text-anchor="middle" fill="#fff" font-family="Arial, sans-serif" font-size="11">ReLU</text>
+
+    <text x="195" y="115" text-anchor="middle" fill="#888" font-family="Arial, sans-serif" font-size="10">F(x) = 잔차</text>
+
+    <rect x="60" y="130" width="380" height="8" fill="#2ecc71" rx="2"/>
+    <text x="250" y="155" text-anchor="middle" fill="#2ecc71" font-family="Arial, sans-serif" font-size="10">Gradient가 shortcut을 통해 강하게 흐름!</text>
+  </g>
+
+  <rect x="560" y="235" width="250" height="130" fill="#2c3e50" rx="5" stroke="#34495e" stroke-width="1"/>
+  <text x="685" y="260" text-anchor="middle" fill="#f39c12" font-family="Arial, sans-serif" font-size="13" font-weight="bold">Skip 있을 때 Gradient</text>
+  <text x="685" y="290" text-anchor="middle" fill="#fff" font-family="monospace" font-size="12">∂L/∂x = ∂L/∂H × ∂H/∂x</text>
+  <text x="685" y="315" text-anchor="middle" fill="#2ecc71" font-family="monospace" font-size="12">= ∂L/∂H × (1 + ∂F/∂x)</text>
+  <text x="685" y="345" text-anchor="middle" fill="#aaa" font-family="Arial, sans-serif" font-size="11">"1"이 있어서 gradient 항상 흐름!</text>
+
+  <rect x="50" y="420" width="750" height="45" fill="#2c3e50" rx="5" stroke="#2ecc71" stroke-width="1"/>
+  <text x="425" y="448" text-anchor="middle" fill="#2ecc71" font-family="Arial, sans-serif" font-size="13" font-weight="bold">H(x) = F(x) + x → 네트워크는 잔차 F(x)만 학습, identity x는 자유롭게 통과</text>
+</svg>

@@ -22,6 +22,8 @@ AlexNet은 ImageNet에서 top-5 error를 **26% → 16%**로 크게 낮추며 딥
 
 ### 전체 아키텍처
 
+{{< figure src="/images/architecture/cnn/alexnet-paper-fig2.png" caption="Figure 2 from paper: 2개의 GPU에 나눠서 학습하는 구조 (Krizhevsky et al., 2012)" >}}
+
 ```
 Input (224×224×3)
     ↓

@@ -47,6 +47,10 @@ $$H(x) = F(x) + x$$
 
 ## 구조
 
+### Residual Block 비교
+
+{{< figure src="/images/architecture/cnn/resnet-paper-fig2.png" caption="Figure 2 from paper: Residual learning building block (He et al., 2015)" >}}
+
 ### Basic Block (ResNet-18/34)
 
 ```
@@ -78,6 +82,8 @@ x → Conv1×1 → BN → ReLU → Conv3×3 → BN → ReLU → Conv1×1 → BN 
 ---
 
 ## 전체 아키텍처 (ResNet-50)
+
+{{< figure src="/images/architecture/cnn/resnet-paper-fig3.png" caption="Figure 3 from paper: VGG-19 vs 34-layer plain vs 34-layer residual (He et al., 2015)" >}}
 
 ```
 Input (224×224×3)
@@ -188,6 +194,8 @@ class Bottleneck(nn.Module):
 ---
 
 ## 왜 Skip Connection이 효과적인가?
+
+{{< figure src="/images/architecture/cnn/ko/skip-connection.svg" caption="Skip Connection: Gradient가 shortcut을 통해 직접 흐르므로 vanishing 문제 해결" >}}
 
 ### 1. Gradient Flow 개선
 

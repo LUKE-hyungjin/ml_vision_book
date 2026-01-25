@@ -54,4 +54,16 @@ enableRobotsTXT = false  # Using static/robots.txt instead
     [minify.tdewolff.html]
       keepWhitespace = false
 
+# Goldmark markdown processor settings
+[markup]
+  [markup.goldmark]
+    [markup.goldmark.renderer]
+      unsafe = true
+    [markup.goldmark.extensions]
+      [markup.goldmark.extensions.passthrough]
+        enable = true
+        [markup.goldmark.extensions.passthrough.delimiters]
+          block = [['\[', '\]'], ['$$', '$$']]
+          inline = [['\(', '\)'], ['$', '$']]
+
 [menu]

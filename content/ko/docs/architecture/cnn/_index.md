@@ -17,6 +17,8 @@ CNN은 이미지 처리에 특화된 신경망 구조로, 2012년 AlexNet의 등
 
 필터(커널)를 이미지에 슬라이딩하며 특징을 추출합니다.
 
+{{< figure src="/images/architecture/cnn/ko/convolution-operation.svg" caption="Convolution 연산: 3x3 필터가 입력 이미지를 슬라이딩하며 특징맵 생성" >}}
+
 $$\text{Output}(i,j) = \sum_{m}\sum_{n} \text{Input}(i+m, j+n) \cdot \text{Kernel}(m,n)$$
 
 **특징:**
@@ -27,6 +29,8 @@ $$\text{Output}(i,j) = \sum_{m}\sum_{n} \text{Input}(i+m, j+n) \cdot \text{Kerne
 ### 2. Pooling Layer
 
 공간 해상도를 줄이고 위치 불변성을 제공합니다.
+
+{{< figure src="/images/architecture/cnn/ko/pooling-operation.svg" caption="Max Pooling vs Average Pooling: 공간 해상도를 줄이며 주요 특징 유지" >}}
 
 - **Max Pooling**: 영역 내 최댓값 선택
 - **Average Pooling**: 영역 내 평균값 계산
