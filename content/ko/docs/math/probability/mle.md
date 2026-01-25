@@ -274,7 +274,7 @@ optimizer = torch.optim.AdamW(model.parameters(), weight_decay=0.01)
 
 ## 관련 콘텐츠
 
-- [베이즈 정리](/ko/docs/math/probability/bayes) - MAP의 기반
-- [Cross-Entropy Loss](/ko/docs/math/training/loss/cross-entropy) - MLE의 구현
-- [Weight Decay](/ko/docs/math/training/regularization/weight-decay) - MAP 관점
-- [확률분포](/ko/docs/math/probability/distribution) - 우도 함수의 형태
+- [베이즈 정리](/docs/math/probability/bayes) - MAP의 기반
+- [Cross-Entropy Loss](/docs/math/training/loss/cross-entropy) - MLE의 구현
+- [Weight Decay](/docs/math/training/regularization/weight-decay) - MAP 관점
+- [확률분포](/docs/math/probability/distribution) - 우도 함수의 형태

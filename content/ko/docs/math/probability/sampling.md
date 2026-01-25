@@ -8,7 +8,13 @@ math: true
 
 ## 개요
 
-확률분포에서 값을 추출하는 방법으로, 생성 모델과 확률적 학습의 핵심입니다.
+> 💡 **샘플링**: 확률분포에서 값을 추출하는 방법
+
+생성 모델과 확률적 학습의 핵심입니다.
+
+### Temperature Scaling 시각화
+
+![Temperature Scaling](/images/probability/sampling-temperature.svg)
 
 ## 기본 샘플링
 
@@ -149,7 +155,7 @@ def top_p_sampling(logits, p=0.9):
 
 ## 관련 콘텐츠
 
-- [확률분포](/ko/docs/math/probability/distribution)
-- [VAE](/ko/docs/architecture/generative/vae) - Reparameterization 활용
-- [Diffusion](/ko/docs/math/diffusion) - 반복적 샘플링
-- [VLM](/ko/docs/architecture/multimodal/vlm) - 텍스트 생성 시 샘플링
+- [확률분포](/docs/math/probability/distribution)
+- [VAE](/docs/architecture/generative/vae) - Reparameterization 활용
+- [Diffusion](/docs/math/diffusion) - 반복적 샘플링
+- [VLM](/docs/architecture/multimodal/vlm) - 텍스트 생성 시 샘플링

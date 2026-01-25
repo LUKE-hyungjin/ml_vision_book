@@ -8,7 +8,13 @@ math: true
 
 ## 개요
 
-확률 변수는 랜덤 실험의 결과를 숫자로 매핑하는 함수입니다. 딥러닝의 모든 입력과 출력은 확률 변수로 모델링됩니다.
+> 💡 **확률 변수**: 랜덤 실험의 결과를 숫자로 매핑하는 함수
+
+딥러닝의 모든 입력과 출력은 확률 변수로 모델링됩니다.
+
+### 시각적 이해
+
+![PMF vs PDF vs CDF](/images/probability/pmf-pdf-cdf.svg)
 
 ---
 
@@ -240,7 +246,7 @@ print(f"Shape: {samples.shape}")  # (1000, 2)
 
 ## 관련 콘텐츠
 
-- [확률의 기초](/ko/docs/math/probability/basics) - 선수 지식
-- [기댓값과 분산](/ko/docs/math/probability/expectation) - 확률 변수의 특성
-- [확률분포](/ko/docs/math/probability/distribution) - 주요 분포 상세
-- [샘플링](/ko/docs/math/probability/sampling) - 분포에서 값 추출
+- [확률의 기초](/docs/math/probability/basics) - 선수 지식
+- [기댓값과 분산](/docs/math/probability/expectation) - 확률 변수의 특성
+- [확률분포](/docs/math/probability/distribution) - 주요 분포 상세
+- [샘플링](/docs/math/probability/sampling) - 분포에서 값 추출

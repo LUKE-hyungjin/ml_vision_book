@@ -122,7 +122,7 @@ def kl_divergence(mu, log_var):
 
 ## 관련 콘텐츠
 
-- [베이즈 정리](/ko/docs/math/probability/bayes)
-- [샘플링](/ko/docs/math/probability/sampling)
-- [Cross-Entropy](/ko/docs/math/training/loss/cross-entropy)
-- [VAE](/ko/docs/architecture/generative/vae)
+- [베이즈 정리](/docs/math/probability/bayes)
+- [샘플링](/docs/math/probability/sampling)
+- [Cross-Entropy](/docs/math/training/loss/cross-entropy)
+- [VAE](/docs/architecture/generative/vae)

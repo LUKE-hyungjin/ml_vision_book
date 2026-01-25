@@ -25,9 +25,9 @@ math: true
 
 | 개념 | 설명 | 선수 지식 |
 |------|------|----------|
-| [확률의 기초](/ko/docs/math/probability/basics) | 확률의 정의, 조건부 확률, 독립 | 없음 |
-| [확률 변수](/ko/docs/math/probability/random-variable) | 이산/연속 확률 변수 | 확률의 기초 |
-| [기댓값과 분산](/ko/docs/math/probability/expectation) | 평균, 분산, 공분산 | 확률 변수 |
+| [확률의 기초](/docs/math/probability/basics) | 확률의 정의, 조건부 확률, 독립 | 없음 |
+| [확률 변수](/docs/math/probability/random-variable) | 이산/연속 확률 변수 | 확률의 기초 |
+| [기댓값과 분산](/docs/math/probability/expectation) | 평균, 분산, 공분산 | 확률 변수 |
 
 ### 학습 순서
 
@@ -43,9 +43,9 @@ math: true
 
 | 개념 | 설명 | 딥러닝 적용 |
 |------|------|------------|
-| [확률분포](/ko/docs/math/probability/distribution) | 확률의 함수적 표현 | Softmax, VAE, Diffusion |
-| [베이즈 정리](/ko/docs/math/probability/bayes) | 조건부 확률의 역산 | 불확실성 추정, 사후 확률 |
-| [샘플링](/ko/docs/math/probability/sampling) | 분포에서 값 추출 | 생성 모델, Dropout, MCMC |
+| [확률분포](/docs/math/probability/distribution) | 확률의 함수적 표현 | Softmax, VAE, Diffusion |
+| [베이즈 정리](/docs/math/probability/bayes) | 조건부 확률의 역산 | 불확실성 추정, 사후 확률 |
+| [샘플링](/docs/math/probability/sampling) | 분포에서 값 추출 | 생성 모델, Dropout, MCMC |
 
 ### 딥러닝에서의 활용
 
@@ -61,9 +61,9 @@ math: true
 
 | 개념 | 설명 | 딥러닝 적용 |
 |------|------|------------|
-| [엔트로피](/ko/docs/math/probability/entropy) | 불확실성의 측정 | Cross-Entropy Loss |
-| [KL 발산](/ko/docs/math/probability/kl-divergence) | 분포 간 거리 | VAE, 지식 증류 |
-| [최대 우도 추정](/ko/docs/math/probability/mle) | 파라미터 추정 | 모델 학습의 원리 |
+| [엔트로피](/docs/math/probability/entropy) | 불확실성의 측정 | Cross-Entropy Loss |
+| [KL 발산](/docs/math/probability/kl-divergence) | 분포 간 거리 | VAE, 지식 증류 |
+| [최대 우도 추정](/docs/math/probability/mle) | 파라미터 추정 | 모델 학습의 원리 |
 
 ### 손실 함수와의 관계
 
@@ -92,7 +92,7 @@ $$
 
 ## 관련 콘텐츠
 
-- [Cross-Entropy Loss](/ko/docs/math/training/loss/cross-entropy) - 확률분포 기반 손실
-- [Diffusion](/ko/docs/math/diffusion) - 확률 과정 기반 생성
-- [Label Smoothing](/ko/docs/math/training/regularization/label-smoothing) - 분포 정규화
-- [Softmax](/ko/docs/math/probability/distribution) - 확률분포 변환
+- [Cross-Entropy Loss](/docs/math/training/loss/cross-entropy) - 확률분포 기반 손실
+- [Diffusion](/docs/math/diffusion) - 확률 과정 기반 생성
+- [Label Smoothing](/docs/math/training/regularization/label-smoothing) - 분포 정규화
+- [Softmax](/docs/math/probability/distribution) - 확률분포 변환

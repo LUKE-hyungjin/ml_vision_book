@@ -1,0 +1,143 @@
+<svg width="700" height="380" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background -->
+  <rect width="700" height="380" fill="#f8f9fa"/>
+
+  <!-- Title -->
+  <text x="350" y="25" text-anchor="middle" font-family="system-ui, sans-serif" font-size="18" font-weight="bold" fill="#333">
+    Temperature Scaling in Sampling
+  </text>
+  <text x="350" y="45" text-anchor="middle" font-family="Times New Roman, serif" font-size="14" fill="#666">
+    p_i = exp(z_i / T) / Σ exp(z_j / T)
+  </text>
+
+  <!-- T=0.1 (Very Low - Almost Argmax) -->
+  <g transform="translate(50, 80)">
+    <text x="80" y="0" text-anchor="middle" font-family="system-ui, sans-serif" font-size="13" font-weight="bold" fill="#c92a2a">
+      T → 0 (Low)
+    </text>
+    <text x="80" y="18" text-anchor="middle" font-family="system-ui, sans-serif" font-size="11" fill="#666">
+      결정적 (Deterministic)
+    </text>
+
+    <!-- Axes -->
+    <line x1="20" y1="120" x2="150" y2="120" stroke="#333" stroke-width="1"/>
+    <line x1="20" y1="120" x2="20" y2="35" stroke="#333" stroke-width="1"/>
+    <text x="15" y="38" text-anchor="end" font-family="monospace" font-size="9" fill="#666">1.0</text>
+    <text x="15" y="78" text-anchor="end" font-family="monospace" font-size="9" fill="#666">0.5</text>
+
+    <!-- Bars (one token dominates) -->
+    <rect x="35" y="40" width="20" height="80" fill="#c92a2a" opacity="0.8"/>
+    <rect x="65" y="118" width="20" height="2" fill="#c92a2a" opacity="0.8"/>
+    <rect x="95" y="118" width="20" height="2" fill="#c92a2a" opacity="0.8"/>
+    <rect x="125" y="118" width="20" height="2" fill="#c92a2a" opacity="0.8"/>
+
+    <!-- Labels -->
+    <text x="45" y="135" text-anchor="middle" font-family="monospace" font-size="9" fill="#666">A</text>
+    <text x="75" y="135" text-anchor="middle" font-family="monospace" font-size="9" fill="#666">B</text>
+    <text x="105" y="135" text-anchor="middle" font-family="monospace" font-size="9" fill="#666">C</text>
+    <text x="135" y="135" text-anchor="middle" font-family="monospace" font-size="9" fill="#666">D</text>
+
+    <!-- Description -->
+    <text x="80" y="160" text-anchor="middle" font-family="system-ui, sans-serif" font-size="10" fill="#c92a2a">
+      항상 최고 확률 선택
+    </text>
+  </g>
+
+  <!-- T=1.0 (Normal) -->
+  <g transform="translate(230, 80)">
+    <text x="80" y="0" text-anchor="middle" font-family="system-ui, sans-serif" font-size="13" font-weight="bold" fill="#4ecdc4">
+      T = 1.0 (Normal)
+    </text>
+    <text x="80" y="18" text-anchor="middle" font-family="system-ui, sans-serif" font-size="11" fill="#666">
+      원래 분포 그대로
+    </text>
+
+    <!-- Axes -->
+    <line x1="20" y1="120" x2="150" y2="120" stroke="#333" stroke-width="1"/>
+    <line x1="20" y1="120" x2="20" y2="35" stroke="#333" stroke-width="1"/>
+    <text x="15" y="38" text-anchor="end" font-family="monospace" font-size="9" fill="#666">1.0</text>
+    <text x="15" y="78" text-anchor="end" font-family="monospace" font-size="9" fill="#666">0.5</text>
+
+    <!-- Bars (softmax distribution) -->
+    <rect x="35" y="55" width="20" height="65" fill="#4ecdc4" opacity="0.8"/>
+    <rect x="65" y="85" width="20" height="35" fill="#4ecdc4" opacity="0.8"/>
+    <rect x="95" y="100" width="20" height="20" fill="#4ecdc4" opacity="0.8"/>
+    <rect x="125" y="108" width="20" height="12" fill="#4ecdc4" opacity="0.8"/>
+
+    <!-- Labels -->
+    <text x="45" y="135" text-anchor="middle" font-family="monospace" font-size="9" fill="#666">A</text>
+    <text x="75" y="135" text-anchor="middle" font-family="monospace" font-size="9" fill="#666">B</text>
+    <text x="105" y="135" text-anchor="middle" font-family="monospace" font-size="9" fill="#666">C</text>
+    <text x="135" y="135" text-anchor="middle" font-family="monospace" font-size="9" fill="#666">D</text>
+
+    <!-- Description -->
+    <text x="80" y="160" text-anchor="middle" font-family="system-ui, sans-serif" font-size="10" fill="#4ecdc4">
+      학습된 확률로 샘플링
+    </text>
+  </g>
+
+  <!-- T=2.0+ (High) -->
+  <g transform="translate(410, 80)">
+    <text x="80" y="0" text-anchor="middle" font-family="system-ui, sans-serif" font-size="13" font-weight="bold" fill="#9b59b6">
+      T → ∞ (High)
+    </text>
+    <text x="80" y="18" text-anchor="middle" font-family="system-ui, sans-serif" font-size="11" fill="#666">
+      균등 분포 (Random)
+    </text>
+
+    <!-- Axes -->
+    <line x1="20" y1="120" x2="150" y2="120" stroke="#333" stroke-width="1"/>
+    <line x1="20" y1="120" x2="20" y2="35" stroke="#333" stroke-width="1"/>
+    <text x="15" y="38" text-anchor="end" font-family="monospace" font-size="9" fill="#666">1.0</text>
+    <text x="15" y="78" text-anchor="end" font-family="monospace" font-size="9" fill="#666">0.5</text>
+
+    <!-- Bars (nearly uniform) -->
+    <rect x="35" y="95" width="20" height="25" fill="#9b59b6" opacity="0.8"/>
+    <rect x="65" y="95" width="20" height="25" fill="#9b59b6" opacity="0.8"/>
+    <rect x="95" y="95" width="20" height="25" fill="#9b59b6" opacity="0.8"/>
+    <rect x="125" y="95" width="20" height="25" fill="#9b59b6" opacity="0.8"/>
+
+    <!-- Labels -->
+    <text x="45" y="135" text-anchor="middle" font-family="monospace" font-size="9" fill="#666">A</text>
+    <text x="75" y="135" text-anchor="middle" font-family="monospace" font-size="9" fill="#666">B</text>
+    <text x="105" y="135" text-anchor="middle" font-family="monospace" font-size="9" fill="#666">C</text>
+    <text x="135" y="135" text-anchor="middle" font-family="monospace" font-size="9" fill="#666">D</text>
+
+    <!-- Description -->
+    <text x="80" y="160" text-anchor="middle" font-family="system-ui, sans-serif" font-size="10" fill="#9b59b6">
+      모든 토큰 동일 확률
+    </text>
+  </g>
+
+  <!-- Temperature Spectrum -->
+  <g transform="translate(50, 260)">
+    <text x="300" y="0" text-anchor="middle" font-family="system-ui, sans-serif" font-size="14" font-weight="bold" fill="#333">
+      Temperature Spectrum
+    </text>
+
+    <!-- Gradient bar -->
+    <defs>
+      <linearGradient id="tempGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+        <stop offset="0%" style="stop-color:#c92a2a"/>
+        <stop offset="50%" style="stop-color:#4ecdc4"/>
+        <stop offset="100%" style="stop-color:#9b59b6"/>
+      </linearGradient>
+    </defs>
+    <rect x="50" y="20" width="500" height="20" fill="url(#tempGrad)" rx="10"/>
+
+    <!-- Labels -->
+    <text x="50" y="55" text-anchor="middle" font-family="monospace" font-size="11" fill="#c92a2a">T→0</text>
+    <text x="300" y="55" text-anchor="middle" font-family="monospace" font-size="11" fill="#4ecdc4">T=1</text>
+    <text x="550" y="55" text-anchor="middle" font-family="monospace" font-size="11" fill="#9b59b6">T→∞</text>
+
+    <!-- Descriptions -->
+    <text x="50" y="72" text-anchor="middle" font-family="system-ui, sans-serif" font-size="10" fill="#666">Greedy</text>
+    <text x="300" y="72" text-anchor="middle" font-family="system-ui, sans-serif" font-size="10" fill="#666">Balanced</text>
+    <text x="550" y="72" text-anchor="middle" font-family="system-ui, sans-serif" font-size="10" fill="#666">Creative</text>
+
+    <!-- Use cases -->
+    <text x="50" y="90" text-anchor="middle" font-family="system-ui, sans-serif" font-size="9" fill="#888">코드, 팩트</text>
+    <text x="300" y="90" text-anchor="middle" font-family="system-ui, sans-serif" font-size="9" fill="#888">일반 대화</text>
+    <text x="550" y="90" text-anchor="middle" font-family="system-ui, sans-serif" font-size="9" fill="#888">창작, 브레인스토밍</text>
+  </g>
+</svg>

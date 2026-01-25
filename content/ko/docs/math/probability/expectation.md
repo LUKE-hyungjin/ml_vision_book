@@ -248,7 +248,7 @@ MSE를 최소화하면 조건부 기댓값을 학습!
 
 ## 관련 콘텐츠
 
-- [확률 변수](/ko/docs/math/probability/random-variable) - 선수 지식
-- [확률분포](/ko/docs/math/probability/distribution) - 분포별 기댓값/분산
-- [Batch Normalization](/ko/docs/math/normalization/batch-norm) - 분산 정규화
-- [Xavier/He 초기화](/ko/docs/math/training/regularization/weight-decay) - 분산 유지 초기화
+- [확률 변수](/docs/math/probability/random-variable) - 선수 지식
+- [확률분포](/docs/math/probability/distribution) - 분포별 기댓값/분산
+- [Batch Normalization](/docs/math/normalization/batch-norm) - 분산 정규화
+- [Xavier/He 초기화](/docs/math/training/regularization/weight-decay) - 분산 유지 초기화

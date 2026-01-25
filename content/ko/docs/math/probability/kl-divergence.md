@@ -236,6 +236,6 @@ print(f"PyTorch KL: {kl_pt.item():.4f}")
 
 ## 관련 콘텐츠
 
-- [엔트로피](/ko/docs/math/probability/entropy) - KL Divergence의 기반
-- [Cross-Entropy Loss](/ko/docs/math/training/loss/cross-entropy) - 손실 함수와의 관계
-- [확률분포](/ko/docs/math/probability/distribution) - 분포 기초
+- [엔트로피](/docs/math/probability/entropy) - KL Divergence의 기반
+- [Cross-Entropy Loss](/docs/math/training/loss/cross-entropy) - 손실 함수와의 관계
+- [확률분포](/docs/math/probability/distribution) - 분포 기초
