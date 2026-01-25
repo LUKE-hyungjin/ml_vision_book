@@ -45,9 +45,9 @@ E[X] = 1×(1/6) + 2×(1/6) + 3×(1/6) + 4×(1/6) + 5×(1/6) + 6×(1/6)
 
 ### 기댓값의 성질
 
-1. **선형성**: $\mathbb{E}\[aX + bY\] = a\mathbb{E}\[X\] + b\mathbb{E}\[Y\]$
-2. **상수**: $\mathbb{E}\[c\] = c$
-3. **독립일 때**: $\mathbb{E}\[XY\] = \mathbb{E}\[X\] \cdot \mathbb{E}\[Y\]$
+1. **선형성**: $\mathbb{E}[aX + bY] = a\mathbb{E}[X] + b\mathbb{E}[Y]$
+2. **상수**: $\mathbb{E}[c] = c$
+3. **독립일 때**: $\mathbb{E}[XY] = \mathbb{E}[X] \cdot \mathbb{E}[Y]$
 
 ---
 
@@ -212,7 +212,7 @@ $$
 
 ### 딥러닝에서의 의미
 
-모델의 출력 $\hat{y} = f(x)$는 $\mathbb{E}\[Y|X=x\]$의 추정:
+모델의 출력 $\hat{y} = f(x)$는 $\mathbb{E}[Y|X=x]$의 추정:
 
 $$
 f^*(x) = \mathbb{E}[Y|X=x] = \arg\min_f \mathbb{E}[(Y - f(X))^2]
@@ -224,7 +224,7 @@ MSE를 최소화하면 조건부 기댓값을 학습!
 
 ## 주요 분포의 기댓값과 분산
 
-| 분포 | $\mathbb{E}\[X\]$ | $\text{Var}(X)$ |
+| 분포 | $\mathbb{E}[X]$ | $\text{Var}(X)$ |
 |------|-----------------|-----------------|
 | 베르누이$(p)$ | $p$ | $p(1-p)$ |
 | 이항$(n, p)$ | $np$ | $np(1-p)$ |
@@ -239,9 +239,9 @@ MSE를 최소화하면 조건부 기댓값을 학습!
 
 | 개념 | 수식 | 의미 |
 |------|------|------|
-| 기댓값 | $\mathbb{E}\[X\]$ | 평균적인 값 |
-| 분산 | $\text{Var}(X) = \mathbb{E}\[X^2\] - (\mathbb{E}\[X\])^2$ | 퍼진 정도 |
-| 공분산 | $\text{Cov}(X,Y) = \mathbb{E}\[XY\] - \mathbb{E}\[X\]\mathbb{E}\[Y\]$ | 함께 변하는 정도 |
+| 기댓값 | $\mathbb{E}[X]$ | 평균적인 값 |
+| 분산 | $\text{Var}(X) = \mathbb{E}[X^2] - (\mathbb{E}[X])^2$ | 퍼진 정도 |
+| 공분산 | $\text{Cov}(X,Y) = \mathbb{E}[XY] - \mathbb{E}[X]\mathbb{E}[Y]$ | 함께 변하는 정도 |
 | 상관계수 | $\rho = \frac{\text{Cov}(X,Y)}{\sigma_X \sigma_Y}$ | 정규화된 공분산 |
 
 ---
