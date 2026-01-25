@@ -41,9 +41,13 @@ content/
    - O: `linear-algebra.md`
    - X: `선형대수.md`
 
-3. **링크는 언어 prefix 없이 작성** (Hugo가 자동 처리)
+3. **링크는 언어 prefix 포함하여 작성**
    ```markdown
-   [Convolution](/docs/math/convolution)  # 자동으로 현재 언어 버전으로 연결
+   # 한국어 콘텐츠에서
+   [Convolution](/ko/docs/math/convolution)
+
+   # 영어 콘텐츠에서
+   [Convolution](/en/docs/math/convolution)
    ```
 
 ### 번역 우선순위
@@ -120,9 +124,9 @@ $$
 \`\`\`
 
 ## 관련 콘텐츠
-- [관련 수학](/docs/math/xxx)
-- [이 개념을 사용하는 아키텍처](/docs/architecture/xxx)
-- [이 개념이 쓰이는 태스크](/docs/task/xxx)
+- [관련 수학](/ko/docs/math/xxx)
+- [이 개념을 사용하는 아키텍처](/ko/docs/architecture/xxx)
+- [이 개념이 쓰이는 태스크](/ko/docs/task/xxx)
 ```
 
 **English** (`content/en/docs/math/xxx.md`):
@@ -152,9 +156,9 @@ Explain the meaning of the formula with analogies or diagrams
 \`\`\`
 
 ## Related Content
-- [Related Math](/docs/math/xxx)
-- [Architectures using this concept](/docs/architecture/xxx)
-- [Tasks using this concept](/docs/task/xxx)
+- [Related Math](/en/docs/math/xxx)
+- [Architectures using this concept](/en/docs/architecture/xxx)
+- [Tasks using this concept](/en/docs/task/xxx)
 ```
 
 ### architecture/ 템플릿
@@ -191,10 +195,10 @@ math: true
 \`\`\`
 
 ## 관련 콘텐츠
-- [선행 지식](/docs/math/xxx)
-- [이전 모델](/docs/architecture/xxx)
-- [후속 모델](/docs/architecture/xxx)
-- [적용 태스크](/docs/task/xxx)
+- [선행 지식](/ko/docs/math/xxx)
+- [이전 모델](/ko/docs/architecture/xxx)
+- [후속 모델](/ko/docs/architecture/xxx)
+- [적용 태스크](/ko/docs/task/xxx)
 ```
 
 **English** (`content/en/docs/architecture/xxx.md`):
@@ -229,10 +233,10 @@ Description of each component
 \`\`\`
 
 ## Related Content
-- [Prerequisites](/docs/math/xxx)
-- [Previous model](/docs/architecture/xxx)
-- [Subsequent model](/docs/architecture/xxx)
-- [Applied tasks](/docs/task/xxx)
+- [Prerequisites](/en/docs/math/xxx)
+- [Previous model](/en/docs/architecture/xxx)
+- [Subsequent model](/en/docs/architecture/xxx)
+- [Applied tasks](/en/docs/task/xxx)
 ```
 
 ### task/ 템플릿
@@ -262,12 +266,12 @@ weight: 10
 | 데이터셋1 | 크기 | 특징 |
 
 ## 주요 접근법
-1. 접근법1: 간단 설명 → [상세](/docs/architecture/xxx)
-2. 접근법2: 간단 설명 → [상세](/docs/architecture/xxx)
+1. 접근법1: 간단 설명 → [상세](/ko/docs/architecture/xxx)
+2. 접근법2: 간단 설명 → [상세](/ko/docs/architecture/xxx)
 
 ## 관련 콘텐츠
-- [필요한 수학](/docs/math/xxx)
-- [관련 아키텍처](/docs/architecture/xxx)
+- [필요한 수학](/ko/docs/math/xxx)
+- [관련 아키텍처](/ko/docs/architecture/xxx)
 ```
 
 **English** (`content/en/docs/task/xxx.md`):
