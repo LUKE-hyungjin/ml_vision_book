@@ -1,0 +1,16 @@
+User-agent: *
+Allow: /
+
+# Sitemap
+Sitemap: https://ml-vision.lukedev.info/sitemap.xml
+
+# Disallow admin and search
+Disallow: /search/
+Disallow: /admin/
+
+# Allow all crawlers to access CSS and JS
+Allow: /*.css$
+Allow: /*.js$
+
+# Crawl-delay for polite crawling
+Crawl-delay: 1

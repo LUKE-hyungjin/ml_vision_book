@@ -1,0 +1,131 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 700 400">
+  <defs>
+    <style>
+      .text { font-family: 'Segoe UI', Arial, sans-serif; }
+      .title { font-size: 16px; font-weight: bold; fill: #333; }
+      .label { font-size: 12px; fill: #666; }
+      .axis { stroke: #999; stroke-width: 1; }
+    </style>
+  </defs>
+
+  <!-- Background -->
+  <rect width="700" height="400" fill="#fafafa" rx="8"/>
+
+  <!-- Title -->
+  <text x="350" y="30" text-anchor="middle" class="text title">주요 확률 분포</text>
+
+  <!-- Bernoulli Distribution -->
+  <g transform="translate(50, 60)">
+    <text x="80" y="0" text-anchor="middle" class="text" font-size="14" font-weight="bold" fill="#E74C3C">베르누이 (p=0.3)</text>
+    <!-- Axes -->
+    <line x1="20" y1="100" x2="140" y2="100" class="axis"/>
+    <line x1="20" y1="100" x2="20" y2="20" class="axis"/>
+    <!-- Bars -->
+    <rect x="40" y="30" width="30" height="70" fill="#E74C3C" opacity="0.7"/>
+    <rect x="90" y="72" width="30" height="28" fill="#E74C3C" opacity="0.7"/>
+    <!-- Labels -->
+    <text x="55" y="115" text-anchor="middle" class="text label">0</text>
+    <text x="105" y="115" text-anchor="middle" class="text label">1</text>
+    <text x="10" y="35" text-anchor="end" class="text label">0.7</text>
+    <text x="10" y="77" text-anchor="end" class="text label">0.3</text>
+    <text x="80" y="135" text-anchor="middle" class="text" font-size="11" fill="#666">이진 분류</text>
+  </g>
+
+  <!-- Categorical Distribution -->
+  <g transform="translate(200, 60)">
+    <text x="80" y="0" text-anchor="middle" class="text" font-size="14" font-weight="bold" fill="#F39C12">카테고리컬</text>
+    <!-- Axes -->
+    <line x1="20" y1="100" x2="160" y2="100" class="axis"/>
+    <line x1="20" y1="100" x2="20" y2="20" class="axis"/>
+    <!-- Bars -->
+    <rect x="30" y="60" width="25" height="40" fill="#F39C12" opacity="0.7"/>
+    <rect x="60" y="40" width="25" height="60" fill="#F39C12" opacity="0.7"/>
+    <rect x="90" y="75" width="25" height="25" fill="#F39C12" opacity="0.7"/>
+    <rect x="120" y="85" width="25" height="15" fill="#F39C12" opacity="0.7"/>
+    <!-- Labels -->
+    <text x="42" y="115" text-anchor="middle" class="text label">A</text>
+    <text x="72" y="115" text-anchor="middle" class="text label">B</text>
+    <text x="102" y="115" text-anchor="middle" class="text label">C</text>
+    <text x="132" y="115" text-anchor="middle" class="text label">D</text>
+    <text x="80" y="135" text-anchor="middle" class="text" font-size="11" fill="#666">다중 클래스</text>
+  </g>
+
+  <!-- Normal Distribution -->
+  <g transform="translate(370, 60)">
+    <text x="100" y="0" text-anchor="middle" class="text" font-size="14" font-weight="bold" fill="#4A90D9">정규 분포 (μ=0, σ=1)</text>
+    <!-- Axes -->
+    <line x1="20" y1="100" x2="200" y2="100" class="axis"/>
+    <line x1="110" y1="100" x2="110" y2="20" class="axis" stroke-dasharray="3,3"/>
+    <!-- Curve -->
+    <path d="M 20 100 Q 30 98 40 95 Q 50 88 60 75 Q 70 55 80 38 Q 90 25 100 22 Q 110 20 120 22 Q 130 25 140 38 Q 150 55 160 75 Q 170 88 180 95 Q 190 98 200 100"
+          fill="#4A90D9" fill-opacity="0.3" stroke="#4A90D9" stroke-width="2"/>
+    <!-- Labels -->
+    <text x="110" y="115" text-anchor="middle" class="text label">μ</text>
+    <text x="60" y="115" text-anchor="middle" class="text label">-σ</text>
+    <text x="160" y="115" text-anchor="middle" class="text label">+σ</text>
+    <text x="100" y="135" text-anchor="middle" class="text" font-size="11" fill="#666">잠재 공간, 노이즈</text>
+  </g>
+
+  <!-- Uniform Distribution -->
+  <g transform="translate(50, 220)">
+    <text x="80" y="0" text-anchor="middle" class="text" font-size="14" font-weight="bold" fill="#27AE60">균등 분포</text>
+    <!-- Axes -->
+    <line x1="20" y1="100" x2="160" y2="100" class="axis"/>
+    <line x1="20" y1="100" x2="20" y2="20" class="axis"/>
+    <!-- Rectangle -->
+    <rect x="40" y="50" width="100" height="50" fill="#27AE60" opacity="0.5" stroke="#27AE60" stroke-width="2"/>
+    <!-- Labels -->
+    <text x="40" y="115" text-anchor="middle" class="text label">a</text>
+    <text x="140" y="115" text-anchor="middle" class="text label">b</text>
+    <text x="80" y="135" text-anchor="middle" class="text" font-size="11" fill="#666">초기화</text>
+  </g>
+
+  <!-- Softmax Output -->
+  <g transform="translate(200, 220)">
+    <text x="80" y="0" text-anchor="middle" class="text" font-size="14" font-weight="bold" fill="#9B59B6">Softmax 출력</text>
+    <!-- Axes -->
+    <line x1="20" y1="100" x2="160" y2="100" class="axis"/>
+    <line x1="20" y1="100" x2="20" y2="20" class="axis"/>
+    <!-- Bars with gradient effect -->
+    <rect x="35" y="85" width="22" height="15" fill="#9B59B6" opacity="0.5"/>
+    <rect x="62" y="30" width="22" height="70" fill="#9B59B6" opacity="0.9"/>
+    <rect x="89" y="75" width="22" height="25" fill="#9B59B6" opacity="0.5"/>
+    <rect x="116" y="88" width="22" height="12" fill="#9B59B6" opacity="0.5"/>
+    <!-- Labels -->
+    <text x="46" y="115" text-anchor="middle" class="text label">고양이</text>
+    <text x="73" y="115" text-anchor="middle" class="text label" fill="#9B59B6" font-weight="bold">개</text>
+    <text x="100" y="115" text-anchor="middle" class="text label">새</text>
+    <text x="127" y="115" text-anchor="middle" class="text label">물고기</text>
+    <!-- Sum = 1 annotation -->
+    <text x="80" y="135" text-anchor="middle" class="text" font-size="11" fill="#666">합 = 1.0</text>
+  </g>
+
+  <!-- Comparison: Low vs High Entropy -->
+  <g transform="translate(370, 220)">
+    <text x="130" y="0" text-anchor="middle" class="text" font-size="14" font-weight="bold" fill="#333">엔트로피 비교</text>
+
+    <!-- Low Entropy -->
+    <g transform="translate(0, 15)">
+      <text x="55" y="15" text-anchor="middle" class="text" font-size="11" fill="#27AE60">낮은 엔트로피 (확신)</text>
+      <line x1="20" y1="85" x2="110" y2="85" class="axis"/>
+      <rect x="30" y="30" width="20" height="55" fill="#27AE60" opacity="0.8"/>
+      <rect x="55" y="80" width="20" height="5" fill="#27AE60" opacity="0.4"/>
+      <rect x="80" y="80" width="20" height="5" fill="#27AE60" opacity="0.4"/>
+    </g>
+
+    <!-- High Entropy -->
+    <g transform="translate(130, 15)">
+      <text x="55" y="15" text-anchor="middle" class="text" font-size="11" fill="#E74C3C">높은 엔트로피 (불확실)</text>
+      <line x1="20" y1="85" x2="110" y2="85" class="axis"/>
+      <rect x="30" y="55" width="20" height="30" fill="#E74C3C" opacity="0.6"/>
+      <rect x="55" y="52" width="20" height="33" fill="#E74C3C" opacity="0.6"/>
+      <rect x="80" y="58" width="20" height="27" fill="#E74C3C" opacity="0.6"/>
+    </g>
+  </g>
+
+  <!-- Legend -->
+  <rect x="50" y="365" width="600" height="25" fill="#E8F4FD" rx="5"/>
+  <text x="350" y="382" text-anchor="middle" class="text" font-size="12" fill="#2E6CB5">
+    딥러닝에서: Softmax → 카테고리컬 분포 출력 → Cross-Entropy로 학습
+  </text>
+</svg>

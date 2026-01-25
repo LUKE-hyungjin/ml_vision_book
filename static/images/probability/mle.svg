@@ -1,0 +1,108 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 700 380">
+  <defs>
+    <style>
+      .text { font-family: 'Segoe UI', Arial, sans-serif; }
+      .title { font-size: 16px; font-weight: bold; fill: #333; }
+      .label { font-size: 12px; fill: #666; }
+    </style>
+  </defs>
+
+  <!-- Background -->
+  <rect width="700" height="380" fill="#fafafa" rx="8"/>
+
+  <!-- Title -->
+  <text x="350" y="30" text-anchor="middle" class="text title">최대 우도 추정 (Maximum Likelihood Estimation)</text>
+
+  <!-- Concept illustration -->
+  <g transform="translate(50, 50)">
+    <text x="130" y="15" text-anchor="middle" class="text" font-size="14" font-weight="bold">어떤 θ가 데이터를 가장 잘 설명하는가?</text>
+
+    <!-- Data points -->
+    <circle cx="60" cy="100" r="6" fill="#4A90D9"/>
+    <circle cx="90" cy="80" r="6" fill="#4A90D9"/>
+    <circle cx="110" cy="110" r="6" fill="#4A90D9"/>
+    <circle cx="140" cy="90" r="6" fill="#4A90D9"/>
+    <circle cx="170" cy="95" r="6" fill="#4A90D9"/>
+    <circle cx="200" cy="105" r="6" fill="#4A90D9"/>
+    <text x="130" y="140" text-anchor="middle" class="text" font-size="11" fill="#4A90D9">관측된 데이터</text>
+
+    <!-- Bad theta -->
+    <g transform="translate(0, 30)">
+      <path d="M 30 100 Q 60 95 90 80 Q 130 50 170 60 Q 200 70 230 90"
+            fill="none" stroke="#E74C3C" stroke-width="2" stroke-dasharray="5,3" opacity="0.5"/>
+      <text x="240" y="80" class="text" font-size="10" fill="#E74C3C">θ₁ (안 맞음)</text>
+    </g>
+
+    <!-- Good theta -->
+    <path d="M 30 130 Q 70 90 110 85 Q 150 80 190 90 Q 220 100 250 110"
+          fill="none" stroke="#27AE60" stroke-width="3"/>
+    <text x="260" y="100" class="text" font-size="10" fill="#27AE60" font-weight="bold">θ_MLE (최적)</text>
+  </g>
+
+  <!-- Formula box -->
+  <g transform="translate(350, 50)">
+    <rect x="0" y="0" width="300" height="120" fill="#fff" stroke="#4A90D9" stroke-width="2" rx="8"/>
+    <text x="150" y="25" text-anchor="middle" class="text" font-size="13" fill="#4A90D9" font-weight="bold">MLE 공식</text>
+
+    <text x="150" y="55" text-anchor="middle" class="text" font-size="14" fill="#333">
+      θ_MLE = argmax P(D | θ)
+    </text>
+
+    <text x="150" y="80" text-anchor="middle" class="text" font-size="12" fill="#666">
+      Log 형태로 변환:
+    </text>
+    <text x="150" y="100" text-anchor="middle" class="text" font-size="13" fill="#E74C3C">
+      = argmax Σ log P(xᵢ | θ)
+    </text>
+  </g>
+
+  <!-- Connection to DL -->
+  <g transform="translate(50, 195)">
+    <rect x="0" y="0" width="600" height="80" fill="#E8F8F5" stroke="#27AE60" stroke-width="2" rx="8"/>
+    <text x="300" y="25" text-anchor="middle" class="text" font-size="14" fill="#27AE60" font-weight="bold">딥러닝 = MLE!</text>
+
+    <g transform="translate(30, 40)">
+      <!-- Classification -->
+      <rect x="0" y="0" width="160" height="30" fill="#27AE60" opacity="0.2" rx="5"/>
+      <text x="80" y="12" text-anchor="middle" class="text" font-size="11" fill="#333" font-weight="bold">분류 (Classification)</text>
+      <text x="80" y="26" text-anchor="middle" class="text" font-size="10" fill="#666">Cross-Entropy = NLL</text>
+
+      <!-- Regression -->
+      <rect x="200" y="0" width="160" height="30" fill="#27AE60" opacity="0.2" rx="5"/>
+      <text x="280" y="12" text-anchor="middle" class="text" font-size="11" fill="#333" font-weight="bold">회귀 (Regression)</text>
+      <text x="280" y="26" text-anchor="middle" class="text" font-size="10" fill="#666">MSE = Gaussian NLL</text>
+
+      <!-- Equal sign -->
+      <text x="175" y="18" text-anchor="middle" class="text" font-size="16" fill="#27AE60">=</text>
+
+      <!-- Both -->
+      <rect x="400" y="0" width="140" height="30" fill="#27AE60" opacity="0.4" rx="5"/>
+      <text x="470" y="18" text-anchor="middle" class="text" font-size="11" fill="#333" font-weight="bold">모두 MLE 원리</text>
+    </g>
+  </g>
+
+  <!-- MLE vs MAP -->
+  <g transform="translate(50, 295)">
+    <rect x="0" y="0" width="290" height="70" fill="#fff" stroke="#4A90D9" stroke-width="2" rx="8"/>
+    <text x="145" y="20" text-anchor="middle" class="text" font-size="12" fill="#4A90D9" font-weight="bold">MLE</text>
+    <text x="145" y="40" text-anchor="middle" class="text" font-size="11" fill="#333">argmax P(D | θ)</text>
+    <text x="145" y="57" text-anchor="middle" class="text" font-size="10" fill="#666">데이터만 고려</text>
+  </g>
+
+  <g transform="translate(360, 295)">
+    <rect x="0" y="0" width="290" height="70" fill="#fff" stroke="#9B59B6" stroke-width="2" rx="8"/>
+    <text x="145" y="20" text-anchor="middle" class="text" font-size="12" fill="#9B59B6" font-weight="bold">MAP (+ 정규화)</text>
+    <text x="145" y="40" text-anchor="middle" class="text" font-size="11" fill="#333">argmax P(D | θ) P(θ)</text>
+    <text x="145" y="57" text-anchor="middle" class="text" font-size="10" fill="#666">데이터 + 사전 지식 (L2 = Gaussian prior)</text>
+  </g>
+
+  <!-- Arrow between MLE and MAP -->
+  <path d="M 345 330 L 355 330" stroke="#333" stroke-width="2" marker-end="url(#arrow3)"/>
+  <text x="350" y="320" text-anchor="middle" class="text" font-size="11" fill="#333">+Prior</text>
+
+  <defs>
+    <marker id="arrow3" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#333"/>
+    </marker>
+  </defs>
+</svg>

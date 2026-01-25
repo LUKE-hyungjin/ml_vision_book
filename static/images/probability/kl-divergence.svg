@@ -1,0 +1,130 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 700 450">
+  <defs>
+    <style>
+      .text { font-family: 'Segoe UI', Arial, sans-serif; }
+      .title { font-size: 16px; font-weight: bold; fill: #333; }
+      .label { font-size: 12px; fill: #666; }
+    </style>
+  </defs>
+
+  <!-- Background -->
+  <rect width="700" height="450" fill="#fafafa" rx="8"/>
+
+  <!-- Title -->
+  <text x="350" y="30" text-anchor="middle" class="text title">KL Divergence: 두 분포의 차이</text>
+
+  <!-- Two distributions comparison -->
+  <g transform="translate(50, 60)">
+    <text x="130" y="0" text-anchor="middle" class="text" font-size="14" font-weight="bold">분포 P (실제) vs Q (모델)</text>
+
+    <!-- Axes -->
+    <line x1="30" y1="130" x2="270" y2="130" stroke="#999" stroke-width="1"/>
+
+    <!-- Distribution P (solid) -->
+    <path d="M 40 130 Q 60 125 80 100 Q 100 60 120 40 Q 140 30 160 40 Q 180 60 200 100 Q 220 125 240 130"
+          fill="none" stroke="#4A90D9" stroke-width="3"/>
+    <circle cx="140" cy="30" r="4" fill="#4A90D9"/>
+    <text x="155" y="35" class="text" font-size="11" fill="#4A90D9" font-weight="bold">P (실제)</text>
+
+    <!-- Distribution Q (dashed) -->
+    <path d="M 50 130 Q 70 125 90 110 Q 120 80 150 70 Q 180 65 200 75 Q 220 90 240 110 Q 260 125 270 130"
+          fill="none" stroke="#E74C3C" stroke-width="3" stroke-dasharray="8,4"/>
+    <circle cx="180" cy="65" r="4" fill="#E74C3C"/>
+    <text x="195" y="60" class="text" font-size="11" fill="#E74C3C" font-weight="bold">Q (모델)</text>
+
+    <!-- KL annotation -->
+    <path d="M 140 50 L 165 65" stroke="#9B59B6" stroke-width="2" marker-end="url(#arrow)"/>
+    <text x="150" y="80" class="text" font-size="11" fill="#9B59B6">D_KL(P||Q)</text>
+
+    <defs>
+      <marker id="arrow" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+        <polygon points="0 0, 10 3.5, 0 7" fill="#9B59B6"/>
+      </marker>
+    </defs>
+  </g>
+
+  <!-- Formula -->
+  <g transform="translate(350, 60)">
+    <rect x="0" y="0" width="300" height="130" fill="#fff" stroke="#9B59B6" stroke-width="2" rx="8"/>
+    <text x="150" y="30" text-anchor="middle" class="text" font-size="14" fill="#9B59B6" font-weight="bold">KL Divergence 수식</text>
+
+    <text x="150" y="60" text-anchor="middle" class="text" font-size="14" fill="#333">
+      D_KL(P || Q) = Σ P(x) log(P(x)/Q(x))
+    </text>
+
+    <text x="150" y="90" text-anchor="middle" class="text" font-size="12" fill="#666">
+      = P가 기대하는 추가 정보량
+    </text>
+    <text x="150" y="110" text-anchor="middle" class="text" font-size="12" fill="#666">
+      (Q로 P를 표현할 때)
+    </text>
+  </g>
+
+  <!-- Asymmetry Warning -->
+  <g transform="translate(50, 210)">
+    <rect x="0" y="0" width="280" height="100" fill="#FDEDEC" stroke="#E74C3C" stroke-width="2" rx="8"/>
+    <text x="140" y="25" text-anchor="middle" class="text" font-size="13" fill="#E74C3C" font-weight="bold">⚠️ 비대칭성 주의!</text>
+
+    <text x="140" y="50" text-anchor="middle" class="text" font-size="12" fill="#333">
+      D_KL(P || Q) ≠ D_KL(Q || P)
+    </text>
+
+    <text x="140" y="75" text-anchor="middle" class="text" font-size="11" fill="#666">
+      Forward KL: Mode-covering (흐릿)
+    </text>
+    <text x="140" y="92" text-anchor="middle" class="text" font-size="11" fill="#666">
+      Reverse KL: Mode-seeking (선명)
+    </text>
+  </g>
+
+  <!-- Applications -->
+  <g transform="translate(370, 210)">
+    <rect x="0" y="0" width="280" height="100" fill="#E8F8F5" stroke="#27AE60" stroke-width="2" rx="8"/>
+    <text x="140" y="25" text-anchor="middle" class="text" font-size="13" fill="#27AE60" font-weight="bold">딥러닝 적용</text>
+
+    <text x="20" y="50" class="text" font-size="11" fill="#333">• VAE: 잠재 공간 정규화</text>
+    <text x="20" y="68" class="text" font-size="11" fill="#333">• Knowledge Distillation: 모델 압축</text>
+    <text x="20" y="86" class="text" font-size="11" fill="#333">• PPO: 정책 업데이트 제한</text>
+  </g>
+
+  <!-- VAE Example -->
+  <g transform="translate(50, 330)">
+    <rect x="0" y="0" width="600" height="105" fill="#E8F4FD" stroke="#4A90D9" stroke-width="2" rx="8"/>
+    <text x="300" y="25" text-anchor="middle" class="text" font-size="14" fill="#4A90D9" font-weight="bold">VAE Loss에서의 KL Divergence</text>
+
+    <!-- VAE diagram -->
+    <g transform="translate(20, 40)">
+      <!-- Encoder -->
+      <rect x="0" y="10" width="80" height="40" fill="#F39C12" opacity="0.3" stroke="#F39C12" rx="5"/>
+      <text x="40" y="35" text-anchor="middle" class="text" font-size="11" fill="#333">Encoder</text>
+
+      <!-- Arrow -->
+      <line x1="85" y1="30" x2="115" y2="30" stroke="#333" stroke-width="2" marker-end="url(#arrow2)"/>
+
+      <!-- q(z|x) -->
+      <rect x="120" y="10" width="90" height="40" fill="#9B59B6" opacity="0.3" stroke="#9B59B6" rx="5"/>
+      <text x="165" y="28" text-anchor="middle" class="text" font-size="10" fill="#333">q(z|x)</text>
+      <text x="165" y="42" text-anchor="middle" class="text" font-size="9" fill="#666">N(μ, σ²)</text>
+
+      <!-- KL arrow -->
+      <path d="M 215 30 L 245 30" stroke="#E74C3C" stroke-width="2"/>
+      <text x="230" y="22" text-anchor="middle" class="text" font-size="9" fill="#E74C3C">KL</text>
+
+      <!-- p(z) -->
+      <rect x="250" y="10" width="70" height="40" fill="#4A90D9" opacity="0.3" stroke="#4A90D9" rx="5"/>
+      <text x="285" y="28" text-anchor="middle" class="text" font-size="10" fill="#333">p(z)</text>
+      <text x="285" y="42" text-anchor="middle" class="text" font-size="9" fill="#666">N(0, I)</text>
+
+      <!-- Loss formula -->
+      <text x="400" y="20" class="text" font-size="11" fill="#333">VAE Loss =</text>
+      <text x="400" y="38" class="text" font-size="11" fill="#E74C3C">-D_KL(q(z|x) || p(z))</text>
+      <text x="400" y="55" class="text" font-size="11" fill="#27AE60">+ Reconstruction</text>
+    </g>
+
+    <defs>
+      <marker id="arrow2" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+        <polygon points="0 0, 10 3.5, 0 7" fill="#333"/>
+      </marker>
+    </defs>
+  </g>
+</svg>

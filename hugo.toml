@@ -1,6 +1,7 @@
 baseURL = 'https://ml-vision.lukedev.info/'
 defaultContentLanguage = 'en'
 theme = 'hugo-book'
+enableRobotsTXT = false  # Using static/robots.txt instead
 
 [params]
   BookTheme = 'auto'
@@ -11,6 +12,12 @@ theme = 'hugo-book'
   BookDateFormat = 'January 2, 2006'
   BookMath = true
 
+  # SEO Parameters
+  description = 'Comprehensive guide to Computer Vision and Deep Learning fundamentals for engineers'
+  author = 'Vision Engineer Knowledge Guide'
+  # ogImage = '/images/og-default.png'  # Uncomment and add image for social sharing
+  # twitterHandle = 'yourhandle'  # Uncomment and add your Twitter handle
+
 [languages]
   [languages.ko]
     languageCode = 'ko-KR'
@@ -18,11 +25,33 @@ theme = 'hugo-book'
     title = 'Vision Engineer 지식 가이드'
     weight = 1
     contentDir = 'content/ko'
+    [languages.ko.params]
+      description = '엔지니어를 위한 컴퓨터 비전과 딥러닝 기초 지식 가이드'
   [languages.en]
     languageCode = 'en-US'
     languageName = 'English'
     title = 'Vision Engineer Knowledge Guide'
     weight = 2
     contentDir = 'content/en'
+    [languages.en.params]
+      description = 'Comprehensive guide to Computer Vision and Deep Learning fundamentals for engineers'
+
+# Sitemap configuration
+[sitemap]
+  changefreq = 'weekly'
+  filename = 'sitemap.xml'
+  priority = 0.5
+
+# Output formats
+[outputs]
+  home = ['HTML', 'RSS', 'JSON']
+  section = ['HTML', 'RSS']
+  page = ['HTML']
+
+# Minify HTML output
+[minify]
+  [minify.tdewolff]
+    [minify.tdewolff.html]
+      keepWhitespace = false
 
 [menu]
