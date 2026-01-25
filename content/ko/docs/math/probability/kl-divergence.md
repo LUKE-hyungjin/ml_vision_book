@@ -217,7 +217,7 @@ print(f"PyTorch KL: {kl_pt.item():.4f}")
 |------|------|------|------|
 | KL Divergence | $\sum p \log(p/q)$ | ❌ | 정보 이론적 의미 |
 | Jensen-Shannon | $\frac{1}{2}D_{KL}(P\|M) + \frac{1}{2}D_{KL}(Q\|M)$ | ✅ | 대칭화된 KL |
-| Wasserstein | $\inf_\gamma \mathbb{E}_{(x,y)\sim\gamma}[\|x-y\|]$ | ✅ | 기하학적 거리 |
+| Wasserstein | $\inf_\gamma \mathbb{E}_{(x,y)\sim\gamma}\[\|x-y\|\]$ | ✅ | 기하학적 거리 |
 | Total Variation | $\frac{1}{2}\sum\|p-q\|$ | ✅ | L1 거리 |
 
 ---
