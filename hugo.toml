@@ -1,4 +1,4 @@
-baseURL = 'https://luke-hyungjin.github.io/ml_vision_book/'
+baseURL = 'https://ml-vision.lukedev.info/'
 defaultContentLanguage = 'en'
 theme = 'hugo-book'
 
