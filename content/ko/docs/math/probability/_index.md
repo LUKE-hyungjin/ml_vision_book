@@ -93,6 +93,6 @@ $$
 ## 관련 콘텐츠
 
 - [Cross-Entropy Loss](/ko/docs/math/training/loss/cross-entropy) - 확률분포 기반 손실
-- [Diffusion](/ko/docs/math/diffusion) - 확률 과정 기반 생성
+- [생성 모델](/ko/docs/math/generative) - 확률 과정 기반 생성
 - [Label Smoothing](/ko/docs/math/training/regularization/label-smoothing) - 분포 정규화
 - [Softmax](/ko/docs/math/probability/distribution) - 확률분포 변환

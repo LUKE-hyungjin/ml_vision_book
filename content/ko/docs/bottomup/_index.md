@@ -70,7 +70,7 @@ flowchart BT
 - [ViT](/ko/docs/architecture/vit)
 
 ## Level 6: 생성 모델
-- [Diffusion Process](/ko/docs/math/diffusion-process)
+- [Diffusion 수학](/ko/docs/math/generative)
 - [Stable Diffusion](/ko/docs/architecture/stable-diffusion)
 - [ControlNet](/ko/docs/architecture/controlnet)
 - [DiT](/ko/docs/architecture/dit)

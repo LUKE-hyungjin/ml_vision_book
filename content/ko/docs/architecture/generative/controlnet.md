@@ -263,6 +263,6 @@ output = pipe(
 ## 관련 콘텐츠
 
 - [Stable Diffusion](/ko/docs/architecture/generative/stable-diffusion) - 기반 모델
-- [Diffusion Process](/ko/docs/math/diffusion-process) - Diffusion 수학
+- [Diffusion 수학](/ko/docs/math/generative/ddpm) - Diffusion 수학
 - [U-Net](/ko/docs/architecture/segmentation/unet) - ControlNet 구조와 유사
 - [Generation 태스크](/ko/docs/task/generation) - 이미지 생성 평가

@@ -61,7 +61,7 @@ flowchart LR
 - [Self-supervised Learning](/ko/docs/task/self-supervised)
 
 ## 2021-2022: Diffusion 시대
-- [Diffusion Process](/ko/docs/math/diffusion-process)
+- [Diffusion 수학](/ko/docs/math/generative)
 - [Stable Diffusion](/ko/docs/architecture/stable-diffusion)
 - [Generation](/ko/docs/task/generation)
 

@@ -258,4 +258,4 @@ class DiT(nn.Module):
 - [Transformer](/ko/docs/architecture/transformer) - 기반 아키텍처
 - [ViT](/ko/docs/architecture/transformer/vit) - 이미지 패치화 아이디어
 - [Stable Diffusion](/ko/docs/architecture/generative/stable-diffusion) - U-Net 기반 Diffusion
-- [Diffusion Process](/ko/docs/math/diffusion-process) - Diffusion 수식
+- [Diffusion 수학](/ko/docs/math/generative/ddpm) - Diffusion 수식

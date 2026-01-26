@@ -7,7 +7,7 @@ math: true
 # Stable Diffusion
 
 {{% hint info %}}
-**선수지식**: [DDPM](/ko/docs/math/diffusion/ddpm) | [VAE](/ko/docs/architecture/generative/vae) | [U-Net](/ko/docs/architecture/segmentation/unet)
+**선수지식**: [DDPM](/ko/docs/math/generative/ddpm) | [VAE](/ko/docs/architecture/generative/vae) | [U-Net](/ko/docs/architecture/segmentation/unet)
 {{% /hint %}}
 
 ## 왜 Stable Diffusion인가?
@@ -250,7 +250,7 @@ result = pipe(
 
 ## 관련 콘텐츠
 
-- [Diffusion Process](/ko/docs/math/diffusion-process) - Diffusion 수학
+- [Diffusion 수학](/ko/docs/math/generative/ddpm) - Diffusion 수학
 - [VAE](/ko/docs/architecture/generative/vae) - Latent 압축
 - [ControlNet](/ko/docs/architecture/generative/controlnet) - 추가 조건 제어
 - [DiT](/ko/docs/architecture/transformer/dit) - Transformer 기반 Diffusion

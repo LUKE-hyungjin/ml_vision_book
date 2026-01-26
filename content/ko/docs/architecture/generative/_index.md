@@ -35,23 +35,49 @@ bookCollapseSection: true
   ↓
 2014: GAN - "진짜와 구분 못하게 만들면 되지 않을까?"
   ↓
+2020: DDPM - "노이즈를 예측하면 제거할 수 있지 않을까?"
+  ↓
+2018: StyleGAN - "스타일을 층별로 제어하면 어떨까?"
+  ↓
 2020: DDPM - "노이즈를 조금씩 제거하면 어떨까?"
+  ↓
+2021: VQGAN, DALL-E - "이미지를 토큰으로 만들면 어떨까?"
   ↓
 2022: Stable Diffusion - "작은 공간에서 하면 더 빠르지 않을까?"
   ↓
-2023: ControlNet - "포즈나 윤곽을 지정하면 어떨까?"
+2023: ControlNet, DiT - "포즈 제어, Transformer로 스케일업!"
+  ↓
+2024: Flux - "Flow Matching + DiT = 더 빠르고 더 좋게!"
 ```
 
 ---
 
 ## 모델 상세
 
+### 기초 모델
+
 | 모델 | 방식 | 장점 | 단점 |
 |------|------|------|------|
 | [VAE](/ko/docs/architecture/generative/vae) | 변분 추론 | 안정적 학습 | 흐릿한 결과 |
 | [GAN](/ko/docs/architecture/generative/gan) | 적대적 학습 | 선명한 결과 | 불안정, mode collapse |
+| [VQGAN](/ko/docs/architecture/generative/vqgan) | VQ + GAN | 고품질 토큰화 | 2단계 학습 필요 |
+| [StyleGAN](/ko/docs/architecture/generative/stylegan) | 스타일 주입 GAN | 고품질 얼굴 | 도메인 제한적 |
+
+### Diffusion 모델
+
+| 모델 | 방식 | 장점 | 단점 |
+|------|------|------|------|
+| [DDPM](/ko/docs/architecture/generative/ddpm) | U-Net + 노이즈 예측 | Diffusion의 기초 | 느린 샘플링 (1000 스텝) |
 | [Stable Diffusion](/ko/docs/architecture/generative/stable-diffusion) | Latent Diffusion | 고품질, 다양성 | 느린 샘플링 |
 | [ControlNet](/ko/docs/architecture/generative/controlnet) | 조건부 Diffusion | 정밀 제어 | 추가 학습 필요 |
+| [DiT](/ko/docs/architecture/generative/dit) | Diffusion + Transformer | 스케일링 용이 | 계산량 많음 |
+| [Flux](/ko/docs/architecture/generative/flux) | Flow Matching + DiT | 빠름, 고품질 | 큰 모델 크기 |
+
+### Text-to-Image
+
+| 모델 | 방식 | 장점 | 단점 |
+|------|------|------|------|
+| [DALL-E](/ko/docs/architecture/generative/dall-e) | CLIP + Diffusion | 텍스트 이해력 | 비공개 |
 | [Qwen Image Edit](/ko/docs/architecture/generative/qwen-image-edit) | VLM + Diffusion | 자연어 편집 | 무거움 |
 
 ---
@@ -69,6 +95,7 @@ bookCollapseSection: true
 
 ## 관련 콘텐츠
 
-- [Diffusion 수학](/ko/docs/math/diffusion) - Forward/Reverse Process
+- [생성 모델 수학](/ko/docs/math/generative) - DDPM, Score Matching, Sampling
+- [Flow Matching](/ko/docs/math/generative/flow-matching) - Flux, SD3의 수학적 기반
 - [확률 분포](/ko/docs/math/probability) - 생성 모델의 수학적 기초
 - [Generation 태스크](/ko/docs/task/generation) - FID, IS 등 평가 지표

@@ -1,11 +1,11 @@
 ---
-title: "Diffusion 수학"
+title: "생성 모델 수학"
 weight: 9
 bookCollapseSection: true
 math: true
 ---
 
-# Diffusion 수학
+# 생성 모델 수학
 
 {{% hint info %}}
 **선수지식**: [정규분포](/ko/docs/math/probability) | [기초 미적분 (gradient)](/ko/docs/math/calculus)
@@ -23,7 +23,7 @@ Diffusion 모델은 이 아이디어를 수학적으로 구현합니다:
 
 ## 핵심 아이디어: Forward & Reverse
 
-{{< figure src="/images/diffusion/ko/diffusion-process.svg" caption="Diffusion의 Forward/Reverse 과정" >}}
+{{< figure src="/images/math/generative/ddpm/ko/diffusion-process.svg" caption="Diffusion의 Forward/Reverse 과정" >}}
 
 | 과정 | 방향 | 설명 |
 |------|------|------|
@@ -36,7 +36,7 @@ Diffusion 모델은 이 아이디어를 수학적으로 구현합니다:
 
 ## Latent Diffusion: 더 빠르게
 
-{{< figure src="/images/diffusion/ko/latent-diffusion.svg" caption="Pixel Diffusion vs Latent Diffusion" >}}
+{{< figure src="/images/math/generative/ddpm/ko/latent-diffusion.svg" caption="Pixel Diffusion vs Latent Diffusion" >}}
 
 **문제**: 512×512 이미지에서 직접 Diffusion → 너무 느림!
 
@@ -53,9 +53,10 @@ Diffusion 모델은 이 아이디어를 수학적으로 구현합니다:
 
 | 개념 | 설명 | 핵심 질문 |
 |------|------|----------|
-| [DDPM](/ko/docs/math/diffusion/ddpm) | 기본 Diffusion 모델 | "노이즈를 어떻게 예측하나?" |
-| [Score Matching](/ko/docs/math/diffusion/score-matching) | Score 함수 학습 | "gradient 방향을 어떻게 아나?" |
-| [Sampling](/ko/docs/math/diffusion/sampling) | 생성 과정 | "더 빨리 생성하려면?" |
+| [DDPM](/ko/docs/math/generative/ddpm) | Forward/Reverse 과정, Loss 유도 | "수학적으로 어떻게 정의되나?" |
+| [Score Matching](/ko/docs/math/generative/score-matching) | Score 함수 학습 | "gradient 방향을 어떻게 아나?" |
+| [Sampling](/ko/docs/math/generative/sampling) | 생성 과정 | "더 빨리 생성하려면?" |
+| [Flow Matching](/ko/docs/math/generative/flow-matching) | 직선 경로 학습 | "더 빠르고 간단하게?" |
 
 ---
 

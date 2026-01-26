@@ -157,5 +157,5 @@ def top_p_sampling(logits, p=0.9):
 
 - [확률분포](/ko/docs/math/probability/distribution)
 - [VAE](/ko/docs/architecture/generative/vae) - Reparameterization 활용
-- [Diffusion](/ko/docs/math/diffusion) - 반복적 샘플링
+- [생성 모델](/ko/docs/math/generative) - 반복적 샘플링
 - [VLM](/ko/docs/architecture/multimodal/vlm) - 텍스트 생성 시 샘플링

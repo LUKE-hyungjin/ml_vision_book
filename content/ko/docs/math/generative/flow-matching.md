@@ -7,7 +7,7 @@ math: true
 # Flow Matching
 
 {{% hint info %}}
-**선수지식**: [DDPM](/ko/docs/math/diffusion/ddpm) | [Score Matching](/ko/docs/math/diffusion/score-matching) | [미분방정식 기초](/ko/docs/math/calculus)
+**선수지식**: [DDPM](/ko/docs/math/generative/ddpm) | [Score Matching](/ko/docs/math/generative/score-matching) | [미분방정식 기초](/ko/docs/math/calculus)
 {{% /hint %}}
 
 ## 한 줄 요약
@@ -225,8 +225,8 @@ Cross-attention으로 조건을 주입합니다 (Stable Diffusion과 동일).
 
 ## 관련 콘텐츠
 
-- [DDPM](/ko/docs/math/diffusion/ddpm) - 기존 Diffusion 방식
-- [Score Matching](/ko/docs/math/diffusion/score-matching) - Score 기반 관점
-- [Sampling](/ko/docs/math/diffusion/sampling) - 다양한 샘플링 방법
+- [DDPM](/ko/docs/math/generative/ddpm) - 기존 Diffusion 방식
+- [Score Matching](/ko/docs/math/generative/score-matching) - Score 기반 관점
+- [Sampling](/ko/docs/math/generative/sampling) - 다양한 샘플링 방법
 - [Flux](/ko/docs/architecture/generative/flux) - Flow Matching 구현체
 - [DiT](/ko/docs/architecture/generative/dit) - Transformer 기반 Diffusion

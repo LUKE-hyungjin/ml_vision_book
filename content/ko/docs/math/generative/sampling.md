@@ -7,7 +7,7 @@ math: true
 # Diffusion Sampling (샘플링)
 
 {{% hint info %}}
-**선수지식**: [DDPM](/ko/docs/math/diffusion/ddpm) | [미분방정식 기초](/ko/docs/math/calculus)
+**선수지식**: [DDPM](/ko/docs/math/generative/ddpm) | [미분방정식 기초](/ko/docs/math/calculus)
 {{% /hint %}}
 
 ## 한 줄 요약
@@ -231,6 +231,6 @@ torch.manual_seed(42)
 
 ## 관련 콘텐츠
 
-- [DDPM](/ko/docs/math/diffusion/ddpm) - 기본 Diffusion 모델
-- [Score Matching](/ko/docs/math/diffusion/score-matching) - Score 기반 관점
+- [DDPM](/ko/docs/math/generative/ddpm) - 기본 Diffusion 모델
+- [Score Matching](/ko/docs/math/generative/score-matching) - Score 기반 관점
 - [Stable Diffusion](/ko/docs/architecture/generative/stable-diffusion) - 실제 구현

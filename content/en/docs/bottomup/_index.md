@@ -70,7 +70,7 @@ flowchart BT
 - [ViT](/docs/architecture/vit)
 
 ## Level 6: Generative Models
-- [Diffusion Process](/docs/math/diffusion-process)
+- [Diffusion Math](/en/docs/math/generative)
 - [Stable Diffusion](/docs/architecture/stable-diffusion)
 - [ControlNet](/docs/architecture/controlnet)
 - [DiT](/docs/architecture/dit)

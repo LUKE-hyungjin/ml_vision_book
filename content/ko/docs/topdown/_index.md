@@ -60,7 +60,7 @@ flowchart TD
 1. [확률분포](/ko/docs/math/probability)
 2. [VAE](/ko/docs/architecture/vae)
 3. [GAN](/ko/docs/architecture/gan)
-4. [Diffusion](/ko/docs/math/diffusion-process)
+4. [Diffusion 수학](/ko/docs/math/generative)
 5. [Stable Diffusion](/ko/docs/architecture/stable-diffusion)
 6. [ControlNet](/ko/docs/architecture/controlnet)
 7. [DiT](/ko/docs/architecture/dit)

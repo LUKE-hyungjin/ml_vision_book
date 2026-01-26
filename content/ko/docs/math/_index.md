@@ -36,5 +36,5 @@ Vision 엔지니어에게 필요한 수학 지식입니다.
 |----------|------|
 | [기하학](/ko/docs/math/geometry) | Camera Model, Homography |
 | [Detection](/ko/docs/math/detection) | IoU, NMS, Anchor |
-| [Diffusion](/ko/docs/math/diffusion) | DDPM, Score Matching |
+| [생성 모델](/ko/docs/math/generative) | DDPM, Score Matching |
 | [양자화](/ko/docs/math/quantization) | PTQ, QAT |

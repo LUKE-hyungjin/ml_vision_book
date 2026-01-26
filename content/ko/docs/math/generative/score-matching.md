@@ -7,7 +7,7 @@ math: true
 # Score Matching
 
 {{% hint info %}}
-**선수지식**: [Gradient (미분)](/ko/docs/math/calculus) | [확률분포](/ko/docs/math/probability) | [DDPM](/ko/docs/math/diffusion/ddpm)
+**선수지식**: [Gradient (미분)](/ko/docs/math/calculus) | [확률분포](/ko/docs/math/probability) | [DDPM](/ko/docs/math/generative/ddpm)
 {{% /hint %}}
 
 ## 한 줄 요약
@@ -178,6 +178,6 @@ def score_matching_loss(model, x, sigma):
 
 ## 관련 콘텐츠
 
-- [DDPM](/ko/docs/math/diffusion/ddpm) - 노이즈 예측 관점
-- [Sampling](/ko/docs/math/diffusion/sampling) - 다양한 샘플링 방법
+- [DDPM](/ko/docs/math/generative/ddpm) - 노이즈 예측 관점
+- [Sampling](/ko/docs/math/generative/sampling) - 다양한 샘플링 방법
 - [확률 분포](/ko/docs/math/probability) - 기초 확률론

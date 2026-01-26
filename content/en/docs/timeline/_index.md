@@ -61,7 +61,7 @@ flowchart LR
 - [Self-supervised Learning](/docs/task/self-supervised)
 
 ## 2021-2022: The Diffusion Era
-- [Diffusion Process](/docs/math/diffusion-process)
+- [Diffusion Math](/en/docs/math/generative)
 - [Stable Diffusion](/docs/architecture/stable-diffusion)
 - [Generation](/docs/task/generation)
 

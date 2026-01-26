@@ -60,7 +60,7 @@ flowchart TD
 1. [Probability Distributions](/docs/math/probability)
 2. [VAE](/docs/architecture/vae)
 3. [GAN](/docs/architecture/gan)
-4. [Diffusion](/docs/math/diffusion-process)
+4. [Diffusion Math](/en/docs/math/generative)
 5. [Stable Diffusion](/docs/architecture/stable-diffusion)
 6. [ControlNet](/docs/architecture/controlnet)
 7. [DiT](/docs/architecture/dit)
