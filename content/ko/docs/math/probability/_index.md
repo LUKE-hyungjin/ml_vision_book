@@ -7,92 +7,154 @@ math: true
 
 # 확률과 통계 (Probability & Statistics)
 
-딥러닝은 본질적으로 확률 모델입니다. 분류, 생성, 불확실성 추정 모두 확률에 기반합니다.
+{{% hint info %}}
+**대상 독자**: 확률을 처음 배우거나 복습이 필요한 분. 대학교 1학년 수준에서 시작합니다.
+{{% /hint %}}
 
-## 왜 확률인가?
+## 왜 확률을 배워야 하나요?
 
-- **분류**: P(class | image) 확률 출력
-- **생성**: P(image) 분포에서 샘플링
-- **Loss**: 확률분포 간 거리 (Cross-Entropy, KL Divergence)
-- **Dropout**: 베르누이 분포로 랜덤 마스킹
-- **Diffusion**: 노이즈 추가/제거의 확률 과정
+### 문제 상황: AI가 "확신"하는 법
 
----
-
-## 🟢 기본 (Basic)
-
-확률을 처음 배우거나 복습이 필요한 분들을 위한 기초 개념입니다.
-
-| 개념 | 설명 | 선수 지식 |
-|------|------|----------|
-| [확률의 기초](/ko/docs/math/probability/basics) | 확률의 정의, 조건부 확률, 독립 | 없음 |
-| [확률 변수](/ko/docs/math/probability/random-variable) | 이산/연속 확률 변수 | 확률의 기초 |
-| [기댓값과 분산](/ko/docs/math/probability/expectation) | 평균, 분산, 공분산 | 확률 변수 |
-
-### 학습 순서
+고양이 사진을 보여줬더니 AI가 이렇게 대답합니다:
 
 ```
-확률의 기초 → 확률 변수 → 기댓값과 분산
+"이 사진은 고양이입니다" (확신도: 97%)
+```
+
+이 **97%**는 어디서 온 걸까요?
+
+**정답**: AI는 "고양이다 / 아니다"를 0 또는 1로 대답하지 않습니다. 대신 **확률**로 대답합니다.
+
+```python
+# AI의 실제 출력
+output = model(image)
+# → [0.97, 0.02, 0.01]  (고양이, 강아지, 새)
+#      ↑
+#    "97% 확률로 고양이"
 ```
 
 ---
 
-## 🔵 핵심 (Core)
+## 확률이 딥러닝 어디에 쓰이나요?
 
-딥러닝에서 반드시 알아야 할 확률 개념입니다.
+| 상황 | 확률 개념 | 예시 |
+|------|----------|------|
+| **분류 결과** | 조건부 확률 | P(고양이 \| 이미지) = 0.97 |
+| **손실 함수** | Cross-Entropy | 정답과 예측의 "거리" 측정 |
+| **이미지 생성** | 확률분포 샘플링 | 노이즈에서 이미지 만들기 |
+| **Dropout** | 베르누이 분포 | 50% 확률로 뉴런 끄기 |
+| **VAE** | KL Divergence | 잠재 공간 정규화 |
 
-| 개념 | 설명 | 딥러닝 적용 |
-|------|------|------------|
-| [확률분포](/ko/docs/math/probability/distribution) | 확률의 함수적 표현 | Softmax, VAE, Diffusion |
-| [베이즈 정리](/ko/docs/math/probability/bayes) | 조건부 확률의 역산 | 불확실성 추정, 사후 확률 |
-| [샘플링](/ko/docs/math/probability/sampling) | 분포에서 값 추출 | 생성 모델, Dropout, MCMC |
+**결론**: 딥러닝의 거의 모든 것이 확률입니다!
 
-### 딥러닝에서의 활용
+---
+
+## 학습 로드맵
+
+이 문서들을 **순서대로** 읽으면 확률 기초를 쌓을 수 있습니다.
+
+### 1단계: 기초 다지기 (필수)
+
+확률이 처음이라면 여기서 시작하세요.
+
+| 순서 | 문서 | 배우는 것 | 왜 필요한가? |
+|:----:|------|----------|-------------|
+| 1 | [확률의 기초](/ko/docs/math/probability/basics) | 확률, 조건부 확률, 독립 | "이미지가 주어졌을 때 고양이일 확률" 이해 |
+| 2 | [확률 변수](/ko/docs/math/probability/random-variable) | 이산/연속, PMF/PDF | "분류 vs 회귀"의 차이 이해 |
+| 3 | [기댓값과 분산](/ko/docs/math/probability/expectation) | 평균, 분산, 표준편차 | Batch Normalization, 초기화 이해 |
 
 ```
-입력 x → 모델 → P(y|x) 확률분포 출력 → 샘플링 또는 argmax
+확률의 기초 ──→ 확률 변수 ──→ 기댓값과 분산
+   │              │              │
+   ↓              ↓              ↓
+"확률이란?"   "숫자로 표현"   "평균, 퍼짐 정도"
 ```
 
 ---
 
-## 🔴 심화 (Advanced)
+### 2단계: 핵심 개념 (중요)
 
-손실 함수와 정보 이론의 기반이 되는 개념들입니다.
+딥러닝을 이해하려면 반드시 알아야 합니다.
 
-| 개념 | 설명 | 딥러닝 적용 |
-|------|------|------------|
-| [엔트로피](/ko/docs/math/probability/entropy) | 불확실성의 측정 | Cross-Entropy Loss |
-| [KL 발산](/ko/docs/math/probability/kl-divergence) | 분포 간 거리 | VAE, 지식 증류 |
-| [최대 우도 추정](/ko/docs/math/probability/mle) | 파라미터 추정 | 모델 학습의 원리 |
+| 순서 | 문서 | 배우는 것 | 왜 필요한가? |
+|:----:|------|----------|-------------|
+| 4 | [확률분포](/ko/docs/math/probability/distribution) | 가우시안, 베르누이, Softmax | VAE 잠재공간, Diffusion 노이즈 이해 |
+| 5 | [베이즈 정리](/ko/docs/math/probability/bayes) | 사전/사후 확률, 가능도 | 불확실성 추정, Weight Decay 이해 |
+| 6 | [샘플링](/ko/docs/math/probability/sampling) | 분포에서 값 뽑기 | 이미지 생성, 텍스트 생성 이해 |
 
-### 손실 함수와의 관계
-
-$$
-\text{Cross-Entropy} = H(p) + D_{KL}(p \| q)
-$$
-
-- Cross-Entropy를 최소화 = KL Divergence 최소화 = 두 분포를 같게
+```
+확률분포 ──→ 베이즈 정리 ──→ 샘플링
+   │              │            │
+   ↓              ↓            ↓
+"분포 모양"    "믿음 업데이트"  "값 뽑기"
+```
 
 ---
 
-## 전체 학습 로드맵
+### 3단계: 손실 함수의 수학 (심화)
+
+"왜 Cross-Entropy를 쓰나요?"에 대한 답입니다.
+
+| 순서 | 문서 | 배우는 것 | 왜 필요한가? |
+|:----:|------|----------|-------------|
+| 7 | [엔트로피](/ko/docs/math/probability/entropy) | 불확실성 측정 | Cross-Entropy Loss 이해 |
+| 8 | [KL 발산](/ko/docs/math/probability/kl-divergence) | 분포 간 "거리" | VAE Loss, 지식 증류 이해 |
+| 9 | [최대 우도 추정](/ko/docs/math/probability/mle) | 파라미터 찾기 | "왜 이 Loss를 쓰나?" 이해 |
 
 ```
-[기본]                    [핵심]                    [심화]
-확률의 기초 ─────────────→ 확률분포 ─────────────→ 엔트로피
-    │                        │                        │
-    ↓                        ↓                        ↓
-확률 변수 ───────────────→ 베이즈 정리 ──────────→ KL 발산
-    │                        │                        │
-    ↓                        ↓                        ↓
-기댓값과 분산 ───────────→ 샘플링 ─────────────→ 최대 우도 추정
+엔트로피 ──→ KL 발산 ──→ 최대 우도 추정
+    │           │              │
+    ↓           ↓              ↓
+"불확실성"   "분포 차이"    "학습 = MLE"
 ```
+
+---
+
+## 핵심 연결고리
+
+확률 개념들이 딥러닝에서 어떻게 연결되는지 보여드립니다.
+
+```
+[확률의 기초]                    [딥러닝 적용]
+     │                              │
+조건부 확률 ──────────────→ P(class | image) = Softmax 출력
+     │                              │
+확률분포 ────────────────→ 가우시안 = VAE 잠재공간, Diffusion 노이즈
+     │                              │
+기댓값/분산 ─────────────→ Batch Normalization, 초기화
+     │                              │
+엔트로피 ────────────────→ Cross-Entropy Loss
+     │                              │
+KL 발산 ─────────────────→ VAE Loss, 지식 증류
+     │                              │
+MLE ─────────────────────→ 딥러닝 학습 = NLL 최소화
+```
+
+---
+
+## 자주 묻는 질문
+
+### Q: 수학을 잘 못해도 배울 수 있나요?
+
+**A**: 네! 이 문서는 **직관**을 먼저 설명하고, 수식은 나중에 보여드립니다. 고등학교 수학만 알면 됩니다.
+
+### Q: 코드로 확인할 수 있나요?
+
+**A**: 모든 개념에 **Python 코드**가 포함되어 있습니다. 직접 실행해보세요.
+
+### Q: 어디까지 배워야 하나요?
+
+| 목표 | 권장 범위 |
+|------|----------|
+| **딥러닝 기초** | 1단계 (확률의 기초 ~ 기댓값과 분산) |
+| **모델 이해하기** | 2단계까지 (+ 확률분포, 베이즈, 샘플링) |
+| **논문 읽기** | 3단계까지 (+ 엔트로피, KL, MLE) |
 
 ---
 
 ## 관련 콘텐츠
 
-- [Cross-Entropy Loss](/ko/docs/math/training/loss/cross-entropy) - 확률분포 기반 손실
-- [생성 모델](/ko/docs/math/generative) - 확률 과정 기반 생성
-- [Label Smoothing](/ko/docs/math/training/regularization/label-smoothing) - 분포 정규화
+- [Cross-Entropy Loss](/ko/docs/math/training/loss/cross-entropy) - 확률 기반 손실 함수
+- [생성 모델 수학](/ko/docs/math/generative) - Diffusion의 확률 과정
 - [Softmax](/ko/docs/math/probability/distribution) - 확률분포 변환
+- [VAE](/ko/docs/architecture/generative/vae) - KL Divergence 활용
