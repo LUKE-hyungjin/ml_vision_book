@@ -149,6 +149,8 @@ Reparameterization (gradient 흐름):
                gradient O
 ```
 
+![Reparameterization Trick](/images/probability/ko/reparameterization-trick.svg)
+
 ### VAE에서의 구현
 
 ```python
@@ -277,6 +279,8 @@ T = 0.1 (낮음)         T = 1.0 (기본)         T = 5.0 (높음)
   확신 (argmax)           보통                   균등에 가까움
 ```
 
+![Temperature Scaling](/images/probability/ko/sampling-temperature.svg)
+
 ### 구현
 
 ```python
@@ -381,6 +385,8 @@ Top-p (p=0.9):
   고려: [0.3, 0.3, 0.2, 0.1] (누적 0.9까지)
   → 상황에 따라 유동적!
 ```
+
+![Top-k vs Top-p 샘플링](/images/probability/ko/top-k-top-p.svg)
 
 ---
 

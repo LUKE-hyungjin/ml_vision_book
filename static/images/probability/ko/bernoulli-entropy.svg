@@ -1,0 +1,123 @@
+<svg width="700" height="320" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background -->
+  <rect width="700" height="320" fill="#f8f9fa"/>
+
+  <!-- Title -->
+  <text x="350" y="28" text-anchor="middle" font-family="system-ui, sans-serif" font-size="18" font-weight="bold" fill="#333">
+    베르누이 엔트로피: H(p) = -p log p - (1-p) log(1-p)
+  </text>
+
+  <!-- Graph Area -->
+  <g transform="translate(100, 60)">
+    <!-- Axes -->
+    <line x1="0" y1="180" x2="300" y2="180" stroke="#333" stroke-width="2"/>
+    <line x1="0" y1="0" x2="0" y2="180" stroke="#333" stroke-width="2"/>
+
+    <!-- Y-axis label -->
+    <text x="-50" y="90" text-anchor="middle" font-family="system-ui, sans-serif" font-size="12" fill="#333" transform="rotate(-90, -50, 90)">
+      엔트로피 H(p)
+    </text>
+
+    <!-- X-axis label -->
+    <text x="150" y="210" text-anchor="middle" font-family="system-ui, sans-serif" font-size="12" fill="#333">
+      확률 p
+    </text>
+
+    <!-- X-axis ticks -->
+    <text x="0" y="198" text-anchor="middle" font-family="monospace" font-size="10" fill="#666">0</text>
+    <text x="75" y="198" text-anchor="middle" font-family="monospace" font-size="10" fill="#666">0.25</text>
+    <text x="150" y="198" text-anchor="middle" font-family="monospace" font-size="10" fill="#666">0.5</text>
+    <text x="225" y="198" text-anchor="middle" font-family="monospace" font-size="10" fill="#666">0.75</text>
+    <text x="300" y="198" text-anchor="middle" font-family="monospace" font-size="10" fill="#666">1</text>
+
+    <!-- Y-axis ticks -->
+    <text x="-10" y="184" text-anchor="end" font-family="monospace" font-size="10" fill="#666">0</text>
+    <text x="-10" y="4" text-anchor="end" font-family="monospace" font-size="10" fill="#666">1</text>
+
+    <!-- Grid line at max -->
+    <line x1="0" y1="0" x2="300" y2="0" stroke="#ddd" stroke-width="1" stroke-dasharray="3,3"/>
+    <line x1="150" y1="0" x2="150" y2="180" stroke="#ddd" stroke-width="1" stroke-dasharray="3,3"/>
+
+    <!-- Entropy curve (bell-shaped, max at p=0.5) -->
+    <!-- H(p) curve scaled: 0 at p=0, 1 at p=0.5, 0 at p=1 -->
+    <path d="M 0 180
+             Q 30 140 60 90
+             Q 90 40 120 15
+             Q 135 3 150 0
+             Q 165 3 180 15
+             Q 210 40 240 90
+             Q 270 140 300 180"
+          stroke="#e74c3c" stroke-width="3" fill="none"/>
+
+    <!-- Max point at p=0.5 -->
+    <circle cx="150" cy="0" r="7" fill="#e74c3c"/>
+    <text x="150" y="-15" text-anchor="middle" font-family="system-ui, sans-serif" font-size="11" fill="#e74c3c" font-weight="bold">
+      최대! (H=1 bit)
+    </text>
+
+    <!-- Min points at p=0, p=1 -->
+    <circle cx="0" cy="180" r="5" fill="#27ae60"/>
+    <circle cx="300" cy="180" r="5" fill="#27ae60"/>
+
+    <!-- Annotations -->
+    <text x="0" y="195" text-anchor="middle" font-family="system-ui, sans-serif" font-size="9" fill="#27ae60">H=0</text>
+    <text x="300" y="195" text-anchor="middle" font-family="system-ui, sans-serif" font-size="9" fill="#27ae60">H=0</text>
+  </g>
+
+  <!-- Interpretation boxes -->
+  <g transform="translate(450, 70)">
+    <!-- p=0 case -->
+    <rect x="0" y="0" width="220" height="55" fill="#e8f8f5" stroke="#27ae60" stroke-width="1" rx="5"/>
+    <text x="110" y="18" text-anchor="middle" font-family="system-ui, sans-serif" font-size="11" font-weight="bold" fill="#27ae60">
+      p = 0 또는 1 (확정적)
+    </text>
+    <text x="110" y="35" text-anchor="middle" font-family="system-ui, sans-serif" font-size="10" fill="#333">
+      결과를 이미 알고 있음
+    </text>
+    <text x="110" y="48" text-anchor="middle" font-family="system-ui, sans-serif" font-size="10" fill="#666">
+      불확실성 = 0
+    </text>
+
+    <!-- p=0.5 case -->
+    <rect x="0" y="70" width="220" height="55" fill="#fdedec" stroke="#e74c3c" stroke-width="1" rx="5"/>
+    <text x="110" y="88" text-anchor="middle" font-family="system-ui, sans-serif" font-size="11" font-weight="bold" fill="#e74c3c">
+      p = 0.5 (최대 불확실)
+    </text>
+    <text x="110" y="105" text-anchor="middle" font-family="system-ui, sans-serif" font-size="10" fill="#333">
+      앞/뒤 똑같이 모름
+    </text>
+    <text x="110" y="118" text-anchor="middle" font-family="system-ui, sans-serif" font-size="10" fill="#666">
+      불확실성 = 최대
+    </text>
+
+    <!-- Visual comparison -->
+    <g transform="translate(0, 140)">
+      <rect x="0" y="0" width="220" height="75" fill="#fff" stroke="#3498db" stroke-width="1" rx="5"/>
+      <text x="110" y="18" text-anchor="middle" font-family="system-ui, sans-serif" font-size="11" font-weight="bold" fill="#333">
+        시각적 비교
+      </text>
+
+      <!-- p=0.9: mostly one outcome -->
+      <g transform="translate(20, 30)">
+        <text x="0" y="0" font-family="monospace" font-size="9" fill="#666">p=0.9</text>
+        <rect x="40" y="-10" width="54" height="20" fill="#3498db" opacity="0.9"/>
+        <rect x="96" y="-10" width="6" height="20" fill="#3498db" opacity="0.3"/>
+        <text x="155" y="3" font-family="system-ui, sans-serif" font-size="9" fill="#27ae60">H 낮음</text>
+      </g>
+
+      <!-- p=0.5: equal -->
+      <g transform="translate(20, 55)">
+        <text x="0" y="0" font-family="monospace" font-size="9" fill="#666">p=0.5</text>
+        <rect x="40" y="-10" width="30" height="20" fill="#e74c3c" opacity="0.8"/>
+        <rect x="72" y="-10" width="30" height="20" fill="#e74c3c" opacity="0.8"/>
+        <text x="155" y="3" font-family="system-ui, sans-serif" font-size="9" fill="#e74c3c">H 최대</text>
+      </g>
+    </g>
+  </g>
+
+  <!-- Bottom insight -->
+  <rect x="80" y="280" width="540" height="30" fill="#fff3cd" stroke="#f39c12" stroke-width="1" rx="5"/>
+  <text x="350" y="300" text-anchor="middle" font-family="system-ui, sans-serif" font-size="12" fill="#333">
+    딥러닝: 이진 분류 예측이 0.5에 가까우면 모델이 불확실하다는 의미!
+  </text>
+</svg>

@@ -100,19 +100,7 @@ $$
 
 ### 시각적 이해
 
-```
-분산이 작음 (집중됨)           분산이 큼 (퍼져있음)
-
-        ▲                           ▲
-        │                           │
-      █████                      █     █
-      █████                    █   █   █
-    █████████                █   █   █   █
-──────┼──────────        ──────┼──────────────
-      μ                         μ
-
-같은 평균이라도 퍼짐이 다름!
-```
+![기댓값과 분산](/images/probability/ko/expectation-variance.svg)
 
 ### 수학적 정의
 
@@ -157,6 +145,8 @@ $$
 **문제**: 층을 지나면서 분포가 이상해진다 (Internal Covariate Shift)
 
 **해결**: 각 층에서 평균=0, 분산=1로 정규화!
+
+![Batch Normalization](/images/probability/ko/batchnorm-visualization.svg)
 
 ```python
 def batch_norm(x, eps=1e-5):

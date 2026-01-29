@@ -82,6 +82,8 @@ optimizer = Adam(params, weight_decay=0.01)  # 이건 뭔가 다르다고?
 → 데이터를 가장 잘 설명하는 p는 0.9에 가깝다!
 ```
 
+![확률 vs 우도](/images/probability/ko/probability-vs-likelihood.svg)
+
 ### 우도 함수
 
 $$
@@ -134,6 +136,8 @@ $$
 
 **이게 바로 Loss 함수입니다!**
 
+![MLE 개념](/images/probability/ko/mle.svg)
+
 ---
 
 ## 예시 1: 동전 던지기 (베르누이)
@@ -182,6 +186,8 @@ data = [1, 1, 1, 0, 1, 1, 0, 1, 0, 1]  # 1=앞면, 0=뒷면
 p_mle = np.mean(data)
 print(f"p MLE = {p_mle}")  # 0.7
 ```
+
+![MLE 동전 던지기 예시](/images/probability/ko/mle-coin-example.svg)
 
 ---
 
@@ -307,6 +313,8 @@ loss = F.mse_loss(pred, target)
 | **MSE** | Gaussian | $(y - \hat{y})^2$ |
 | **MAE** | Laplace | $\|y - \hat{y}\|$ |
 | **BCE** | Bernoulli | $-y\log\hat{y} - (1-y)\log(1-\hat{y})$ |
+
+![손실 함수와 NLL 관계](/images/probability/ko/loss-distribution-nll.svg)
 
 ---
 

@@ -1,0 +1,92 @@
+<svg width="700" height="320" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="beforeGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#e74c3c;stop-opacity:0.3"/>
+      <stop offset="100%" style="stop-color:#e74c3c;stop-opacity:0.1"/>
+    </linearGradient>
+    <linearGradient id="afterGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#27ae60;stop-opacity:0.3"/>
+      <stop offset="100%" style="stop-color:#27ae60;stop-opacity:0.1"/>
+    </linearGradient>
+    <marker id="arrow" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#333"/>
+    </marker>
+  </defs>
+
+  <!-- Background -->
+  <rect width="700" height="320" fill="#f8f9fa"/>
+
+  <!-- Title -->
+  <text x="350" y="28" text-anchor="middle" font-family="system-ui, sans-serif" font-size="18" font-weight="bold" fill="#333">
+    Batch Normalization: 평균=0, 분산=1로 정규화
+  </text>
+
+  <!-- Before Normalization -->
+  <g transform="translate(30, 55)">
+    <rect x="0" y="0" width="260" height="230" fill="url(#beforeGrad)" stroke="#e74c3c" stroke-width="2" rx="10"/>
+    <text x="130" y="25" text-anchor="middle" font-family="system-ui, sans-serif" font-size="14" font-weight="bold" fill="#c92a2a">
+      정규화 전 (Before)
+    </text>
+
+    <!-- Axes -->
+    <line x1="40" y1="180" x2="230" y2="180" stroke="#333" stroke-width="1.5"/>
+    <line x1="40" y1="180" x2="40" y2="50" stroke="#333" stroke-width="1.5"/>
+
+    <!-- Scattered distribution (off-center, high variance) -->
+    <path d="M60,178 Q90,175 110,160 Q130,120 160,90 Q180,80 195,85 Q210,100 220,160 L220,178 Z"
+          fill="rgba(231,76,60,0.4)" stroke="#e74c3c" stroke-width="2"/>
+
+    <!-- Mean marker (off center) -->
+    <line x1="160" y1="180" x2="160" y2="65" stroke="#c92a2a" stroke-width="2" stroke-dasharray="4,4"/>
+    <circle cx="160" cy="180" r="4" fill="#c92a2a"/>
+    <text x="160" y="198" text-anchor="middle" font-family="system-ui, sans-serif" font-size="11" fill="#c92a2a">μ=5.3</text>
+
+    <!-- Variance annotation -->
+    <text x="130" y="210" text-anchor="middle" font-family="system-ui, sans-serif" font-size="11" fill="#666">σ²=12.5 (큼)</text>
+  </g>
+
+  <!-- Arrow -->
+  <g transform="translate(305, 155)">
+    <line x1="0" y1="0" x2="80" y2="0" stroke="#333" stroke-width="3" marker-end="url(#arrow)"/>
+    <text x="40" y="-10" text-anchor="middle" font-family="system-ui, sans-serif" font-size="12" fill="#333">
+      BatchNorm
+    </text>
+    <text x="40" y="25" text-anchor="middle" font-family="monospace" font-size="10" fill="#666">
+      x̂ = (x-μ)/σ
+    </text>
+  </g>
+
+  <!-- After Normalization -->
+  <g transform="translate(410, 55)">
+    <rect x="0" y="0" width="260" height="230" fill="url(#afterGrad)" stroke="#27ae60" stroke-width="2" rx="10"/>
+    <text x="130" y="25" text-anchor="middle" font-family="system-ui, sans-serif" font-size="14" font-weight="bold" fill="#27ae60">
+      정규화 후 (After)
+    </text>
+
+    <!-- Axes -->
+    <line x1="40" y1="180" x2="230" y2="180" stroke="#333" stroke-width="1.5"/>
+    <line x1="40" y1="180" x2="40" y2="50" stroke="#333" stroke-width="1.5"/>
+
+    <!-- Zero-centered axis markers -->
+    <text x="60" y="195" text-anchor="middle" font-family="monospace" font-size="9" fill="#666">-2</text>
+    <text x="100" y="195" text-anchor="middle" font-family="monospace" font-size="9" fill="#666">-1</text>
+    <text x="140" y="195" text-anchor="middle" font-family="monospace" font-size="9" fill="#666">0</text>
+    <text x="180" y="195" text-anchor="middle" font-family="monospace" font-size="9" fill="#666">1</text>
+    <text x="220" y="195" text-anchor="middle" font-family="monospace" font-size="9" fill="#666">2</text>
+
+    <!-- Centered bell curve -->
+    <path d="M50,178 Q70,175 90,155 Q110,120 125,85 Q135,60 140,55 Q145,60 155,85 Q170,120 190,155 Q210,175 230,178 Z"
+          fill="rgba(39,174,96,0.4)" stroke="#27ae60" stroke-width="2"/>
+
+    <!-- Mean marker (centered at 0) -->
+    <line x1="140" y1="180" x2="140" y2="50" stroke="#27ae60" stroke-width="2" stroke-dasharray="4,4"/>
+    <circle cx="140" cy="180" r="4" fill="#27ae60"/>
+    <text x="140" y="210" text-anchor="middle" font-family="system-ui, sans-serif" font-size="11" fill="#27ae60">μ=0, σ²=1</text>
+  </g>
+
+  <!-- Benefits box -->
+  <rect x="100" y="290" width="500" height="25" fill="#fff" stroke="#4a90d9" stroke-width="1" rx="5"/>
+  <text x="350" y="307" text-anchor="middle" font-family="system-ui, sans-serif" font-size="12" fill="#333">
+    효과: 학습 안정화 | Internal Covariate Shift 해결 | 더 높은 학습률 사용 가능
+  </text>
+</svg>

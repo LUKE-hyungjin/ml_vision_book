@@ -1,0 +1,121 @@
+<svg width="700" height="400" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="discreteGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#4ecdc4;stop-opacity:0.3"/>
+      <stop offset="100%" style="stop-color:#4ecdc4;stop-opacity:0.1"/>
+    </linearGradient>
+    <linearGradient id="continuousGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#ff6b6b;stop-opacity:0.3"/>
+      <stop offset="100%" style="stop-color:#ff6b6b;stop-opacity:0.1"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Background -->
+  <rect width="700" height="400" fill="#f8f9fa"/>
+
+  <!-- Title -->
+  <text x="350" y="30" text-anchor="middle" font-family="system-ui, sans-serif" font-size="18" font-weight="bold" fill="#333">
+    이산 (Discrete) vs 연속 (Continuous) 확률 변수
+  </text>
+
+  <!-- Left: Discrete -->
+  <g transform="translate(25, 55)">
+    <rect x="0" y="0" width="310" height="320" fill="url(#discreteGrad)" stroke="#4ecdc4" stroke-width="2" rx="10"/>
+    <text x="155" y="30" text-anchor="middle" font-family="system-ui, sans-serif" font-size="16" font-weight="bold" fill="#0c8599">
+      이산 (Discrete)
+    </text>
+    <text x="155" y="50" text-anchor="middle" font-family="system-ui, sans-serif" font-size="12" fill="#666">
+      셀 수 있는 값들
+    </text>
+
+    <!-- Examples -->
+    <g transform="translate(20, 70)">
+      <!-- Dice -->
+      <rect x="0" y="0" width="40" height="40" rx="5" fill="#fff" stroke="#4ecdc4" stroke-width="2"/>
+      <circle cx="20" cy="20" r="5" fill="#333"/>
+      <text x="55" y="15" font-family="system-ui, sans-serif" font-size="12" fill="#333">주사위: 1, 2, 3, 4, 5, 6</text>
+      <text x="55" y="32" font-family="monospace" font-size="11" fill="#0c8599">X ∈ {1, 2, 3, 4, 5, 6}</text>
+
+      <!-- Coin -->
+      <circle cx="20" cy="75" r="18" fill="#f1c40f" stroke="#d4ac0d" stroke-width="2"/>
+      <text x="20" y="80" text-anchor="middle" font-family="system-ui, sans-serif" font-size="10" fill="#333">H</text>
+      <text x="55" y="70" font-family="system-ui, sans-serif" font-size="12" fill="#333">동전: 앞면(1), 뒷면(0)</text>
+      <text x="55" y="87" font-family="monospace" font-size="11" fill="#0c8599">X ∈ {0, 1}</text>
+    </g>
+
+    <!-- Deep Learning Connection -->
+    <rect x="15" y="145" width="280" height="85" fill="#fff" stroke="#0c8599" stroke-width="1" rx="5"/>
+    <text x="155" y="165" text-anchor="middle" font-family="system-ui, sans-serif" font-size="13" font-weight="bold" fill="#0c8599">
+      딥러닝: 분류 (Classification)
+    </text>
+    <text x="25" y="185" font-family="monospace" font-size="11" fill="#333">probs = softmax(logits)</text>
+    <text x="25" y="202" font-family="monospace" font-size="11" fill="#333"># [0.9, 0.05, 0.05]</text>
+    <text x="25" y="219" font-family="system-ui, sans-serif" font-size="11" fill="#666">→ 고양이(90%), 강아지(5%), 새(5%)</text>
+
+    <!-- PMF visualization mini -->
+    <g transform="translate(40, 240)">
+      <text x="115" y="12" text-anchor="middle" font-family="system-ui, sans-serif" font-size="11" fill="#333">PMF: 막대 그래프</text>
+      <!-- Mini bar chart -->
+      <rect x="50" y="25" width="20" height="50" fill="#4ecdc4" opacity="0.8"/>
+      <rect x="80" y="55" width="20" height="20" fill="#4ecdc4" opacity="0.8"/>
+      <rect x="110" y="60" width="20" height="15" fill="#4ecdc4" opacity="0.8"/>
+      <rect x="140" y="65" width="20" height="10" fill="#4ecdc4" opacity="0.8"/>
+      <line x1="45" y1="75" x2="170" y2="75" stroke="#333" stroke-width="1"/>
+    </g>
+  </g>
+
+  <!-- Right: Continuous -->
+  <g transform="translate(365, 55)">
+    <rect x="0" y="0" width="310" height="320" fill="url(#continuousGrad)" stroke="#ff6b6b" stroke-width="2" rx="10"/>
+    <text x="155" y="30" text-anchor="middle" font-family="system-ui, sans-serif" font-size="16" font-weight="bold" fill="#c92a2a">
+      연속 (Continuous)
+    </text>
+    <text x="155" y="50" text-anchor="middle" font-family="system-ui, sans-serif" font-size="12" fill="#666">
+      무한히 많은 값들
+    </text>
+
+    <!-- Examples -->
+    <g transform="translate(20, 70)">
+      <!-- Height ruler -->
+      <rect x="0" y="0" width="8" height="40" fill="#f39c12" stroke="#d68910" stroke-width="1"/>
+      <line x1="8" y1="5" x2="15" y2="5" stroke="#333" stroke-width="1"/>
+      <line x1="8" y1="20" x2="12" y2="20" stroke="#333" stroke-width="1"/>
+      <line x1="8" y1="35" x2="15" y2="35" stroke="#333" stroke-width="1"/>
+      <text x="55" y="15" font-family="system-ui, sans-serif" font-size="12" fill="#333">키: 170.5cm, 175.23cm...</text>
+      <text x="55" y="32" font-family="monospace" font-size="11" fill="#c92a2a">X ∈ ℝ (실수 전체)</text>
+
+      <!-- Temperature -->
+      <ellipse cx="20" cy="75" rx="15" ry="18" fill="#3498db" stroke="#2980b9" stroke-width="2"/>
+      <text x="20" y="80" text-anchor="middle" font-family="system-ui, sans-serif" font-size="10" fill="#fff">°C</text>
+      <text x="55" y="70" font-family="system-ui, sans-serif" font-size="12" fill="#333">온도: 23.7°C, -5.123°C...</text>
+      <text x="55" y="87" font-family="monospace" font-size="11" fill="#c92a2a">X ∈ (-∞, +∞)</text>
+    </g>
+
+    <!-- Deep Learning Connection -->
+    <rect x="15" y="145" width="280" height="85" fill="#fff" stroke="#c92a2a" stroke-width="1" rx="5"/>
+    <text x="155" y="165" text-anchor="middle" font-family="system-ui, sans-serif" font-size="13" font-weight="bold" fill="#c92a2a">
+      딥러닝: 회귀 (Regression)
+    </text>
+    <text x="25" y="185" font-family="monospace" font-size="11" fill="#333">age = model(face_image)</text>
+    <text x="25" y="202" font-family="monospace" font-size="11" fill="#333"># 25.7</text>
+    <text x="25" y="219" font-family="system-ui, sans-serif" font-size="11" fill="#666">→ 예측 나이: 25.7세 (연속 값)</text>
+
+    <!-- PDF visualization mini -->
+    <g transform="translate(40, 240)">
+      <text x="115" y="12" text-anchor="middle" font-family="system-ui, sans-serif" font-size="11" fill="#333">PDF: 부드러운 곡선</text>
+      <!-- Mini curve -->
+      <path d="M45,75 Q70,70 90,40 Q110,25 130,25 Q150,25 170,40 Q190,70 215,75"
+            fill="rgba(255,107,107,0.4)" stroke="#ff6b6b" stroke-width="2"/>
+      <line x1="45" y1="75" x2="215" y2="75" stroke="#333" stroke-width="1"/>
+    </g>
+  </g>
+
+  <!-- Key difference box -->
+  <rect x="175" y="185" width="350" height="40" fill="#fff" stroke="#333" stroke-width="1" rx="20"/>
+  <text x="350" y="200" text-anchor="middle" font-family="system-ui, sans-serif" font-size="11" fill="#333">
+    핵심 질문:
+  </text>
+  <text x="350" y="218" text-anchor="middle" font-family="system-ui, sans-serif" font-size="13" font-weight="bold" fill="#333">
+    "결과를 하나씩 셀 수 있나요?"
+  </text>
+</svg>

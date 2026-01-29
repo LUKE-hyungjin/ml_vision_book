@@ -107,6 +107,8 @@ I = -log₂(1/8,145,060) ≈ 23 bits
 확률이 낮을수록 정보량이 큼!
 ```
 
+![정보량](/images/probability/ko/information-quantity.svg)
+
 ---
 
 ## 2. 엔트로피 = 평균 정보량
@@ -171,6 +173,8 @@ H(p)
 • p = 0 또는 1일 때 0 (확정적)
 ```
 
+![베르누이 엔트로피](/images/probability/ko/bernoulli-entropy.svg)
+
 **딥러닝 적용**: 이진 분류에서 예측 확신도 측정
 
 ### 카테고리 분포
@@ -222,6 +226,8 @@ D_KL(p||q)를 줄이면 → q가 p에 가까워짐 → Cross-Entropy 감소
 결론: Cross-Entropy 최소화 = 예측을 정답에 맞추기!
 ```
 
+![엔트로피와 Cross-Entropy](/images/probability/ko/entropy-crossentropy.svg)
+
 ### 다중 클래스 분류에서의 Cross-Entropy
 
 $$
@@ -266,6 +272,8 @@ Loss
 
 예측 확률이 높을수록 Loss가 낮음!
 ```
+
+![Cross-Entropy Loss 곡선](/images/probability/ko/cross-entropy-loss-curve.svg)
 
 ### PyTorch에서 Cross-Entropy
 
@@ -456,6 +464,8 @@ I(X;Y) = H(X) + H(Y) - H(X,Y)
 # SimCLR의 핵심
 # 같은 이미지의 다른 augmentation → 상호정보량 최대화
 ```
+
+![상호 정보량](/images/probability/ko/mutual-information.svg)
 
 ---
 

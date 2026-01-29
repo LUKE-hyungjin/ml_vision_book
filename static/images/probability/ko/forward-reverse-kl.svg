@@ -1,0 +1,127 @@
+<svg width="700" height="380" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background -->
+  <rect width="700" height="380" fill="#f8f9fa"/>
+
+  <!-- Title -->
+  <text x="350" y="28" text-anchor="middle" font-family="system-ui, sans-serif" font-size="18" font-weight="bold" fill="#333">
+    Forward KL vs Reverse KL: Mode-Covering vs Mode-Seeking
+  </text>
+
+  <!-- True Distribution P (bimodal) -->
+  <g transform="translate(50, 55)">
+    <text x="90" y="15" text-anchor="middle" font-family="system-ui, sans-serif" font-size="13" font-weight="bold" fill="#333">
+      실제 분포 P (두 봉우리)
+    </text>
+
+    <!-- Axes -->
+    <line x1="10" y1="120" x2="180" y2="120" stroke="#999" stroke-width="1"/>
+    <line x1="10" y1="30" x2="10" y2="120" stroke="#999" stroke-width="1"/>
+
+    <!-- Bimodal distribution P -->
+    <path d="M 10 120 Q 25 120 35 100 Q 45 60 55 50 Q 65 45 75 50 Q 85 60 95 100 Q 105 120 115 120 Q 125 120 135 100 Q 145 60 155 50 Q 165 45 170 55 Q 175 100 180 120"
+          fill="#3498db" fill-opacity="0.3" stroke="#3498db" stroke-width="2"/>
+
+    <!-- Mode labels -->
+    <text x="55" y="38" text-anchor="middle" font-family="system-ui, sans-serif" font-size="9" fill="#3498db">mode 1</text>
+    <text x="155" y="38" text-anchor="middle" font-family="system-ui, sans-serif" font-size="9" fill="#3498db">mode 2</text>
+
+    <text x="90" y="140" text-anchor="middle" font-family="system-ui, sans-serif" font-size="11" fill="#3498db" font-weight="bold">P (Target)</text>
+  </g>
+
+  <!-- Forward KL Result -->
+  <g transform="translate(250, 55)">
+    <rect x="0" y="0" width="200" height="165" fill="#fff3cd" stroke="#f39c12" stroke-width="2" rx="8"/>
+    <text x="100" y="20" text-anchor="middle" font-family="system-ui, sans-serif" font-size="12" font-weight="bold" fill="#d68910">
+      Forward KL: D_KL(P || Q)
+    </text>
+
+    <!-- Axes -->
+    <line x1="20" y1="130" x2="180" y2="130" stroke="#999" stroke-width="1"/>
+
+    <!-- Broad Q covering both modes -->
+    <path d="M 20 130 Q 40 125 60 100 Q 80 60 100 50 Q 120 45 140 50 Q 160 80 175 110 Q 178 125 180 130"
+          fill="#e74c3c" fill-opacity="0.3" stroke="#e74c3c" stroke-width="2"/>
+
+    <!-- Original P outline (faded) -->
+    <path d="M 25 130 Q 35 130 45 115 Q 55 85 65 75 Q 75 70 80 75 Q 90 85 100 115 Q 110 130 115 130 Q 125 130 135 115 Q 145 85 155 75 Q 160 70 165 80 Q 170 115 175 130"
+          fill="none" stroke="#3498db" stroke-width="1" stroke-dasharray="4,2" opacity="0.5"/>
+
+    <text x="100" y="148" text-anchor="middle" font-family="system-ui, sans-serif" font-size="10" fill="#e74c3c" font-weight="bold">
+      Q: 넓게 커버 (흐릿)
+    </text>
+  </g>
+
+  <!-- Reverse KL Result -->
+  <g transform="translate(470, 55)">
+    <rect x="0" y="0" width="200" height="165" fill="#e8f8f5" stroke="#27ae60" stroke-width="2" rx="8"/>
+    <text x="100" y="20" text-anchor="middle" font-family="system-ui, sans-serif" font-size="12" font-weight="bold" fill="#27ae60">
+      Reverse KL: D_KL(Q || P)
+    </text>
+
+    <!-- Axes -->
+    <line x1="20" y1="130" x2="180" y2="130" stroke="#999" stroke-width="1"/>
+
+    <!-- Sharp Q on one mode only -->
+    <path d="M 20 130 Q 40 130 50 125 Q 60 115 70 80 Q 80 45 90 35 Q 100 30 110 35 Q 120 45 130 80 Q 140 115 150 125 Q 160 130 180 130"
+          fill="#27ae60" fill-opacity="0.3" stroke="#27ae60" stroke-width="2"/>
+
+    <!-- Original P outline (faded) -->
+    <path d="M 25 130 Q 35 130 45 115 Q 55 85 65 75 Q 75 70 80 75 Q 90 85 100 115 Q 110 130 115 130 Q 125 130 135 115 Q 145 85 155 75 Q 160 70 165 80 Q 170 115 175 130"
+          fill="none" stroke="#3498db" stroke-width="1" stroke-dasharray="4,2" opacity="0.5"/>
+
+    <text x="100" y="148" text-anchor="middle" font-family="system-ui, sans-serif" font-size="10" fill="#27ae60" font-weight="bold">
+      Q: 하나에 집중 (선명)
+    </text>
+  </g>
+
+  <!-- Explanation boxes -->
+  <g transform="translate(50, 235)">
+    <rect x="0" y="0" width="295" height="130" fill="#fff" stroke="#f39c12" stroke-width="2" rx="8"/>
+    <text x="147" y="22" text-anchor="middle" font-family="system-ui, sans-serif" font-size="12" font-weight="bold" fill="#d68910">
+      Forward KL 특징
+    </text>
+
+    <g transform="translate(15, 35)">
+      <text x="0" y="0" font-family="system-ui, sans-serif" font-size="11" fill="#333">
+        P(x) > 0인 곳에서 Q(x)도 > 0이어야
+      </text>
+      <text x="0" y="18" font-family="system-ui, sans-serif" font-size="11" fill="#333">
+        → P가 있는 곳은 Q도 커버해야 함
+      </text>
+      <text x="0" y="40" font-family="system-ui, sans-serif" font-size="11" fill="#666">
+        결과: 모든 모드를 다 커버하려다가
+      </text>
+      <text x="0" y="55" font-family="system-ui, sans-serif" font-size="11" fill="#666">
+        중간 영역도 높아짐 (mode-covering)
+      </text>
+      <text x="0" y="80" font-family="system-ui, sans-serif" font-size="10" fill="#d68910" font-weight="bold">
+        사용: 분류, Knowledge Distillation
+      </text>
+    </g>
+  </g>
+
+  <g transform="translate(355, 235)">
+    <rect x="0" y="0" width="295" height="130" fill="#fff" stroke="#27ae60" stroke-width="2" rx="8"/>
+    <text x="147" y="22" text-anchor="middle" font-family="system-ui, sans-serif" font-size="12" font-weight="bold" fill="#27ae60">
+      Reverse KL 특징
+    </text>
+
+    <g transform="translate(15, 35)">
+      <text x="0" y="0" font-family="system-ui, sans-serif" font-size="11" fill="#333">
+        Q(x) > 0인 곳에서 P(x)도 > 0이어야
+      </text>
+      <text x="0" y="18" font-family="system-ui, sans-serif" font-size="11" fill="#333">
+        → Q가 있는 곳은 P도 있어야 함
+      </text>
+      <text x="0" y="40" font-family="system-ui, sans-serif" font-size="11" fill="#666">
+        결과: P가 없는 곳은 피하려다가
+      </text>
+      <text x="0" y="55" font-family="system-ui, sans-serif" font-size="11" fill="#666">
+        하나의 모드만 선택 (mode-seeking)
+      </text>
+      <text x="0" y="80" font-family="system-ui, sans-serif" font-size="10" fill="#27ae60" font-weight="bold">
+        사용: VAE, 생성 모델
+      </text>
+    </g>
+  </g>
+</svg>

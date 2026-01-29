@@ -96,6 +96,8 @@ age = model(face_image)  # 25.7살
 
 **핵심**: 분류 = 이산, 회귀 = 연속!
 
+![이산 vs 연속](/images/probability/ko/discrete-vs-continuous.svg)
+
 ---
 
 ## 3. 이산 확률 변수
@@ -196,6 +198,8 @@ z = mu + sigma * torch.randn_like(sigma)  # N(mu, sigma^2)
 ---
 
 ## 5. PMF vs PDF 비교
+
+![PMF vs PDF vs CDF](/images/probability/ko/pmf-pdf-cdf.svg)
 
 | | PMF (이산) | PDF (연속) |
 |---|:---:|:---:|

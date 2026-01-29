@@ -1,0 +1,99 @@
+<svg width="700" height="320" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background -->
+  <rect width="700" height="320" fill="#f8f9fa"/>
+
+  <!-- Title -->
+  <text x="350" y="28" text-anchor="middle" font-family="system-ui, sans-serif" font-size="18" font-weight="bold" fill="#333">
+    KL 발산의 비대칭성: D_KL(P||Q) ≠ D_KL(Q||P)
+  </text>
+
+  <!-- Distribution P (uniform) -->
+  <g transform="translate(80, 60)">
+    <text x="70" y="15" text-anchor="middle" font-family="system-ui, sans-serif" font-size="12" font-weight="bold" fill="#3498db">
+      P = [0.5, 0.5] (균등)
+    </text>
+
+    <!-- Bar chart -->
+    <rect x="30" y="30" width="40" height="80" fill="#3498db" opacity="0.8"/>
+    <rect x="80" y="30" width="40" height="80" fill="#3498db" opacity="0.8"/>
+
+    <!-- Axis -->
+    <line x1="20" y1="110" x2="140" y2="110" stroke="#333" stroke-width="1"/>
+
+    <!-- Labels -->
+    <text x="50" y="125" text-anchor="middle" font-family="monospace" font-size="10" fill="#666">0.5</text>
+    <text x="100" y="125" text-anchor="middle" font-family="monospace" font-size="10" fill="#666">0.5</text>
+  </g>
+
+  <!-- Distribution Q (biased) -->
+  <g transform="translate(280, 60)">
+    <text x="70" y="15" text-anchor="middle" font-family="system-ui, sans-serif" font-size="12" font-weight="bold" fill="#e74c3c">
+      Q = [0.9, 0.1] (편향)
+    </text>
+
+    <!-- Bar chart -->
+    <rect x="30" y="30" width="40" height="80" fill="#e74c3c" opacity="0.8"/>
+    <rect x="80" y="102" width="40" height="8" fill="#e74c3c" opacity="0.8"/>
+
+    <!-- Axis -->
+    <line x1="20" y1="110" x2="140" y2="110" stroke="#333" stroke-width="1"/>
+
+    <!-- Labels -->
+    <text x="50" y="125" text-anchor="middle" font-family="monospace" font-size="10" fill="#666">0.9</text>
+    <text x="100" y="125" text-anchor="middle" font-family="monospace" font-size="10" fill="#666">0.1</text>
+  </g>
+
+  <!-- Calculation boxes -->
+  <g transform="translate(450, 55)">
+    <!-- D_KL(P||Q) -->
+    <rect x="0" y="0" width="220" height="90" fill="#fff3cd" stroke="#f39c12" stroke-width="2" rx="8"/>
+    <text x="110" y="22" text-anchor="middle" font-family="system-ui, sans-serif" font-size="12" font-weight="bold" fill="#d68910">
+      D_KL(P || Q)
+    </text>
+    <text x="110" y="42" text-anchor="middle" font-family="monospace" font-size="10" fill="#333">
+      = 0.5×log(0.5/0.9)
+    </text>
+    <text x="110" y="56" text-anchor="middle" font-family="monospace" font-size="10" fill="#333">
+      + 0.5×log(0.5/0.1)
+    </text>
+    <text x="110" y="78" text-anchor="middle" font-family="system-ui, sans-serif" font-size="14" font-weight="bold" fill="#d68910">
+      = 0.74 nats
+    </text>
+  </g>
+
+  <!-- Arrows showing inequality -->
+  <g transform="translate(310, 175)">
+    <text x="40" y="15" text-anchor="middle" font-family="system-ui, sans-serif" font-size="24" font-weight="bold" fill="#e74c3c">
+      ≠
+    </text>
+    <text x="40" y="35" text-anchor="middle" font-family="system-ui, sans-serif" font-size="11" fill="#666">
+      서로 다름!
+    </text>
+  </g>
+
+  <!-- D_KL(Q||P) -->
+  <g transform="translate(450, 155)">
+    <rect x="0" y="0" width="220" height="90" fill="#e8f8f5" stroke="#27ae60" stroke-width="2" rx="8"/>
+    <text x="110" y="22" text-anchor="middle" font-family="system-ui, sans-serif" font-size="12" font-weight="bold" fill="#27ae60">
+      D_KL(Q || P)
+    </text>
+    <text x="110" y="42" text-anchor="middle" font-family="monospace" font-size="10" fill="#333">
+      = 0.9×log(0.9/0.5)
+    </text>
+    <text x="110" y="56" text-anchor="middle" font-family="monospace" font-size="10" fill="#333">
+      + 0.1×log(0.1/0.5)
+    </text>
+    <text x="110" y="78" text-anchor="middle" font-family="system-ui, sans-serif" font-size="14" font-weight="bold" fill="#27ae60">
+      = 0.53 nats
+    </text>
+  </g>
+
+  <!-- Explanation -->
+  <rect x="50" y="260" width="600" height="50" fill="#fff" stroke="#9b59b6" stroke-width="2" rx="8"/>
+  <text x="350" y="282" text-anchor="middle" font-family="system-ui, sans-serif" font-size="12" font-weight="bold" fill="#8e44ad">
+    핵심: KL 발산은 "거리"가 아니다!
+  </text>
+  <text x="350" y="300" text-anchor="middle" font-family="system-ui, sans-serif" font-size="11" fill="#666">
+    어떤 분포를 기준으로 하느냐에 따라 값이 달라짐 → Forward KL vs Reverse KL 선택이 중요
+  </text>
+</svg>

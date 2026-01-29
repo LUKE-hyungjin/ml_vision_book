@@ -1,0 +1,83 @@
+<svg width="700" height="400" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <marker id="arrowMed" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="#666"/>
+    </marker>
+  </defs>
+
+  <!-- Background -->
+  <rect width="700" height="400" fill="#f8f9fa"/>
+
+  <!-- Title -->
+  <text x="350" y="28" text-anchor="middle" font-family="system-ui, sans-serif" font-size="18" font-weight="bold" fill="#333">
+    베이즈의 역설: 의료 검사 예시
+  </text>
+  <text x="350" y="48" text-anchor="middle" font-family="system-ui, sans-serif" font-size="12" fill="#666">
+    유병률 1%, 민감도 99%, 특이도 95%
+  </text>
+
+  <!-- Total Population -->
+  <rect x="280" y="65" width="140" height="40" fill="#3498db" stroke="#2980b9" stroke-width="2" rx="5"/>
+  <text x="350" y="90" text-anchor="middle" font-family="system-ui, sans-serif" font-size="14" font-weight="bold" fill="#fff">
+    전체 10,000명
+  </text>
+
+  <!-- Branches from total -->
+  <line x1="320" y1="105" x2="180" y2="150" stroke="#666" stroke-width="2" marker-end="url(#arrowMed)"/>
+  <line x1="380" y1="105" x2="520" y2="150" stroke="#666" stroke-width="2" marker-end="url(#arrowMed)"/>
+
+  <!-- Sick (1%) -->
+  <rect x="80" y="155" width="140" height="45" fill="#e74c3c" stroke="#c0392b" stroke-width="2" rx="5"/>
+  <text x="150" y="175" text-anchor="middle" font-family="system-ui, sans-serif" font-size="12" font-weight="bold" fill="#fff">환자 100명</text>
+  <text x="150" y="192" text-anchor="middle" font-family="system-ui, sans-serif" font-size="11" fill="#fff">(1%)</text>
+
+  <!-- Healthy (99%) -->
+  <rect x="460" y="155" width="160" height="45" fill="#27ae60" stroke="#1e8449" stroke-width="2" rx="5"/>
+  <text x="540" y="175" text-anchor="middle" font-family="system-ui, sans-serif" font-size="12" font-weight="bold" fill="#fff">정상인 9,900명</text>
+  <text x="540" y="192" text-anchor="middle" font-family="system-ui, sans-serif" font-size="11" fill="#fff">(99%)</text>
+
+  <!-- Branches from sick -->
+  <line x1="120" y1="200" x2="80" y2="250" stroke="#666" stroke-width="2" marker-end="url(#arrowMed)"/>
+  <line x1="180" y1="200" x2="220" y2="250" stroke="#666" stroke-width="2" marker-end="url(#arrowMed)"/>
+
+  <!-- Branches from healthy -->
+  <line x1="500" y1="200" x2="450" y2="250" stroke="#666" stroke-width="2" marker-end="url(#arrowMed)"/>
+  <line x1="580" y1="200" x2="620" y2="250" stroke="#666" stroke-width="2" marker-end="url(#arrowMed)"/>
+
+  <!-- True Positive (99 of 100 sick) -->
+  <rect x="20" y="255" width="110" height="50" fill="#f39c12" stroke="#d68910" stroke-width="3" rx="5"/>
+  <text x="75" y="277" text-anchor="middle" font-family="system-ui, sans-serif" font-size="12" font-weight="bold" fill="#fff">양성 99명</text>
+  <text x="75" y="295" text-anchor="middle" font-family="system-ui, sans-serif" font-size="10" fill="#fff">진양성 (99%)</text>
+
+  <!-- False Negative (1 of 100 sick) -->
+  <rect x="160" y="255" width="100" height="50" fill="#bdc3c7" stroke="#95a5a6" stroke-width="1" rx="5"/>
+  <text x="210" y="277" text-anchor="middle" font-family="system-ui, sans-serif" font-size="11" fill="#333">음성 1명</text>
+  <text x="210" y="293" text-anchor="middle" font-family="system-ui, sans-serif" font-size="9" fill="#666">위음성</text>
+
+  <!-- False Positive (495 of 9900 healthy) - HIGHLIGHTED -->
+  <rect x="380" y="255" width="130" height="50" fill="#e74c3c" stroke="#c0392b" stroke-width="3" rx="5"/>
+  <text x="445" y="277" text-anchor="middle" font-family="system-ui, sans-serif" font-size="12" font-weight="bold" fill="#fff">양성 495명</text>
+  <text x="445" y="295" text-anchor="middle" font-family="system-ui, sans-serif" font-size="10" fill="#fff">위양성 (5%)</text>
+
+  <!-- True Negative (9405 of 9900 healthy) -->
+  <rect x="550" y="255" width="130" height="50" fill="#bdc3c7" stroke="#95a5a6" stroke-width="1" rx="5"/>
+  <text x="615" y="277" text-anchor="middle" font-family="system-ui, sans-serif" font-size="11" fill="#333">음성 9,405명</text>
+  <text x="615" y="293" text-anchor="middle" font-family="system-ui, sans-serif" font-size="9" fill="#666">진음성</text>
+
+  <!-- Result Box -->
+  <rect x="100" y="325" width="500" height="65" fill="#fff3cd" stroke="#f39c12" stroke-width="2" rx="8"/>
+
+  <text x="350" y="348" text-anchor="middle" font-family="system-ui, sans-serif" font-size="13" font-weight="bold" fill="#333">
+    양성 판정자 = 99 + 495 = 594명
+  </text>
+  <text x="350" y="368" text-anchor="middle" font-family="system-ui, sans-serif" font-size="14" font-weight="bold" fill="#e74c3c">
+    진짜 환자 비율 = 99 / 594 = 16.7%
+  </text>
+  <text x="350" y="385" text-anchor="middle" font-family="system-ui, sans-serif" font-size="11" fill="#666">
+    검사 정확도 99%인데 실제로는 16.7%! (희귀 질병이라서)
+  </text>
+
+  <!-- Highlight arrow to false positive -->
+  <path d="M 445 245 L 445 225 L 350 225 L 350 180" stroke="#e74c3c" stroke-width="2" stroke-dasharray="5,3" fill="none"/>
+  <text x="400" y="218" font-family="system-ui, sans-serif" font-size="10" fill="#e74c3c" font-weight="bold">문제!</text>
+</svg>

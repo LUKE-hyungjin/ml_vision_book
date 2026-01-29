@@ -49,6 +49,12 @@ nn.Dropout(p=0.5)  # 50% 확률로 뉴런을 끔
 
 ---
 
+## 주요 분포 시각화
+
+![주요 확률 분포](/images/probability/ko/distributions.svg)
+
+---
+
 ## 1. 이산 분포 = 셀 수 있는 결과
 
 ### 베르누이 분포 (Bernoulli) - 동전 던지기
@@ -360,14 +366,7 @@ $$
 \text{softmax}(z/T)_i = \frac{e^{z_i/T}}{\sum_j e^{z_j/T}}
 $$
 
-```
-T = 0.1 (낮은 온도)     T = 1.0 (기본)      T = 10 (높은 온도)
-  │█                     │ █                  │█ █ █
-  │█                     │ █ █                │█ █ █
-  │█                     │ █ █ █              │█ █ █
-  └┴─┴─┴─                └─┴─┴─┴─             └─┴─┴─┴─
-  확신 ↑ (argmax처럼)    보통                  불확실 ↑ (균등 분포처럼)
-```
+![Temperature Scaling](/images/probability/ko/sampling-temperature.svg)
 
 ```python
 def softmax_with_temperature(logits, temperature=1.0):
@@ -391,26 +390,7 @@ probs = softmax_with_temperature(logits, temperature=0.7)
 
 ## 4. 분포 간 관계
 
-```
-                    ┌─────────────────┐
-                    │    이산 분포     │
-                    └────────┬────────┘
-                             │
-       ┌─────────────────────┼─────────────────────┐
-       │                     │                     │
-       ▼                     ▼                     ▼
-  ┌─────────┐         ┌─────────────┐       ┌───────────┐
-  │베르누이  │────n회──→│   이항      │──n→∞──→│  정규     │
-  │ (0/1)   │  시행   │ (k번 성공)  │  CLT  │ (가우시안) │
-  └─────────┘         └─────────────┘       └───────────┘
-       │
-       │K개로 확장
-       ▼
-  ┌─────────────┐
-  │  카테고리    │ ← Softmax 출력
-  │ (K개 중 1)  │
-  └─────────────┘
-```
+![분포 간 관계](/images/probability/ko/distribution-relationship.svg)
 
 **핵심 관계**:
 1. **베르누이 → 이항**: n번 시행의 성공 횟수
