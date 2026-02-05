@@ -1,0 +1,82 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 700 420">
+  <defs>
+    <style>
+      .text { font-family: 'Segoe UI', Arial, sans-serif; }
+      .title { font-size: 18px; font-weight: bold; fill: #e0e0e0; }
+      .label { font-size: 12px; fill: #ccc; }
+    </style>
+  </defs>
+
+  <rect width="700" height="420" fill="#1a1a2e" rx="8"/>
+  <text x="350" y="32" text-anchor="middle" class="text title">SGD vs Adam: 타원형 Loss에서의 경로 비교</text>
+  <text x="350" y="52" text-anchor="middle" class="text" fill="#888" font-size="12">L(x,y) = x² + 100y²  (y 방향이 100배 가파름)</text>
+
+  <!-- Contour plot area -->
+  <!-- Elliptical contours -->
+  <ellipse cx="350" cy="230" rx="20" ry="3" fill="none" stroke="#1a4a7a" stroke-width="1.2"/>
+  <ellipse cx="350" cy="230" rx="50" ry="7" fill="none" stroke="#1a5a8a" stroke-width="1.2"/>
+  <ellipse cx="350" cy="230" rx="90" ry="13" fill="none" stroke="#1a6a9a" stroke-width="1.2"/>
+  <ellipse cx="350" cy="230" rx="140" ry="20" fill="none" stroke="#1a7aaa" stroke-width="1.2"/>
+  <ellipse cx="350" cy="230" rx="200" ry="28" fill="none" stroke="#1a8aba" stroke-width="1.2"/>
+  <ellipse cx="350" cy="230" rx="260" ry="36" fill="none" stroke="#1a9aca" stroke-width="1.0"/>
+
+  <!-- Center (minimum) -->
+  <circle cx="350" cy="230" r="5" fill="#F1C40F"/>
+  <text x="360" y="248" class="text" fill="#F1C40F" font-size="10">최솟값</text>
+
+  <!-- SGD path (zigzag) -->
+  <circle cx="580" cy="265" r="5" fill="#E74C3C"/>
+  <path d="M580,265 L570,200 L555,258 L540,205 L520,255 L500,210 L475,250 L450,215 L420,245 L395,222 L370,238 L355,228"
+        fill="none" stroke="#E74C3C" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+  <text x="590" y="260" class="text" fill="#E74C3C" font-size="11" font-weight="bold">시작</text>
+
+  <!-- SGD label -->
+  <circle cx="555" cy="210" r="3" fill="#E74C3C" opacity="0.5"/>
+  <circle cx="535" cy="250" r="3" fill="#E74C3C" opacity="0.5"/>
+  <circle cx="510" cy="215" r="3" fill="#E74C3C" opacity="0.5"/>
+  <circle cx="480" cy="248" r="3" fill="#E74C3C" opacity="0.5"/>
+  <circle cx="445" cy="218" r="3" fill="#E74C3C" opacity="0.5"/>
+
+  <!-- Adam path (smooth, direct) -->
+  <circle cx="580" cy="195" r="5" fill="#27AE60"/>
+  <path d="M580,195 L540,205 L495,215 L445,222 L400,227 L370,229 L355,230"
+        fill="none" stroke="#27AE60" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+  <text x="590" y="190" class="text" fill="#27AE60" font-size="11" font-weight="bold">시작</text>
+
+  <circle cx="540" cy="205" r="3" fill="#27AE60" opacity="0.5"/>
+  <circle cx="495" cy="215" r="3" fill="#27AE60" opacity="0.5"/>
+  <circle cx="445" cy="222" r="3" fill="#27AE60" opacity="0.5"/>
+
+  <!-- Axes labels -->
+  <text x="620" y="290" class="text" fill="#666" font-size="11">x (곡률 낮음)</text>
+  <text x="345" y="180" class="text" fill="#666" font-size="11" transform="rotate(-90, 345, 180)">y (곡률 높음)</text>
+
+  <!-- Legend box -->
+  <rect x="30" y="70" width="200" height="130" fill="#252545" rx="8"/>
+  <text x="130" y="95" text-anchor="middle" class="text" fill="#e0e0e0" font-size="13" font-weight="bold">비교</text>
+
+  <!-- SGD legend -->
+  <line x1="50" y1="115" x2="80" y2="115" stroke="#E74C3C" stroke-width="2.5"/>
+  <text x="90" y="120" class="text" fill="#E74C3C" font-size="11" font-weight="bold">SGD</text>
+  <text x="50" y="138" class="text" fill="#ccc" font-size="10">같은 LR로 모든 방향</text>
+  <text x="50" y="153" class="text" fill="#ccc" font-size="10">→ 진동하며 느리게 수렴</text>
+
+  <!-- Adam legend -->
+  <line x1="50" y1="170" x2="80" y2="170" stroke="#27AE60" stroke-width="2.5"/>
+  <text x="90" y="175" class="text" fill="#27AE60" font-size="11" font-weight="bold">Adam</text>
+  <text x="50" y="192" class="text" fill="#ccc" font-size="10">방향별 적응적 LR</text>
+
+  <!-- Why Adam works -->
+  <rect x="30" y="310" width="300" height="100" fill="#252545" rx="8"/>
+  <text x="180" y="335" text-anchor="middle" class="text" fill="#27AE60" font-size="13" font-weight="bold">Adam이 빠른 이유</text>
+  <text x="180" y="358" text-anchor="middle" class="text" fill="#ccc" font-size="11">y방향: gradient 큼 → LR 자동 축소</text>
+  <text x="180" y="375" text-anchor="middle" class="text" fill="#ccc" font-size="11">x방향: gradient 작음 → LR 자동 확대</text>
+  <text x="180" y="398" text-anchor="middle" class="text" fill="#7eb8f7" font-size="11">→ v_t ≈ diag(H) 근사 효과!</text>
+
+  <!-- Learning rate effect -->
+  <rect x="370" y="310" width="300" height="100" fill="#252545" rx="8"/>
+  <text x="520" y="335" text-anchor="middle" class="text" fill="#E74C3C" font-size="13" font-weight="bold">SGD의 진동 원인</text>
+  <text x="520" y="358" text-anchor="middle" class="text" fill="#ccc" font-size="11">y방향: 곡률 높음 → LR 너무 큼 (진동)</text>
+  <text x="520" y="375" text-anchor="middle" class="text" fill="#ccc" font-size="11">x방향: 곡률 낮음 → LR 너무 작음 (느림)</text>
+  <text x="520" y="398" text-anchor="middle" class="text" fill="#7eb8f7" font-size="11">→ 하나의 LR로는 양립 불가!</text>
+</svg>

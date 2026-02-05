@@ -1,0 +1,97 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 700 320">
+  <defs>
+    <style>
+      .text { font-family: 'Segoe UI', Arial, sans-serif; }
+      .title { font-size: 18px; font-weight: bold; fill: #e0e0e0; }
+      .label { font-size: 12px; fill: #ccc; }
+    </style>
+    <marker id="arr" markerWidth="6" markerHeight="5" refX="6" refY="2.5" orient="auto">
+      <path d="M0,0 L6,2.5 L0,5" fill="#888"/>
+    </marker>
+  </defs>
+
+  <rect width="700" height="320" fill="#1a1a2e" rx="8"/>
+  <text x="350" y="32" text-anchor="middle" class="text title">Gradient vs Jacobian vs Hessian</text>
+
+  <!-- Gradient -->
+  <rect x="20" y="55" width="210" height="245" fill="#1e1e38" rx="8" stroke="#4A90D9" stroke-width="2"/>
+  <rect x="20" y="55" width="210" height="35" fill="#4A90D9" rx="8"/>
+  <rect x="20" y="82" width="210" height="8" fill="#4A90D9"/>
+  <text x="125" y="78" text-anchor="middle" class="text" fill="#fff" font-size="14" font-weight="bold">Gradient</text>
+
+  <!-- Input/Output -->
+  <text x="125" y="115" text-anchor="middle" class="text" fill="#999" font-size="11">입력: 벡터 (n) → 출력: 스칼라</text>
+  <text x="125" y="135" text-anchor="middle" class="text" fill="#4A90D9" font-size="11" font-weight="bold">결과: 벡터 (n)</text>
+
+  <!-- Visual -->
+  <rect x="55" y="150" width="30" height="80" fill="#4A90D9" rx="4" opacity="0.3"/>
+  <rect x="55" y="150" width="30" height="20" fill="#4A90D9" rx="4" opacity="0.6"/>
+  <rect x="55" y="172" width="30" height="20" fill="#4A90D9" rx="4" opacity="0.5"/>
+  <rect x="55" y="194" width="30" height="20" fill="#4A90D9" rx="4" opacity="0.4"/>
+  <text x="70" y="165" text-anchor="middle" class="text" fill="#fff" font-size="9">∂f/∂x₁</text>
+  <text x="70" y="187" text-anchor="middle" class="text" fill="#fff" font-size="9">∂f/∂x₂</text>
+  <text x="70" y="209" text-anchor="middle" class="text" fill="#fff" font-size="9">∂f/∂x₃</text>
+
+  <!-- Application -->
+  <rect x="100" y="155" width="110" height="65" fill="#252545" rx="6"/>
+  <text x="155" y="175" text-anchor="middle" class="text" fill="#4A90D9" font-size="11">딥러닝 적용:</text>
+  <text x="155" y="193" text-anchor="middle" class="text" fill="#fff" font-size="12" font-weight="bold">Loss의 방향</text>
+  <text x="155" y="210" text-anchor="middle" class="text" fill="#ccc" font-size="10">→ 파라미터 업데이트</text>
+
+  <text x="125" y="260" text-anchor="middle" class="text" fill="#999" font-size="10">예: ∂Loss/∂θ</text>
+  <text x="125" y="278" text-anchor="middle" class="text" fill="#999" font-size="10">loss.backward()</text>
+
+  <!-- Jacobian -->
+  <rect x="245" y="55" width="210" height="245" fill="#1e1e38" rx="8" stroke="#27AE60" stroke-width="2"/>
+  <rect x="245" y="55" width="210" height="35" fill="#27AE60" rx="8"/>
+  <rect x="245" y="82" width="210" height="8" fill="#27AE60"/>
+  <text x="350" y="78" text-anchor="middle" class="text" fill="#fff" font-size="14" font-weight="bold">Jacobian</text>
+
+  <text x="350" y="115" text-anchor="middle" class="text" fill="#999" font-size="11">입력: 벡터 (n) → 출력: 벡터 (m)</text>
+  <text x="350" y="135" text-anchor="middle" class="text" fill="#27AE60" font-size="11" font-weight="bold">결과: 행렬 (m×n)</text>
+
+  <!-- Matrix visual -->
+  <rect x="275" y="150" width="70" height="70" fill="#27AE60" rx="4" opacity="0.15"/>
+  <line x1="275" y1="150" x2="275" y2="220" stroke="#27AE60" stroke-width="2"/>
+  <line x1="345" y1="150" x2="345" y2="220" stroke="#27AE60" stroke-width="2"/>
+  <text x="289" y="168" class="text" fill="#27AE60" font-size="8">∂f₁/∂x₁</text>
+  <text x="320" y="168" class="text" fill="#27AE60" font-size="8">∂f₁/∂x₂</text>
+  <text x="289" y="190" class="text" fill="#27AE60" font-size="8">∂f₂/∂x₁</text>
+  <text x="320" y="190" class="text" fill="#27AE60" font-size="8">∂f₂/∂x₂</text>
+  <text x="305" y="212" class="text" fill="#27AE60" font-size="8">⋮</text>
+
+  <rect x="355" y="155" width="90" height="65" fill="#252545" rx="6"/>
+  <text x="400" y="175" text-anchor="middle" class="text" fill="#27AE60" font-size="11">딥러닝 적용:</text>
+  <text x="400" y="193" text-anchor="middle" class="text" fill="#fff" font-size="12" font-weight="bold">레이어 변환</text>
+  <text x="400" y="210" text-anchor="middle" class="text" fill="#ccc" font-size="10">→ Flow 모델</text>
+
+  <text x="350" y="260" text-anchor="middle" class="text" fill="#999" font-size="10">예: Linear의 J = W</text>
+  <text x="350" y="278" text-anchor="middle" class="text" fill="#999" font-size="10">Softmax의 J</text>
+
+  <!-- Hessian -->
+  <rect x="470" y="55" width="210" height="245" fill="#1e1e38" rx="8" stroke="#E67E22" stroke-width="2"/>
+  <rect x="470" y="55" width="210" height="35" fill="#E67E22" rx="8"/>
+  <rect x="470" y="82" width="210" height="8" fill="#E67E22"/>
+  <text x="575" y="78" text-anchor="middle" class="text" fill="#fff" font-size="14" font-weight="bold">Hessian</text>
+
+  <text x="575" y="115" text-anchor="middle" class="text" fill="#999" font-size="11">입력: 벡터 (n) → 출력: 스칼라</text>
+  <text x="575" y="135" text-anchor="middle" class="text" fill="#E67E22" font-size="11" font-weight="bold">결과: 행렬 (n×n)</text>
+
+  <!-- Matrix visual -->
+  <rect x="500" y="150" width="70" height="70" fill="#E67E22" rx="4" opacity="0.15"/>
+  <line x1="500" y1="150" x2="500" y2="220" stroke="#E67E22" stroke-width="2"/>
+  <line x1="570" y1="150" x2="570" y2="220" stroke="#E67E22" stroke-width="2"/>
+  <text x="513" y="168" class="text" fill="#E67E22" font-size="8">∂²f/∂x₁²</text>
+  <text x="548" y="168" class="text" fill="#E67E22" font-size="8">∂²f/∂x₁x₂</text>
+  <text x="513" y="190" class="text" fill="#E67E22" font-size="8">∂²f/∂x₂x₁</text>
+  <text x="548" y="190" class="text" fill="#E67E22" font-size="8">∂²f/∂x₂²</text>
+  <text x="535" y="212" class="text" fill="#E67E22" font-size="8">대칭 행렬</text>
+
+  <rect x="578" y="155" width="90" height="65" fill="#252545" rx="6"/>
+  <text x="623" y="175" text-anchor="middle" class="text" fill="#E67E22" font-size="11">딥러닝 적용:</text>
+  <text x="623" y="193" text-anchor="middle" class="text" fill="#fff" font-size="12" font-weight="bold">곡률 정보</text>
+  <text x="623" y="210" text-anchor="middle" class="text" fill="#ccc" font-size="10">→ Adam 근사</text>
+
+  <text x="575" y="260" text-anchor="middle" class="text" fill="#999" font-size="10">예: LR 상한 결정</text>
+  <text x="575" y="278" text-anchor="middle" class="text" fill="#999" font-size="10">Condition Number</text>
+</svg>

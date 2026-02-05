@@ -46,6 +46,8 @@ output = F.relu(self.conv(x) + x)  # ← 왜 +x를 더하면 학습이 잘 될�
 
 ## Chain Rule이란?
 
+{{< figure src="/images/math/calculus/ko/chain-rule-flow.svg" caption="Chain Rule: 환율 변환처럼 연결된 미분을 곱하면 전체 미분이 된다" >}}
+
 ### 핵심 아이디어: 연결 고리 따라가기
 
 **상황**: $y$가 $u$에 의존하고, $u$가 $x$에 의존
@@ -257,6 +259,8 @@ print(f"수동 계산: {dL_dW1_manual[0, 0].item():.4f}")
 ---
 
 ## Vanishing Gradient 문제
+
+{{< figure src="/images/math/calculus/ko/vanishing-gradient.svg" caption="Sigmoid, ReLU, ResNet의 Gradient 흐름 비교" >}}
 
 ### 원인: Chain Rule의 연속 곱셈
 

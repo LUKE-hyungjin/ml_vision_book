@@ -1,0 +1,131 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 700 400">
+  <defs>
+    <style>
+      .text { font-family: 'Segoe UI', Arial, sans-serif; }
+      .title { font-size: 18px; font-weight: bold; fill: #e0e0e0; }
+      .label { font-size: 12px; fill: #ccc; }
+    </style>
+    <marker id="a1" markerWidth="6" markerHeight="4" refX="6" refY="2" orient="auto">
+      <path d="M0,0 L6,2 L0,4" fill="#E74C3C"/>
+    </marker>
+    <marker id="a2" markerWidth="6" markerHeight="4" refX="6" refY="2" orient="auto">
+      <path d="M0,0 L6,2 L0,4" fill="#27AE60"/>
+    </marker>
+    <marker id="a3" markerWidth="6" markerHeight="4" refX="6" refY="2" orient="auto">
+      <path d="M0,0 L6,2 L0,4" fill="#4A90D9"/>
+    </marker>
+  </defs>
+
+  <rect width="700" height="400" fill="#1a1a2e" rx="8"/>
+  <text x="350" y="32" text-anchor="middle" class="text title">Vanishing Gradient 해결책 비교</text>
+
+  <!-- === Sigmoid Network === -->
+  <rect x="20" y="50" width="660" height="95" fill="#1e1e38" rx="8" stroke="#E74C3C" stroke-width="1"/>
+  <text x="50" y="75" class="text" fill="#E74C3C" font-size="13" font-weight="bold">Sigmoid 네트워크</text>
+  <text x="350" y="75" class="text" fill="#666" font-size="11">σ'(x) ∈ [0, 0.25]  →  gradient가 매 층 최소 1/4로 축소</text>
+
+  <!-- Layers with shrinking gradient -->
+  <rect x="50" y="90" width="80" height="40" fill="#5a2a2a" rx="4" stroke="#E74C3C" stroke-width="1.5"/>
+  <text x="90" y="115" text-anchor="middle" class="text" fill="#fff" font-size="10">Layer 1</text>
+  <line x1="135" y1="110" x2="165" y2="110" stroke="#E74C3C" stroke-width="1" stroke-dasharray="3,2"/>
+
+  <rect x="170" y="90" width="80" height="40" fill="#5a2a2a" rx="4" stroke="#E74C3C" stroke-width="1.5"/>
+  <text x="210" y="115" text-anchor="middle" class="text" fill="#fff" font-size="10">Layer 2</text>
+  <line x1="255" y1="110" x2="285" y2="110" stroke="#E74C3C" stroke-width="1" stroke-dasharray="3,2"/>
+
+  <rect x="290" y="90" width="80" height="40" fill="#5a2a2a" rx="4" stroke="#E74C3C" stroke-width="1.5"/>
+  <text x="330" y="115" text-anchor="middle" class="text" fill="#fff" font-size="10">Layer 3</text>
+  <line x1="375" y1="110" x2="405" y2="110" stroke="#E74C3C" stroke-width="1" stroke-dasharray="3,2"/>
+
+  <rect x="410" y="90" width="80" height="40" fill="#5a2a2a" rx="4" stroke="#E74C3C" stroke-width="1.5"/>
+  <text x="450" y="115" text-anchor="middle" class="text" fill="#fff" font-size="10">Layer 4</text>
+  <line x1="495" y1="110" x2="525" y2="110" stroke="#E74C3C" stroke-width="1" stroke-dasharray="3,2"/>
+
+  <rect x="530" y="90" width="80" height="40" fill="#5a2a2a" rx="4" stroke="#E74C3C" stroke-width="1.5"/>
+  <text x="570" y="115" text-anchor="middle" class="text" fill="#fff" font-size="10">Loss</text>
+
+  <!-- Gradient bars (backward) -->
+  <rect x="545" y="132" width="50" height="8" fill="#E74C3C" rx="2"/>
+  <rect x="425" y="132" width="30" height="8" fill="#E74C3C" rx="2" opacity="0.7"/>
+  <rect x="305" y="132" width="15" height="8" fill="#E74C3C" rx="2" opacity="0.5"/>
+  <rect x="185" y="132" width="6" height="8" fill="#E74C3C" rx="2" opacity="0.3"/>
+  <rect x="65" y="132" width="2" height="8" fill="#E74C3C" rx="1" opacity="0.2"/>
+  <text x="625" y="139" class="text" fill="#E74C3C" font-size="9">← gradient 크기</text>
+
+  <!-- === ReLU Network === -->
+  <rect x="20" y="160" width="660" height="95" fill="#1e1e38" rx="8" stroke="#27AE60" stroke-width="1"/>
+  <text x="50" y="185" class="text" fill="#27AE60" font-size="13" font-weight="bold">ReLU 네트워크</text>
+  <text x="350" y="185" class="text" fill="#666" font-size="11">ReLU'(x) ∈ {0, 1}  →  gradient가 1로 유지 (활성화 시)</text>
+
+  <rect x="50" y="200" width="80" height="40" fill="#2a5a2a" rx="4" stroke="#27AE60" stroke-width="1.5"/>
+  <text x="90" y="225" text-anchor="middle" class="text" fill="#fff" font-size="10">Layer 1</text>
+  <line x1="135" y1="220" x2="165" y2="220" stroke="#27AE60" stroke-width="1.5"/>
+
+  <rect x="170" y="200" width="80" height="40" fill="#2a5a2a" rx="4" stroke="#27AE60" stroke-width="1.5"/>
+  <text x="210" y="225" text-anchor="middle" class="text" fill="#fff" font-size="10">Layer 2</text>
+  <line x1="255" y1="220" x2="285" y2="220" stroke="#27AE60" stroke-width="1.5"/>
+
+  <rect x="290" y="200" width="80" height="40" fill="#2a5a2a" rx="4" stroke="#27AE60" stroke-width="1.5"/>
+  <text x="330" y="225" text-anchor="middle" class="text" fill="#fff" font-size="10">Layer 3</text>
+  <line x1="375" y1="220" x2="405" y2="220" stroke="#27AE60" stroke-width="1.5"/>
+
+  <rect x="410" y="200" width="80" height="40" fill="#2a5a2a" rx="4" stroke="#27AE60" stroke-width="1.5"/>
+  <text x="450" y="225" text-anchor="middle" class="text" fill="#fff" font-size="10">Layer 4</text>
+  <line x1="495" y1="220" x2="525" y2="220" stroke="#27AE60" stroke-width="1.5"/>
+
+  <rect x="530" y="200" width="80" height="40" fill="#2a5a2a" rx="4" stroke="#27AE60" stroke-width="1.5"/>
+  <text x="570" y="225" text-anchor="middle" class="text" fill="#fff" font-size="10">Loss</text>
+
+  <!-- Gradient bars (more even) -->
+  <rect x="545" y="242" width="50" height="8" fill="#27AE60" rx="2"/>
+  <rect x="425" y="242" width="45" height="8" fill="#27AE60" rx="2" opacity="0.9"/>
+  <rect x="305" y="242" width="40" height="8" fill="#27AE60" rx="2" opacity="0.8"/>
+  <rect x="185" y="242" width="35" height="8" fill="#27AE60" rx="2" opacity="0.7"/>
+  <rect x="65" y="242" width="30" height="8" fill="#27AE60" rx="2" opacity="0.6"/>
+  <text x="625" y="249" class="text" fill="#27AE60" font-size="9">← gradient 유지!</text>
+
+  <!-- === ResNet (Skip Connection) === -->
+  <rect x="20" y="270" width="660" height="120" fill="#1e1e38" rx="8" stroke="#4A90D9" stroke-width="1"/>
+  <text x="50" y="295" class="text" fill="#4A90D9" font-size="13" font-weight="bold">ResNet (Skip Connection)</text>
+  <text x="400" y="295" class="text" fill="#666" font-size="11">y = F(x) + x  →  ∂y/∂x = ∂F/∂x + 1  (항상 1 이상!)</text>
+
+  <rect x="50" y="310" width="80" height="40" fill="#2a3a5a" rx="4" stroke="#4A90D9" stroke-width="1.5"/>
+  <text x="90" y="335" text-anchor="middle" class="text" fill="#fff" font-size="10">Block 1</text>
+
+  <rect x="170" y="310" width="80" height="40" fill="#2a3a5a" rx="4" stroke="#4A90D9" stroke-width="1.5"/>
+  <text x="210" y="335" text-anchor="middle" class="text" fill="#fff" font-size="10">Block 2</text>
+
+  <rect x="290" y="310" width="80" height="40" fill="#2a3a5a" rx="4" stroke="#4A90D9" stroke-width="1.5"/>
+  <text x="330" y="335" text-anchor="middle" class="text" fill="#fff" font-size="10">Block 3</text>
+
+  <rect x="410" y="310" width="80" height="40" fill="#2a3a5a" rx="4" stroke="#4A90D9" stroke-width="1.5"/>
+  <text x="450" y="335" text-anchor="middle" class="text" fill="#fff" font-size="10">Block 4</text>
+
+  <rect x="530" y="310" width="80" height="40" fill="#2a3a5a" rx="4" stroke="#4A90D9" stroke-width="1.5"/>
+  <text x="570" y="335" text-anchor="middle" class="text" fill="#fff" font-size="10">Loss</text>
+
+  <!-- Regular connections -->
+  <line x1="135" y1="330" x2="165" y2="330" stroke="#4A90D9" stroke-width="1.5"/>
+  <line x1="255" y1="330" x2="285" y2="330" stroke="#4A90D9" stroke-width="1.5"/>
+  <line x1="375" y1="330" x2="405" y2="330" stroke="#4A90D9" stroke-width="1.5"/>
+  <line x1="495" y1="330" x2="525" y2="330" stroke="#4A90D9" stroke-width="1.5"/>
+
+  <!-- Skip connections -->
+  <path d="M90,310 Q90,295 140,295 L220,295 Q260,295 260,310" fill="none" stroke="#F1C40F" stroke-width="2" stroke-dasharray="4,3"/>
+  <text x="175" y="290" text-anchor="middle" class="text" fill="#F1C40F" font-size="9">+x (skip)</text>
+
+  <path d="M210,310 Q210,295 260,295 L340,295 Q380,295 380,310" fill="none" stroke="#F1C40F" stroke-width="2" stroke-dasharray="4,3"/>
+  <path d="M330,310 Q330,295 380,295 L460,295 Q500,295 500,310" fill="none" stroke="#F1C40F" stroke-width="2" stroke-dasharray="4,3"/>
+
+  <!-- Gradient bars (most even) -->
+  <rect x="545" y="352" width="50" height="8" fill="#4A90D9" rx="2"/>
+  <rect x="425" y="352" width="48" height="8" fill="#4A90D9" rx="2" opacity="0.95"/>
+  <rect x="305" y="352" width="46" height="8" fill="#4A90D9" rx="2" opacity="0.9"/>
+  <rect x="185" y="352" width="44" height="8" fill="#4A90D9" rx="2" opacity="0.85"/>
+  <rect x="65" y="352" width="42" height="8" fill="#4A90D9" rx="2" opacity="0.8"/>
+  <text x="625" y="359" class="text" fill="#4A90D9" font-size="9">← gradient 최적!</text>
+
+  <!-- Skip connection label -->
+  <text x="625" y="320" class="text" fill="#F1C40F" font-size="9">gradient 직통</text>
+  <text x="625" y="335" class="text" fill="#F1C40F" font-size="9">경로 생성!</text>
+</svg>

@@ -43,6 +43,8 @@ optimizer = SGD(params)    # 느림
 
 ## Taylor 전개: 함수 근사의 핵심
 
+{{< figure src="/images/math/calculus/ko/taylor-approximation.svg" caption="Taylor 근사: 1차(접선)로 GD 작동 원리 증명, 2차(포물선)로 Newton 방법 유도" >}}
+
 ### 핵심 아이디어
 
 어떤 함수든 **다항식으로 근사**할 수 있습니다.
@@ -295,6 +297,8 @@ compare_1st_2nd_order()
 ---
 
 ## Adam이 빠른 이유
+
+{{< figure src="/images/math/calculus/ko/sgd-vs-adam.svg" caption="SGD vs Adam: 타원형 Loss에서 SGD는 진동, Adam은 적응적 LR로 빠르게 수렴" >}}
 
 ### SGD의 문제
 
