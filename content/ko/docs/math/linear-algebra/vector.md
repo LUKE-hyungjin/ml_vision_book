@@ -428,5 +428,5 @@ for word, vec in embeddings.items():
 ## 관련 콘텐츠
 
 - [행렬 연산](/ko/docs/math/linear-algebra/matrix) - 벡터의 확장
-- [Attention](/ko/docs/math/attention) - 내적 기반 메커니즘
+- [Attention](/ko/docs/components/attention) - 내적 기반 메커니즘
 - [Embedding](/ko/docs/architecture) - 벡터 표현 학습

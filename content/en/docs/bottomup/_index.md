@@ -48,10 +48,10 @@ flowchart BT
 - [Probability & Statistics](/docs/math/probability)
 
 ## Level 2: Deep Learning Basics
-- [Convolution](/docs/math/convolution)
-- [Backpropagation](/docs/math/backpropagation)
-- [Loss Functions](/docs/math/loss-functions)
-- [Optimization](/docs/math/optimization)
+- [Convolution](/en/docs/components/convolution)
+- [Backpropagation](/en/docs/math/calculus/backpropagation)
+- [Loss Functions](/en/docs/components/training/loss)
+- [Optimization](/en/docs/math/calculus/optimization)
 
 ## Level 3: Basic Architectures
 - [CNN Basics](/docs/architecture/cnn-basics)
@@ -65,12 +65,12 @@ flowchart BT
 - [Segmentation](/docs/task/segmentation)
 
 ## Level 5: Advanced Concepts
-- [Attention](/docs/math/attention)
+- [Attention](/en/docs/components/attention)
 - [Transformer](/docs/architecture/transformer)
 - [ViT](/docs/architecture/vit)
 
 ## Level 6: Generative Models
-- [Diffusion Math](/en/docs/math/generative)
+- [Diffusion Math](/en/docs/components/generative)
 - [Stable Diffusion](/docs/architecture/stable-diffusion)
 - [ControlNet](/docs/architecture/controlnet)
 - [DiT](/docs/architecture/dit)

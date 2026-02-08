@@ -603,7 +603,7 @@ print(f"Smooth:  {smooth_label.tolist()}")
 → [KL 발산](/ko/docs/math/probability/kl-divergence)으로!
 
 **Cross-Entropy Loss**의 실제 사용법이 궁금하다면?
-→ [Cross-Entropy Loss](/ko/docs/math/training/loss/cross-entropy)로!
+→ [Cross-Entropy Loss](/ko/docs/components/training/loss/cross-entropy)로!
 
 ---
 
@@ -612,4 +612,4 @@ print(f"Smooth:  {smooth_label.tolist()}")
 - [확률분포](/ko/docs/math/probability/distribution) - 분포별 엔트로피
 - [기댓값](/ko/docs/math/probability/expectation) - 기댓값으로서의 엔트로피
 - [KL 발산](/ko/docs/math/probability/kl-divergence) - 분포 간 차이
-- [Cross-Entropy Loss](/ko/docs/math/training/loss/cross-entropy) - 실제 Loss 함수
+- [Cross-Entropy Loss](/ko/docs/components/training/loss/cross-entropy) - 실제 Loss 함수

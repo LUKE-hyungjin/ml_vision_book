@@ -194,7 +194,7 @@ $$L = \text{CrossEntropy}(y, \hat{y})$$
 
 ## 관련 콘텐츠
 
-- [Transposed Convolution](/ko/docs/math/transposed-conv) - Upsampling 원리
+- [Transposed Convolution](/ko/docs/components/convolution/transposed-conv) - Upsampling 원리
 - [ResNet](/ko/docs/architecture/cnn/resnet) - Skip connection 아이디어
 - [Mask R-CNN](/ko/docs/architecture/segmentation/mask-rcnn) - Instance segmentation
 - [Segmentation 태스크](/ko/docs/task/segmentation) - 평가 지표

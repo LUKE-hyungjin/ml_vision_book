@@ -7,7 +7,7 @@ math: true
 # Qwen Image Edit
 
 {{% hint info %}}
-**선수지식**: [Diffusion 기초](/ko/docs/math/generative/ddpm) | [VLM (Vision-Language Model)](/ko/docs/architecture/multimodal/vlm) | [Stable Diffusion](/ko/docs/architecture/generative/stable-diffusion)
+**선수지식**: [Diffusion 기초](/ko/docs/components/generative/ddpm) | [VLM (Vision-Language Model)](/ko/docs/architecture/multimodal/vlm) | [Stable Diffusion](/ko/docs/architecture/generative/stable-diffusion)
 {{% /hint %}}
 
 ## 한 줄 요약
@@ -183,4 +183,4 @@ outputs = model.generate(**inputs)
 - [Stable Diffusion](/ko/docs/architecture/generative/stable-diffusion) - 기반 Diffusion 모델
 - [ControlNet](/ko/docs/architecture/generative/controlnet) - 조건부 이미지 생성
 - [VLM](/ko/docs/architecture/multimodal/vlm) - Vision-Language Model
-- [Diffusion 수학](/ko/docs/math/generative/ddpm) - Forward/Reverse Process
+- [Diffusion 수학](/ko/docs/components/generative/ddpm) - Forward/Reverse Process

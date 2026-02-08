@@ -178,7 +178,7 @@ $$
 
 ## 관련 콘텐츠
 
-- [Convolution](/ko/docs/math/convolution) - 특수한 행렬 연산
-- [Attention](/ko/docs/math/attention) - QKV 행렬 연산
-- [LoRA](/ko/docs/math/training/peft/lora) - SVD 기반 효율적 학습
-- [BatchNorm](/ko/docs/math/normalization/batch-norm) - 통계 기반 정규화
+- [Convolution](/ko/docs/components/convolution) - 특수한 행렬 연산
+- [Attention](/ko/docs/components/attention) - QKV 행렬 연산
+- [LoRA](/ko/docs/components/training/peft/lora) - SVD 기반 효율적 학습
+- [BatchNorm](/ko/docs/components/normalization/batch-norm) - 통계 기반 정규화

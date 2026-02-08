@@ -35,15 +35,15 @@ flowchart LR
 - [SIFT & HOG](/docs/architecture/classical-features)
 
 ## 2012-2015: The Rise of CNN
-- [Convolution](/docs/math/convolution)
-- [Backpropagation](/docs/math/backpropagation)
+- [Convolution](/en/docs/components/convolution)
+- [Backpropagation](/en/docs/math/calculus/backpropagation)
 - [AlexNet](/docs/architecture/alexnet)
 - [VGG](/docs/architecture/vgg)
 - [ResNet](/docs/architecture/resnet)
 - [Classification](/docs/task/classification)
 
 ## 2015-2017: Detection & Segmentation
-- [IoU & NMS](/docs/math/iou-nms)
+- [IoU](/en/docs/components/detection/iou) & [NMS](/en/docs/components/detection/nms)
 - [YOLO](/docs/architecture/yolo)
 - [Faster R-CNN](/docs/architecture/faster-rcnn)
 - [U-Net](/docs/architecture/unet)
@@ -51,7 +51,7 @@ flowchart LR
 - [Segmentation](/docs/task/segmentation)
 
 ## 2017-2019: Emergence of Attention
-- [Attention](/docs/math/attention)
+- [Attention](/en/docs/components/attention)
 - [Transformer](/docs/architecture/transformer)
 
 ## 2020-2021: Vision Transformer & CLIP
@@ -61,7 +61,7 @@ flowchart LR
 - [Self-supervised Learning](/docs/task/self-supervised)
 
 ## 2021-2022: The Diffusion Era
-- [Diffusion Math](/en/docs/math/generative)
+- [Diffusion Math](/en/docs/components/generative)
 - [Stable Diffusion](/docs/architecture/stable-diffusion)
 - [Generation](/docs/task/generation)
 

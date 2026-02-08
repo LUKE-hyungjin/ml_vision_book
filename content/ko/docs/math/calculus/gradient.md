@@ -760,5 +760,5 @@ Gradient는 한 레이어의 미분입니다. 하지만 신경망은 **여러 �
 - [미분 기초](/ko/docs/math/calculus/basics) - 단일 변수 미분
 - [Chain Rule](/ko/docs/math/calculus/chain-rule) - 합성 함수의 미분
 - [최적화 수학](/ko/docs/math/calculus/optimization) - Taylor 전개와 2차 최적화
-- [SGD](/ko/docs/math/training/optimizer/sgd) - Gradient 기반 최적화
-- [Adam](/ko/docs/math/training/optimizer/adam) - 적응적 학습률 (Hessian 근사)
+- [SGD](/ko/docs/components/training/optimizer/sgd) - Gradient 기반 최적화
+- [Adam](/ko/docs/components/training/optimizer/adam) - 적응적 학습률 (Hessian 근사)

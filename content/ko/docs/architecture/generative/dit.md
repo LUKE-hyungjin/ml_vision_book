@@ -7,7 +7,7 @@ math: true
 # DiT (Diffusion Transformer)
 
 {{% hint info %}}
-**선수지식**: [Transformer](/ko/docs/architecture/transformer) | [DDPM](/ko/docs/math/generative/ddpm) | [Stable Diffusion](/ko/docs/architecture/generative/stable-diffusion)
+**선수지식**: [Transformer](/ko/docs/architecture/transformer) | [DDPM](/ko/docs/components/generative/ddpm) | [Stable Diffusion](/ko/docs/architecture/generative/stable-diffusion)
 {{% /hint %}}
 
 ## 한 줄 요약
@@ -347,7 +347,7 @@ ImageNet 256×256 생성 (FID, 낮을수록 좋음):
 ## 관련 콘텐츠
 
 - [Transformer](/ko/docs/architecture/transformer) - 기본 Transformer
-- [DDPM](/ko/docs/math/generative/ddpm) - Diffusion 수학
+- [DDPM](/ko/docs/components/generative/ddpm) - Diffusion 수학
 - [Stable Diffusion](/ko/docs/architecture/generative/stable-diffusion) - U-Net 기반
 - [Flux](/ko/docs/architecture/generative/flux) - DiT 기반 최신 모델
-- [Flow Matching](/ko/docs/math/generative/flow-matching) - DiT와 자주 결합
+- [Flow Matching](/ko/docs/components/generative/flow-matching) - DiT와 자주 결합

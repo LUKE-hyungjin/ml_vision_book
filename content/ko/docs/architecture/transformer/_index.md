@@ -181,7 +181,7 @@ class TransformerBlock(nn.Module):
 
 ## 관련 콘텐츠
 
-- [Attention](/ko/docs/math/attention) - Attention 수식 상세
+- [Attention](/ko/docs/components/attention) - Attention 수식 상세
 - [ViT](/ko/docs/architecture/transformer/vit) - Vision Transformer
 - [DiT](/ko/docs/architecture/transformer/dit) - Diffusion Transformer
 - [CNN 기초](/ko/docs/architecture/cnn) - 대조되는 접근 방식

@@ -7,7 +7,7 @@ math: true
 # Flux
 
 {{% hint info %}}
-**선수지식**: [Flow Matching](/ko/docs/math/generative/flow-matching) | [DiT](/ko/docs/architecture/generative/dit) | [Stable Diffusion](/ko/docs/architecture/generative/stable-diffusion)
+**선수지식**: [Flow Matching](/ko/docs/components/generative/flow-matching) | [DiT](/ko/docs/architecture/generative/dit) | [Stable Diffusion](/ko/docs/architecture/generative/stable-diffusion)
 {{% /hint %}}
 
 ## 한 줄 요약
@@ -293,7 +293,7 @@ pipe.load_lora_weights("path/to/flux_lora.safetensors")
 
 ## 관련 콘텐츠
 
-- [Flow Matching](/ko/docs/math/generative/flow-matching) - 수학적 기반
+- [Flow Matching](/ko/docs/components/generative/flow-matching) - 수학적 기반
 - [DiT](/ko/docs/architecture/generative/dit) - 아키텍처 기반
 - [Stable Diffusion](/ko/docs/architecture/generative/stable-diffusion) - 이전 세대
-- [DDPM](/ko/docs/math/generative/ddpm) - 전통적 방식과 비교
+- [DDPM](/ko/docs/components/generative/ddpm) - 전통적 방식과 비교

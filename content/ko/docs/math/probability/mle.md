@@ -526,5 +526,5 @@ print("MAP: weight_decay=0.01 (가우시안 Prior)")
 - [확률분포](/ko/docs/math/probability/distribution) - 우도 함수의 형태
 - [베이즈 정리](/ko/docs/math/probability/bayes) - MAP의 이론적 기반
 - [엔트로피](/ko/docs/math/probability/entropy) - Cross-Entropy Loss
-- [Cross-Entropy Loss](/ko/docs/math/training/loss/cross-entropy) - MLE의 실전 구현
-- [정규화](/ko/docs/math/training/regularization) - MAP 관점의 정규화
+- [Cross-Entropy Loss](/ko/docs/components/training/loss/cross-entropy) - MLE의 실전 구현
+- [정규화](/ko/docs/components/training/regularization) - MAP 관점의 정규화

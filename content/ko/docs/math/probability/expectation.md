@@ -376,5 +376,5 @@ print(f"Corr(X, Y) = {corr:.2f}")
 
 - [확률 변수](/ko/docs/math/probability/random-variable) - 선수 지식
 - [확률분포](/ko/docs/math/probability/distribution) - 분포별 기댓값/분산
-- [Batch Normalization](/ko/docs/math/normalization/batch-norm) - 분산 정규화
-- [가중치 초기화](/ko/docs/math/training/regularization) - 분산 유지 초기화
+- [Batch Normalization](/ko/docs/components/normalization/batch-norm) - 분산 정규화
+- [가중치 초기화](/ko/docs/components/training/regularization) - 분산 유지 초기화

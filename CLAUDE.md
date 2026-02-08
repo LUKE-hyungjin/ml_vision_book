@@ -13,10 +13,12 @@ content/
 │       ├── timeline/_index.md       # 입구: 타임라인
 │       ├── topdown/_index.md        # 입구: Top-Down
 │       ├── bottomup/_index.md       # 입구: Bottom-Up
-│       ├── math/                    # 콘텐츠: 수학
-│       ├── architecture/            # 콘텐츠: 아키텍처
-│       ├── task/                    # 콘텐츠: 태스크
-│       └── etc/                     # 콘텐츠: 기타 자료
+│       ├── math/                    # 순수 수학
+│       ├── components/              # 딥러닝 빌딩 블록
+│       ├── architecture/            # 모델/논문
+│       ├── task/                    # 태스크
+│       ├── engineering/             # 실무 기술
+│       └── etc/                     # 기타 자료
 └── en/                              # English
     ├── _index.md
     ├── menu/index.md
@@ -25,8 +27,10 @@ content/
         ├── topdown/_index.md
         ├── bottomup/_index.md
         ├── math/
+        ├── components/
         ├── architecture/
         ├── task/
+        ├── engineering/
         └── etc/
 ```
 
@@ -34,8 +38,8 @@ content/
 
 ### 콘텐츠 추가 시
 1. **양쪽 언어에 동일한 파일 경로로 생성**
-   - 한국어: `content/ko/docs/math/convolution.md`
-   - 영어: `content/en/docs/math/convolution.md`
+   - 한국어: `content/ko/docs/components/convolution/conv2d.md`
+   - 영어: `content/en/docs/components/convolution/conv2d.md`
 
 2. **파일명은 영어로 통일** (URL 일관성)
    - O: `linear-algebra.md`
@@ -44,10 +48,10 @@ content/
 3. **링크는 언어 prefix 포함하여 작성**
    ```markdown
    # 한국어 콘텐츠에서
-   [Convolution](/ko/docs/math/convolution)
+   [Convolution](/ko/docs/components/convolution/conv2d)
 
    # 영어 콘텐츠에서
-   [Convolution](/en/docs/math/convolution)
+   [Convolution](/en/docs/components/convolution/conv2d)
    ```
 
 ### 번역 우선순위
@@ -70,7 +74,16 @@ content/
    - 다크 테마 배경(`#1a1a2e`) 권장
    - 요소 간 마진 충분히 확보 (겹침 방지)
 
-3. **Hugo에서 이미지 삽입**:
+3. **나노바나나 이미지 생성 프롬프트**: 콘텐츠 작성 시 필요한 다이어그램에 대해 **나노바나나 프롬프트**를 함께 작성합니다
+   - 콘텐츠에 필요한 시각 자료를 파악한 뒤, 각 이미지에 대한 프롬프트를 작성
+   - 프롬프트는 콘텐츠와 별도로 사용자에게 제공 (사용자가 검토 후 생성)
+   - 프롬프트 작성 시 포함할 내용:
+     - 이미지의 목적 (어떤 개념을 설명하는지)
+     - 포함해야 할 요소 (수식, 화살표, 레이블 등)
+     - 스타일 (다크 테마 배경 `#1a1a2e`, 깔끔한 다이어그램 스타일)
+     - 한국어/영어 버전 구분
+
+4. **Hugo에서 이미지 삽입**:
    ```markdown
    {{</* figure src="/images/architecture/cnn/alexnet-fig2.png" caption="AlexNet 구조" */>}}
    ```
@@ -79,8 +92,9 @@ content/
 
 **대학교 1학년 수준**으로 작성합니다. 고등학교 수학(미적분, 확률)은 알지만, 전공 지식은 없다고 가정합니다.
 
-1. **선수지식 명시**: 페이지 상단에 이 내용을 이해하기 위해 필요한 선수지식 링크 제공
-   - 예: "선수지식: [행렬](/ko/docs/math/linear-algebra/matrix), [확률분포](/ko/docs/math/probability)"
+1. **선수지식 명시**: [STRUCTURE.md](./STRUCTURE.md)의 의존관계를 참고하여 선수지식 링크를 작성합니다
+   - STRUCTURE.md에 각 파일의 선수지식이 정의되어 있음
+   - 예: "선수지식: [행렬](/ko/docs/math/linear-algebra/matrix), [벡터](/ko/docs/math/linear-algebra/vector)"
 
 2. **비유 사용**: 복잡한 개념은 일상적인 비유로 먼저 설명
    - 예: "Attention은 책에서 중요한 부분에 형광펜을 칠하는 것과 같습니다"
@@ -92,7 +106,7 @@ content/
    - 수식 → 각 기호의 의미 → 직관적 해석 → 코드
 
 5. **시각화 우선**: 텍스트보다 그림이 먼저
-   - 수식만 나열하지 말고, SVG 다이어그램으로 흐름 보여주기
+   - 수식만 나열하지 말고, 다이어그램으로 흐름 보여주기
 
 6. **"왜?"를 먼저**: 개념 설명 전에 "왜 필요한가?"부터 설명
    - 예: "깊은 네트워크에서 gradient가 사라지는 문제가 있었습니다. 이를 해결하기 위해..."
@@ -101,7 +115,7 @@ content/
 
 | 출발 | 도착 | 허용 |
 |------|------|------|
-| 입구 (timeline, topdown, bottomup) | 콘텐츠 (math, architecture, task, etc) | O |
+| 입구 (timeline, topdown, bottomup) | 콘텐츠 (math, components, architecture, task, engineering, etc) | O |
 | 콘텐츠 | 콘텐츠 | O |
 | 입구 | 입구 | **X** |
 | 콘텐츠 | 입구 | **X** |
@@ -110,10 +124,20 @@ content/
 
 | 디렉토리 | 기준 | 판단 질문 |
 |----------|------|----------|
-| `math/` | 수식이 핵심 | "이 개념을 설명하려면 수식이 필수인가?" |
-| `architecture/` | 모델/네트워크 구조 | "이건 특정 모델의 구조를 설명하는가?" |
+| `math/` | 순수 수학 | "이 개념은 딥러닝 없이도 존재하는 수학인가?" |
+| `components/` | 딥러닝 구성 요소 | "이건 모델을 만들 때 사용하는 부품/기법인가?" |
+| `architecture/` | 모델/네트워크 구조 | "이건 특정 논문이 제안한 모델 구조인가?" |
 | `task/` | 문제 정의 + 평가 + 데이터셋 | "이건 '무엇을 푸는가'에 대한 설명인가?" |
+| `engineering/` | 실무 기술 | "이건 실무에서 사용하는 도구/기법인가?" |
 | `etc/` | 외부 링크/자료 | "이건 외부 자료 모음인가?" |
+
+### math/ vs components/ 구분 규칙
+
+| 질문 | math/ | components/ |
+|------|-------|-------------|
+| 딥러닝 없이도 존재하는 개념인가? | O | X |
+| 특정 모델에 종속되지 않는 부품인가? | X | O |
+| 예시 | 행렬, 미분, 확률분포, 카메라 모델 | Conv2D, Attention, BatchNorm, SGD |
 
 ### Math 하위 분류
 
@@ -122,17 +146,23 @@ content/
 | `math/linear-algebra/` | 선형대수 기초 | matrix, vector, eigenvalue, SVD |
 | `math/calculus/` | 미적분/최적화 | gradient, backprop, chain rule |
 | `math/probability/` | 확률/통계 | bayes, distribution, sampling |
-| `math/convolution/` | 합성곱 관련 | conv2d, pooling, receptive field |
-| `math/attention/` | 어텐션 관련 | self-attention, cross-attention, positional encoding |
-| `math/normalization/` | 정규화 기법 | batch norm, layer norm, RMSNorm |
-| `math/training/loss/` | 손실 함수 | cross-entropy, focal loss, contrastive loss |
-| `math/training/optimizer/` | 최적화 알고리즘 | SGD, Adam, AdamW, LR scheduler |
-| `math/training/regularization/` | 정규화 기법 | dropout, weight decay, label smoothing |
-| `math/training/peft/` | 파라미터 효율적 학습 | LoRA, QLoRA, adapter, prefix tuning |
 | `math/geometry/` | 기하학 | camera model, homography |
-| `math/detection/` | Detection 수학 | IoU, NMS, anchor box |
-| `math/diffusion/` | Diffusion 수학 | DDPM, score matching |
-| `math/quantization/` | 양자화 | PTQ, QAT |
+
+### Components 하위 분류
+
+| 디렉토리 | 내용 | 예시 |
+|----------|------|------|
+| `components/convolution/` | 합성곱 관련 | conv2d, pooling, receptive field |
+| `components/attention/` | 어텐션 관련 | self-attention, cross-attention, positional encoding |
+| `components/normalization/` | 정규화 기법 | batch norm, layer norm, RMSNorm |
+| `components/activation/` | 활성화 함수 | relu, gelu, sigmoid |
+| `components/detection/` | Detection 연산 | IoU, NMS, anchor box |
+| `components/generative/` | 생성 모델 수학 | DDPM 수학, score matching, flow matching |
+| `components/quantization/` | 양자화 | data types, PTQ, QAT |
+| `components/training/loss/` | 손실 함수 | cross-entropy, focal loss, contrastive loss |
+| `components/training/optimizer/` | 최적화 알고리즘 | SGD, Adam, AdamW, LR scheduler |
+| `components/training/regularization/` | 정규화 기법 | dropout, weight decay, label smoothing |
+| `components/training/peft/` | 파라미터 효율적 학습 | LoRA, QLoRA, adapter, prefix tuning |
 
 ## 콘텐츠 작성 템플릿
 
@@ -177,8 +207,8 @@ $$
 
 ## 관련 콘텐츠
 - [관련 수학](/ko/docs/math/xxx)
+- [이 개념을 사용하는 컴포넌트](/ko/docs/components/xxx)
 - [이 개념을 사용하는 아키텍처](/ko/docs/architecture/xxx)
-- [이 개념이 쓰이는 태스크](/ko/docs/task/xxx)
 ```
 
 **English** (`content/en/docs/math/xxx.md`):
@@ -220,8 +250,58 @@ Explain the meaning of the formula with analogies or diagrams
 
 ## Related Content
 - [Related Math](/en/docs/math/xxx)
+- [Components using this concept](/en/docs/components/xxx)
 - [Architectures using this concept](/en/docs/architecture/xxx)
-- [Tasks using this concept](/en/docs/task/xxx)
+```
+
+### components/ 템플릿
+
+math/ 템플릿과 동일한 구조를 사용합니다. 단, 다음이 다릅니다:
+- 선수지식에 math/ 링크가 포함됨 (순수 수학에 의존하므로)
+- "왜 필요한가?"에서 **이 부품이 어떤 모델에서 쓰이는지** 언급
+
+**한국어** (`content/ko/docs/components/xxx.md`):
+```markdown
+---
+title: "컴포넌트명"
+weight: 10
+math: true
+---
+
+# 컴포넌트명
+
+{{%/* hint info */%}}
+**선수지식**: [필요한 수학](/ko/docs/math/xxx) | [필요한 컴포넌트](/ko/docs/components/xxx)
+{{%/* /hint */%}}
+
+## 한 줄 요약
+> **핵심 아이디어를 한 문장으로**
+
+## 왜 필요한가?
+이 부품이 왜 필요한지 비유와 함께 설명
+어떤 모델에서 사용되는지 언급
+
+## 수식
+$$
+수식
+$$
+
+**각 기호의 의미:**
+- $x$ : 설명
+- $y$ : 설명
+
+### 직관적 이해
+수식의 의미를 비유나 그림으로 설명
+
+## 구현
+\`\`\`python
+# 간단한 코드 예시 (주석 필수)
+\`\`\`
+
+## 관련 콘텐츠
+- [선수 수학](/ko/docs/math/xxx)
+- [관련 컴포넌트](/ko/docs/components/xxx)
+- [이 컴포넌트를 사용하는 아키텍처](/ko/docs/architecture/xxx)
 ```
 
 ### architecture/ 템플릿
@@ -237,7 +317,7 @@ math: true
 # 모델명
 
 {{%/* hint info */%}}
-**선수지식**: [필요한 수학](/ko/docs/math/xxx) | [이전 모델](/ko/docs/architecture/xxx)
+**선수지식**: [필요한 수학](/ko/docs/math/xxx) | [필요한 컴포넌트](/ko/docs/components/xxx) | [이전 모델](/ko/docs/architecture/xxx)
 {{%/* /hint */%}}
 
 ## 한 줄 요약
@@ -270,7 +350,8 @@ math: true
 \`\`\`
 
 ## 관련 콘텐츠
-- [선행 지식](/ko/docs/math/xxx)
+- [선행 수학](/ko/docs/math/xxx)
+- [사용된 컴포넌트](/ko/docs/components/xxx)
 - [이전 모델](/ko/docs/architecture/xxx)
 - [후속 모델](/ko/docs/architecture/xxx)
 - [적용 태스크](/ko/docs/task/xxx)
@@ -287,7 +368,7 @@ math: true
 # Model Name
 
 {{%/* hint info */%}}
-**Prerequisites**: [Required Math](/en/docs/math/xxx) | [Previous Model](/en/docs/architecture/xxx)
+**Prerequisites**: [Required Math](/en/docs/math/xxx) | [Required Components](/en/docs/components/xxx) | [Previous Model](/en/docs/architecture/xxx)
 {{%/* /hint */%}}
 
 ## One-line Summary
@@ -321,6 +402,7 @@ math: true
 
 ## Related Content
 - [Prerequisites](/en/docs/math/xxx)
+- [Components used](/en/docs/components/xxx)
 - [Previous model](/en/docs/architecture/xxx)
 - [Subsequent model](/en/docs/architecture/xxx)
 - [Applied tasks](/en/docs/task/xxx)
@@ -358,6 +440,7 @@ weight: 10
 
 ## 관련 콘텐츠
 - [필요한 수학](/ko/docs/math/xxx)
+- [필요한 컴포넌트](/ko/docs/components/xxx)
 - [관련 아키텍처](/ko/docs/architecture/xxx)
 ```
 
@@ -391,6 +474,7 @@ weight: 10
 
 ## Related Content
 - [Required math](/en/docs/math/xxx)
+- [Required components](/en/docs/components/xxx)
 - [Related architectures](/en/docs/architecture/xxx)
 ```
 
@@ -437,7 +521,7 @@ weight: 10
 입구 페이지(timeline, topdown, bottomup)는 **순서만** 제공합니다.
 
 ### 콘텐츠 추가 시
-1. 먼저 `math/`, `architecture/`, `task/`, `etc/` 중 적절한 곳에 **양쪽 언어로** 파일 생성
+1. 먼저 `math/`, `components/`, `architecture/`, `task/`, `engineering/`, `etc/` 중 적절한 곳에 **양쪽 언어로** 파일 생성
 2. **양쪽 언어의** 입구 페이지에서 적절한 위치에 링크 추가
 
 ### 입구 페이지 수정 시
@@ -470,12 +554,14 @@ Hugo Book 테마에서 내부 링크 (언어 prefix 포함):
 예시:
 ```markdown
 # 한국어
-[Convolution](/ko/docs/math/convolution)
-[ResNet](/ko/docs/architecture/resnet)
+[Conv2D](/ko/docs/components/convolution/conv2d)
+[ResNet](/ko/docs/architecture/cnn/resnet)
+[행렬](/ko/docs/math/linear-algebra/matrix)
 
 # 영어
-[Convolution](/en/docs/math/convolution)
-[ResNet](/en/docs/architecture/resnet)
+[Conv2D](/en/docs/components/convolution/conv2d)
+[ResNet](/en/docs/architecture/cnn/resnet)
+[Matrix](/en/docs/math/linear-algebra/matrix)
 ```
 
 ## 수식 작성 규칙
@@ -511,13 +597,15 @@ $\{A_i\}$                 # 정상 작동 (LaTeX 문법)
 ## 체크리스트
 
 콘텐츠 작성 후 확인:
-- [ ] 올바른 디렉토리에 파일을 만들었는가?
+- [ ] 올바른 디렉토리에 파일을 만들었는가? (math vs components vs architecture 구분)
 - [ ] **한국어와 영어 양쪽에** 파일을 만들었는가?
 - [ ] 프론트매터가 올바른가?
+- [ ] **STRUCTURE.md를 참고하여 선수지식을 작성했는가?**
 - [ ] 입구→콘텐츠, 콘텐츠→콘텐츠 링크만 있는가?
 - [ ] 입구→입구, 콘텐츠→입구 링크가 없는가?
 - [ ] **양쪽 언어의** 관련 입구 페이지에 링크를 추가했는가?
 - [ ] **수식이 올바른 LaTeX 문법으로 작성되었는가?**
+- [ ] **나노바나나 프롬프트를 작성했는가?** (시각 자료가 필요한 경우)
 
 ## 참고
 

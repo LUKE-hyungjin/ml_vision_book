@@ -51,5 +51,5 @@ Output: 배경(semantic) + 각 객체(instance)
 
 ## 관련 콘텐츠
 
-- [Transposed Convolution](/ko/docs/math/transposed-conv) - Upsampling 기법
+- [Transposed Convolution](/ko/docs/components/convolution/transposed-conv) - Upsampling 기법
 - [Segmentation 태스크](/ko/docs/task/segmentation) - 평가 지표, 데이터셋

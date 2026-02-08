@@ -631,5 +631,5 @@ print("일치함!")
 
 - [고유값/고유벡터](/ko/docs/math/linear-algebra/eigenvalue) - SVD의 기반
 - [행렬 연산](/ko/docs/math/linear-algebra/matrix) - 기본 연산
-- [LoRA](/ko/docs/math/training/peft/lora) - SVD 기반 효율적 학습
-- [Attention](/ko/docs/math/attention) - 행렬 연산의 집약체
+- [LoRA](/ko/docs/components/training/peft/lora) - SVD 기반 효율적 학습
+- [Attention](/ko/docs/components/attention) - 행렬 연산의 집약체

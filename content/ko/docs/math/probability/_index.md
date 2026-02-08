@@ -154,7 +154,7 @@ MLE ─────────────────────→ 딥러닝
 
 ## 관련 콘텐츠
 
-- [Cross-Entropy Loss](/ko/docs/math/training/loss/cross-entropy) - 확률 기반 손실 함수
-- [생성 모델 수학](/ko/docs/math/generative) - Diffusion의 확률 과정
+- [Cross-Entropy Loss](/ko/docs/components/training/loss/cross-entropy) - 확률 기반 손실 함수
+- [생성 모델 수학](/ko/docs/components/generative) - Diffusion의 확률 과정
 - [Softmax](/ko/docs/math/probability/distribution) - 확률분포 변환
 - [VAE](/ko/docs/architecture/generative/vae) - KL Divergence 활용

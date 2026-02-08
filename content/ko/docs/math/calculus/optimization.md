@@ -467,6 +467,6 @@ $$
 ## 관련 콘텐츠
 
 - [Gradient](/ko/docs/math/calculus/gradient) - 1차 미분과 Hessian
-- [SGD](/ko/docs/math/training/optimizer/sgd) - 기본 최적화
-- [Adam](/ko/docs/math/training/optimizer/adam) - 적응적 최적화
-- [Learning Rate Scheduler](/ko/docs/math/training/optimizer) - LR 스케줄링
+- [SGD](/ko/docs/components/training/optimizer/sgd) - 기본 최적화
+- [Adam](/ko/docs/components/training/optimizer/adam) - 적응적 최적화
+- [Learning Rate Scheduler](/ko/docs/components/training/optimizer) - LR 스케줄링

@@ -638,5 +638,5 @@ print(f"검증 통과: {diff.item() < 1e-4}")
 - [미분 기초](/ko/docs/math/calculus/basics) - 미분의 기본 개념
 - [Gradient](/ko/docs/math/calculus/gradient) - 다변수 미분
 - [Chain Rule](/ko/docs/math/calculus/chain-rule) - 역전파의 수학적 기반
-- [SGD](/ko/docs/math/training/optimizer/sgd) - 계산된 gradient 활용
-- [Adam](/ko/docs/math/training/optimizer/adam) - 적응적 최적화
+- [SGD](/ko/docs/components/training/optimizer/sgd) - 계산된 gradient 활용
+- [Adam](/ko/docs/components/training/optimizer/adam) - 적응적 최적화

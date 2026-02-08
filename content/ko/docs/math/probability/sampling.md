@@ -564,5 +564,5 @@ for _ in range(3):
 - [확률분포](/ko/docs/math/probability/distribution) - 샘플링할 분포들
 - [기댓값](/ko/docs/math/probability/expectation) - 샘플 평균
 - [VAE](/ko/docs/architecture/generative/vae) - Reparameterization 활용
-- [Diffusion](/ko/docs/math/generative/ddpm) - 반복적 샘플링
+- [Diffusion](/ko/docs/components/generative/ddpm) - 반복적 샘플링
 - [VLM](/ko/docs/architecture/multimodal/vlm) - 텍스트 생성 샘플링

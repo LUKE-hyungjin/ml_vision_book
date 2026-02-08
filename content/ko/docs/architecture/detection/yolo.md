@@ -198,6 +198,6 @@ df = results.pandas().xyxy[0]
 ## 관련 콘텐츠
 
 - [Faster R-CNN](/ko/docs/architecture/detection/faster-rcnn) - Two-stage detector
-- [IoU & NMS](/ko/docs/math/iou-nms) - Detection 핵심 개념
-- [Anchor Box](/ko/docs/math/anchor) - 박스 예측 방식
+- [IoU](/ko/docs/components/detection/iou) & [NMS](/ko/docs/components/detection/nms) - Detection 핵심 개념
+- [Anchor Box](/ko/docs/components/detection/anchor) - 박스 예측 방식
 - [Detection 태스크](/ko/docs/task/detection) - 평가 지표

@@ -823,5 +823,5 @@ print(f"After Linear3: {x.shape}")  # (32, 10) - 10 classes
 ## 관련 콘텐츠
 
 - [벡터 기초](/ko/docs/math/linear-algebra/vector) - 행렬의 구성 요소
-- [Attention](/ko/docs/math/attention) - QKV 행렬 연산
+- [Attention](/ko/docs/components/attention) - QKV 행렬 연산
 - [CNN](/ko/docs/architecture) - 합성곱도 행렬 곱으로 변환 가능

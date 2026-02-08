@@ -443,4 +443,4 @@ print(f"정규화 전 가중치 크기: {model1.weight.norm():.3f}")
 - [엔트로피](/ko/docs/math/probability/entropy) - 불확실성 측정
 - [KL 발산](/ko/docs/math/probability/kl-divergence) - 사전/사후 차이
 - [최대 우도 추정](/ko/docs/math/probability/mle) - MLE vs MAP
-- [Weight Decay](/ko/docs/math/training/regularization) - 사전 분포의 실제 적용
+- [Weight Decay](/ko/docs/components/training/regularization) - 사전 분포의 실제 적용

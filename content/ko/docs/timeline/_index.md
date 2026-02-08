@@ -35,15 +35,15 @@ flowchart LR
 - [SIFT & HOG](/ko/docs/architecture/classical-features)
 
 ## 2012-2015: CNN 시대의 시작
-- [Convolution](/ko/docs/math/convolution)
-- [Backpropagation](/ko/docs/math/backpropagation)
+- [Convolution](/ko/docs/components/convolution)
+- [Backpropagation](/ko/docs/math/calculus/backpropagation)
 - [AlexNet](/ko/docs/architecture/alexnet)
 - [VGG](/ko/docs/architecture/vgg)
 - [ResNet](/ko/docs/architecture/resnet)
 - [Classification](/ko/docs/task/classification)
 
 ## 2015-2017: Detection & Segmentation
-- [IoU & NMS](/ko/docs/math/iou-nms)
+- [IoU](/ko/docs/components/detection/iou) & [NMS](/ko/docs/components/detection/nms)
 - [YOLO](/ko/docs/architecture/yolo)
 - [Faster R-CNN](/ko/docs/architecture/faster-rcnn)
 - [U-Net](/ko/docs/architecture/unet)
@@ -51,7 +51,7 @@ flowchart LR
 - [Segmentation](/ko/docs/task/segmentation)
 
 ## 2017-2019: Attention의 등장
-- [Attention](/ko/docs/math/attention)
+- [Attention](/ko/docs/components/attention)
 - [Transformer](/ko/docs/architecture/transformer)
 
 ## 2020-2021: Vision Transformer & CLIP
@@ -61,7 +61,7 @@ flowchart LR
 - [Self-supervised Learning](/ko/docs/task/self-supervised)
 
 ## 2021-2022: Diffusion 시대
-- [Diffusion 수학](/ko/docs/math/generative)
+- [Diffusion 수학](/ko/docs/components/generative)
 - [Stable Diffusion](/ko/docs/architecture/stable-diffusion)
 - [Generation](/ko/docs/task/generation)
 

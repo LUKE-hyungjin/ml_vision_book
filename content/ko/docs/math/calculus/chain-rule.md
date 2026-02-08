@@ -548,4 +548,4 @@ Chain Rule은 수학적 원리입니다. 실제 구현에서는 이것을 **효�
 - [Gradient](/ko/docs/math/calculus/gradient) - 편미분과 gradient
 - [Backpropagation](/ko/docs/math/calculus/backpropagation) - Chain Rule의 효율적 구현
 - [ResNet](/ko/docs/architecture/cnn/resnet) - Skip Connection으로 Vanishing 해결
-- [BatchNorm](/ko/docs/math/normalization/batch-norm) - Gradient 흐름 개선
+- [BatchNorm](/ko/docs/components/normalization/batch-norm) - Gradient 흐름 개선

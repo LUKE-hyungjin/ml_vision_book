@@ -48,10 +48,10 @@ flowchart BT
 - [확률/통계](/ko/docs/math/probability)
 
 ## Level 2: 딥러닝 기초
-- [Convolution](/ko/docs/math/convolution)
-- [Backpropagation](/ko/docs/math/backpropagation)
-- [Loss Functions](/ko/docs/math/loss-functions)
-- [Optimization](/ko/docs/math/optimization)
+- [Convolution](/ko/docs/components/convolution)
+- [Backpropagation](/ko/docs/math/calculus/backpropagation)
+- [Loss Functions](/ko/docs/components/training/loss)
+- [Optimization](/ko/docs/math/calculus/optimization)
 
 ## Level 3: 기본 아키텍처
 - [CNN 기초](/ko/docs/architecture/cnn-basics)
@@ -65,12 +65,12 @@ flowchart BT
 - [Segmentation](/ko/docs/task/segmentation)
 
 ## Level 5: 고급 개념
-- [Attention](/ko/docs/math/attention)
+- [Attention](/ko/docs/components/attention)
 - [Transformer](/ko/docs/architecture/transformer)
 - [ViT](/ko/docs/architecture/vit)
 
 ## Level 6: 생성 모델
-- [Diffusion 수학](/ko/docs/math/generative)
+- [Diffusion 수학](/ko/docs/components/generative)
 - [Stable Diffusion](/ko/docs/architecture/stable-diffusion)
 - [ControlNet](/ko/docs/architecture/controlnet)
 - [DiT](/ko/docs/architecture/dit)

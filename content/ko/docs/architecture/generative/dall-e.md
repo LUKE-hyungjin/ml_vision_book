@@ -294,4 +294,4 @@ def decoder_forward(image_embed, timestep):
 - [VQGAN](/ko/docs/architecture/generative/vqgan) - DALL-E 1의 이미지 토큰화
 - [CLIP](/ko/docs/architecture/multimodal/clip) - DALL-E 2의 핵심 컴포넌트
 - [Stable Diffusion](/ko/docs/architecture/generative/stable-diffusion) - 오픈소스 대안
-- [Diffusion 수학](/ko/docs/math/generative/ddpm) - Diffusion 원리
+- [Diffusion 수학](/ko/docs/components/generative/ddpm) - Diffusion 원리

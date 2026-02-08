@@ -98,6 +98,6 @@ class SimpleCNN(nn.Module):
 
 ## 관련 콘텐츠
 
-- [Convolution](/ko/docs/math/convolution) - Convolution 연산의 수학적 이해
-- [Backpropagation](/ko/docs/math/backpropagation) - CNN 학습 원리
+- [Convolution](/ko/docs/components/convolution) - Convolution 연산의 수학적 이해
+- [Backpropagation](/ko/docs/math/calculus/backpropagation) - CNN 학습 원리
 - [Classification](/ko/docs/task/classification) - CNN의 대표적 응용

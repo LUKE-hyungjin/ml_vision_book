@@ -38,20 +38,20 @@ flowchart TD
 {{< /mermaid >}}
 
 ## Image Classification
-1. [Cross-entropy Loss](/docs/math/loss-functions)
+1. [Cross-entropy Loss](/en/docs/components/training/loss/cross-entropy)
 2. [CNN Basics](/docs/architecture/cnn-basics)
 3. [ResNet](/docs/architecture/resnet)
 4. [Classification](/docs/task/classification)
 
 ## Object Detection
-1. [IoU & NMS](/docs/math/iou-nms)
-2. [Anchor Box](/docs/math/anchor)
+1. [IoU](/en/docs/components/detection/iou) & [NMS](/en/docs/components/detection/nms)
+2. [Anchor Box](/en/docs/components/detection/anchor)
 3. [Faster R-CNN](/docs/architecture/faster-rcnn)
 4. [YOLO](/docs/architecture/yolo)
 5. [Detection](/docs/task/detection)
 
 ## Segmentation
-1. [Transposed Convolution](/docs/math/transposed-conv)
+1. [Transposed Convolution](/en/docs/components/convolution/transposed-conv)
 2. [U-Net](/docs/architecture/unet)
 3. [Mask R-CNN](/docs/architecture/mask-rcnn)
 4. [Segmentation](/docs/task/segmentation)
@@ -60,7 +60,7 @@ flowchart TD
 1. [Probability Distributions](/docs/math/probability)
 2. [VAE](/docs/architecture/vae)
 3. [GAN](/docs/architecture/gan)
-4. [Diffusion Math](/en/docs/math/generative)
+4. [Diffusion Math](/en/docs/components/generative)
 5. [Stable Diffusion](/docs/architecture/stable-diffusion)
 6. [ControlNet](/docs/architecture/controlnet)
 7. [DiT](/docs/architecture/dit)
@@ -78,5 +78,5 @@ flowchart TD
 3. [3D Vision](/docs/task/3d-vision)
 
 ## Model Deployment
-1. [Quantization](/docs/math/quantization)
+1. [Quantization](/en/docs/components/quantization)
 2. [Deployment](/docs/task/deployment)

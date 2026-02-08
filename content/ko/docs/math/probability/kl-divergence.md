@@ -460,4 +460,4 @@ print(f"Distillation Loss: {kd_loss.item():.4f}")
 - [확률분포](/ko/docs/math/probability/distribution) - 분포 기초
 - [베이즈 정리](/ko/docs/math/probability/bayes) - 사전/사후 분포
 - [VAE](/ko/docs/architecture/generative/vae) - KL Loss 실전 적용
-- [Cross-Entropy Loss](/ko/docs/math/training/loss/cross-entropy) - 분류 Loss
+- [Cross-Entropy Loss](/ko/docs/components/training/loss/cross-entropy) - 분류 Loss

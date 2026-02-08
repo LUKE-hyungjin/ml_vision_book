@@ -191,5 +191,5 @@ model.roi_heads.box_predictor = FastRCNNPredictor(in_features, num_classes)
 - [YOLO](/ko/docs/architecture/detection/yolo) - One-stage detector
 - [Mask R-CNN](/ko/docs/architecture/segmentation/mask-rcnn) - Faster R-CNN + segmentation
 - [ResNet](/ko/docs/architecture/cnn/resnet) - 주로 사용되는 backbone
-- [IoU & NMS](/ko/docs/math/iou-nms) - Detection 핵심 개념
+- [IoU](/ko/docs/components/detection/iou) & [NMS](/ko/docs/components/detection/nms) - Detection 핵심 개념
 - [Detection 태스크](/ko/docs/task/detection) - 평가 지표

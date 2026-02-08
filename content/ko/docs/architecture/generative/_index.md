@@ -95,7 +95,7 @@ bookCollapseSection: true
 
 ## 관련 콘텐츠
 
-- [생성 모델 수학](/ko/docs/math/generative) - DDPM, Score Matching, Sampling
-- [Flow Matching](/ko/docs/math/generative/flow-matching) - Flux, SD3의 수학적 기반
+- [생성 모델 수학](/ko/docs/components/generative) - DDPM, Score Matching, Sampling
+- [Flow Matching](/ko/docs/components/generative/flow-matching) - Flux, SD3의 수학적 기반
 - [확률 분포](/ko/docs/math/probability) - 생성 모델의 수학적 기초
 - [Generation 태스크](/ko/docs/task/generation) - FID, IS 등 평가 지표

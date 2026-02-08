@@ -7,7 +7,7 @@ math: true
 # DDPM (Denoising Diffusion Probabilistic Models)
 
 {{% hint info %}}
-**선수지식**: [DDPM 수학](/ko/docs/math/generative/ddpm) | [U-Net](/ko/docs/architecture/cnn)
+**선수지식**: [DDPM 수학](/ko/docs/components/generative/ddpm) | [U-Net](/ko/docs/architecture/cnn)
 {{% /hint %}}
 
 ## 한 줄 요약
@@ -388,9 +388,9 @@ class SelfAttention(nn.Module):
 
 | 한계 | 해결책 |
 |------|--------|
-| **느린 샘플링** (1000 스텝) | [DDIM](/ko/docs/math/generative/sampling) - 50 스텝 |
+| **느린 샘플링** (1000 스텝) | [DDIM](/ko/docs/components/generative/sampling) - 50 스텝 |
 | **고해상도 어려움** | [Latent Diffusion](/ko/docs/architecture/generative/stable-diffusion) |
-| **조건부 생성 미흡** | [Classifier-Free Guidance](/ko/docs/math/generative/sampling) |
+| **조건부 생성 미흡** | [Classifier-Free Guidance](/ko/docs/components/generative/sampling) |
 | **고정된 분산** | Improved DDPM (학습된 분산) |
 
 ---
@@ -408,7 +408,7 @@ class SelfAttention(nn.Module):
 
 ## 관련 콘텐츠
 
-- [DDPM 수학](/ko/docs/math/generative/ddpm) - 수학적 유도
-- [Sampling](/ko/docs/math/generative/sampling) - DDIM, DPM-Solver
+- [DDPM 수학](/ko/docs/components/generative/ddpm) - 수학적 유도
+- [Sampling](/ko/docs/components/generative/sampling) - DDIM, DPM-Solver
 - [Stable Diffusion](/ko/docs/architecture/generative/stable-diffusion) - Latent Diffusion
 - [DiT](/ko/docs/architecture/generative/dit) - Transformer 기반 Diffusion

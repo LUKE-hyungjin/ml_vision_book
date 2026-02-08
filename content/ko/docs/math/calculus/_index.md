@@ -153,7 +153,7 @@ $$
 ## 관련 콘텐츠
 
 - [최적화 수학](/ko/docs/math/calculus/optimization) - Taylor 전개, 2차 최적화
-- [SGD](/ko/docs/math/training/optimizer/sgd) - Gradient를 활용한 최적화
-- [Adam](/ko/docs/math/training/optimizer/adam) - 적응적 학습률 (Hessian 근사)
-- [Loss Functions](/ko/docs/math/training/loss) - 미분 가능한 목적 함수
-- [BatchNorm](/ko/docs/math/normalization/batch-norm) - Gradient 흐름 개선
+- [SGD](/ko/docs/components/training/optimizer/sgd) - Gradient를 활용한 최적화
+- [Adam](/ko/docs/components/training/optimizer/adam) - 적응적 학습률 (Hessian 근사)
+- [Loss Functions](/ko/docs/components/training/loss) - 미분 가능한 목적 함수
+- [BatchNorm](/ko/docs/components/normalization/batch-norm) - Gradient 흐름 개선

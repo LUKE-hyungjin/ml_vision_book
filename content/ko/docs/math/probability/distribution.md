@@ -500,4 +500,4 @@ print(f"sampled z: {z.tolist()}")
 - [베이즈 정리](/ko/docs/math/probability/bayes) - 조건부 확률 역산
 - [샘플링](/ko/docs/math/probability/sampling) - 분포에서 값 추출
 - [VAE](/ko/docs/architecture/generative/vae) - 가우시안 활용
-- [Cross-Entropy Loss](/ko/docs/math/training/loss/cross-entropy) - 분포 간 거리
+- [Cross-Entropy Loss](/ko/docs/components/training/loss/cross-entropy) - 분포 간 거리

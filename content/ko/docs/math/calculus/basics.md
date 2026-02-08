@@ -384,5 +384,5 @@ print(f"Gradient: {[f'{g:.4f}' for g in logits.grad[0].tolist()]}")
 
 - [Gradient](/ko/docs/math/calculus/gradient) - 다변수 함수의 미분
 - [Chain Rule](/ko/docs/math/calculus/chain-rule) - 합성 함수의 미분
-- [MSE Loss](/ko/docs/math/training/loss/mse) - 회귀 손실 함수
-- [Cross-Entropy](/ko/docs/math/training/loss/cross-entropy) - 분류 손실 함수
+- [MSE Loss](/ko/docs/components/training/loss/mse) - 회귀 손실 함수
+- [Cross-Entropy](/ko/docs/components/training/loss/cross-entropy) - 분류 손실 함수
