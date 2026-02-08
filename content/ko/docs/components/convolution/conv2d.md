@@ -4,140 +4,406 @@ weight: 1
 math: true
 ---
 
-# 2D Convolution
+# 2D Convolution (2차원 합성곱)
 
-## 개요
+{{% hint info %}}
+**선수지식**: [행렬](/ko/docs/math/linear-algebra/matrix)
+{{% /hint %}}
 
-2D Convolution은 커널(필터)을 이미지 위에서 슬라이딩하며 지역적 특징을 추출하는 연산입니다.
+> **한 줄 요약**: Convolution은 작은 필터를 이미지 위에서 밀어가며 "이 부근에 이런 패턴이 있나?"를 묻는 연산입니다.
 
-## 연산 정의
+## 왜 Convolution이 필요한가?
 
-입력 이미지 I와 커널 K의 convolution:
+### 문제 상황: "이미지를 이해하고 싶은데 픽셀이 너무 많습니다"
+
+224×224 RGB 이미지는 **150,528개**의 숫자입니다. 이걸 한꺼번에 처리하면?
+
+```python
+# Fully Connected로 이미지 처리
+input_size = 224 * 224 * 3  # = 150,528
+hidden_size = 4096
+params = input_size * hidden_size  # = 616,562,688 (약 6억 개!)
+```
+
+문제가 3가지 있습니다:
+
+**1. 파라미터 폭발** — 첫 번째 레이어만 6억 개. GPU 메모리가 터집니다.
+
+**2. 공간 정보 손실** — 픽셀을 일렬로 펴면 "위에 있는 픽셀"과 "아래 있는 픽셀"의 관계가 사라집니다.
+
+**3. 이동 불변성 없음** — 고양이가 사진 왼쪽에 있든 오른쪽에 있든 "고양이"인데, FC는 위치가 바뀌면 완전히 다른 패턴으로 봅니다.
+
+### 해결: "전체를 보지 말고, 작은 창으로 훑자"
+
+돋보기로 책을 읽을 때를 생각해보세요:
+- 돋보기(필터)의 크기는 항상 같습니다
+- 돋보기를 **한 칸씩 밀며** 전체를 훑습니다
+- 어디에서 글자를 보든 같은 돋보기를 사용합니다
+
+이것이 바로 Convolution입니다.
+
+{{< figure src="/images/components/convolution/ko/conv2d-sliding-window.jpeg" caption="필터(커널)가 이미지 위를 슬라이딩하며 특징을 추출하는 과정" >}}
+
+---
+
+## Convolution 연산
+
+### 핵심 아이디어
+
+입력 이미지의 작은 영역과 필터(커널)의 **원소별 곱의 합**을 구합니다.
 
 $$
-(I * K)(i, j) = \sum_m \sum_n I(i+m, j+n) \cdot K(m, n)
+\text{output}(i, j) = \sum_{m=0}^{K-1} \sum_{n=0}^{K-1} \text{input}(i+m, j+n) \cdot \text{kernel}(m, n)
 $$
 
-## 출력 크기 계산
+**각 기호의 의미:**
+- $\text{input}(i+m, j+n)$ : 입력 이미지에서 (i+m, j+n) 위치의 픽셀값
+- $\text{kernel}(m, n)$ : 필터의 (m, n) 위치 가중치 (학습으로 결정!)
+- $K$ : 커널 크기 (보통 3)
+- $\text{output}(i, j)$ : 출력 특징 맵의 (i, j) 위치 값
 
-$$
-O = \frac{I - K + 2P}{S} + 1
-$$
+### 직관적 이해: "패턴 매칭 점수"
 
-- I: 입력 크기
-- K: 커널 크기
-- P: 패딩
-- S: 스트라이드
-- O: 출력 크기
+```
+입력 영역:        커널 (세로선 탐지):    원소별 곱 → 합:
+┌───────────┐     ┌───────────┐
+│ 0   1   0 │     │-1   2  -1 │     0×(-1) + 1×2 + 0×(-1)
+│ 0   1   0 │  ×  │-1   2  -1 │  =  0×(-1) + 1×2 + 0×(-1) = 6
+│ 0   1   0 │     │-1   2  -1 │     0×(-1) + 1×2 + 0×(-1)
+└───────────┘     └───────────┘
+ 세로선이 있다!    → 높은 점수(6)
+```
 
-### 예시
+```
+입력 영역:        같은 커널:            원소별 곱 → 합:
+┌───────────┐     ┌───────────┐
+│ 1   0   0 │     │-1   2  -1 │     1×(-1) + 0×2 + 0×(-1)
+│ 1   0   0 │  ×  │-1   2  -1 │  =  1×(-1) + 0×2 + 0×(-1) = -6
+│ 1   0   0 │     │-1   2  -1 │     1×(-1) + 0×2 + 0×(-1)
+└───────────┘     └───────────┘
+ 세로선 위치 다름  → 낮은 점수(-6)
+```
 
-입력 32×32, 커널 3×3, 패딩 1, 스트라이드 1:
-$$
-O = \frac{32 - 3 + 2 \times 1}{1} + 1 = 32
-$$
+커널이 찾는 패턴과 **비슷하면 높은 값**, 다르면 낮은 값이 나옵니다.
 
-## 구현
+### 코드로 확인하기
 
 ```python
 import torch
 import torch.nn as nn
 
-# 기본 Conv2D
-conv = nn.Conv2d(
-    in_channels=3,      # 입력 채널 (RGB)
-    out_channels=64,    # 출력 채널 (필터 수)
-    kernel_size=3,      # 커널 크기
-    stride=1,           # 스트라이드
-    padding=1           # 패딩
+# 수동으로 convolution 계산
+input_patch = torch.tensor([[0., 1., 0.],
+                             [0., 1., 0.],
+                             [0., 1., 0.]])
+
+kernel = torch.tensor([[-1., 2., -1.],
+                        [-1., 2., -1.],
+                        [-1., 2., -1.]])
+
+result = (input_patch * kernel).sum()
+print(f"수동 계산: {result.item()}")  # 수동 계산: 6.0
+
+# PyTorch Conv2d로 같은 결과
+conv = nn.Conv2d(1, 1, kernel_size=3, bias=False)
+conv.weight.data = kernel.reshape(1, 1, 3, 3)
+
+x = input_patch.reshape(1, 1, 3, 3)
+y = conv(x)
+print(f"Conv2d 결과: {y.item()}")  # Conv2d 결과: 6.0
+```
+
+---
+
+## 출력 크기 계산
+
+### 공식
+
+$$
+O = \frac{I - K + 2P}{S} + 1
+$$
+
+**각 기호의 의미:**
+- $O$ : 출력 크기 (Output)
+- $I$ : 입력 크기 (Input)
+- $K$ : 커널 크기 (Kernel)
+- $P$ : 패딩 (Padding) — 입력 가장자리에 0을 채우는 양
+- $S$ : 스트라이드 (Stride) — 필터가 한 번에 이동하는 칸 수
+
+{{< figure src="/images/components/convolution/ko/conv2d-output-size.png" caption="입력 크기, 커널, 패딩, 스트라이드에 따른 출력 크기 변화" >}}
+
+### 예시 계산
+
+```python
+def output_size(I, K, P, S):
+    return (I - K + 2 * P) // S + 1
+
+# 예시 1: 기본 (same padding)
+print(output_size(I=32, K=3, P=1, S=1))   # 32 (크기 유지!)
+
+# 예시 2: 패딩 없음
+print(output_size(I=32, K=3, P=0, S=1))   # 30 (2 줄어듦)
+
+# 예시 3: 다운샘플링
+print(output_size(I=32, K=3, P=1, S=2))   # 16 (절반!)
+
+# 예시 4: AlexNet 첫 번째 레이어
+print(output_size(I=224, K=11, P=2, S=4)) # 55
+```
+
+---
+
+## 핵심 파라미터 상세
+
+### 1. 커널 크기 (Kernel Size)
+
+| 크기 | 특징 | 사용처 |
+|------|------|--------|
+| **1×1** | 채널 간 정보 혼합, 차원 축소/확장 | GoogLeNet, ResNet bottleneck |
+| **3×3** | 가장 일반적. 2개 쌓으면 5×5와 동일 RF | VGG 이후 표준 |
+| **5×5** | 넓은 영역, 파라미터 많음 | AlexNet 초기 레이어 |
+| **7×7** | 매우 넓은 영역 | ResNet 첫 레이어 |
+| **11×11** | 가장 넓음 | AlexNet 첫 레이어 |
+
+**왜 3×3이 표준이 되었나?**
+
+VGG 논문의 핵심 발견: 3×3 두 개 = 5×5 하나와 같은 영역을 보지만, 파라미터는 더 적고 비선형성은 더 많습니다.
+
+```python
+# 5×5 conv: 25C² 파라미터, 비선형 1번
+nn.Conv2d(C, C, 5, padding=2)
+
+# 3×3 × 2: 18C² 파라미터 (28% 절약), 비선형 2번
+nn.Sequential(
+    nn.Conv2d(C, C, 3, padding=1),
+    nn.ReLU(),
+    nn.Conv2d(C, C, 3, padding=1),
 )
-
-x = torch.randn(1, 3, 224, 224)  # (B, C, H, W)
-y = conv(x)  # (1, 64, 224, 224)
-print(f"Output shape: {y.shape}")
 ```
 
-## 주요 파라미터
+### 2. 스트라이드 (Stride)
 
-### Kernel Size
-
-- **3×3**: 가장 일반적, 2개 쌓으면 5×5와 동일한 receptive field
-- **1×1**: 채널 간 정보 혼합, 차원 축소/확장
-- **5×5, 7×7**: 첫 번째 층에서 큰 특징 추출
-
-### Stride
-
-- **1**: 모든 위치에서 연산 (기본)
-- **2**: 다운샘플링 효과, pooling 대체 가능
+필터가 한 번에 몇 칸씩 이동하는지:
 
 ```python
-# Stride 2: 출력 크기 절반
-conv_downsample = nn.Conv2d(64, 128, kernel_size=3, stride=2, padding=1)
-# 224 -> 112
+# Stride 1: 한 칸씩 이동 (기본)
+conv_s1 = nn.Conv2d(64, 64, 3, stride=1, padding=1)
+
+# Stride 2: 두 칸씩 이동 → 출력 크기 절반 (다운샘플링)
+conv_s2 = nn.Conv2d(64, 128, 3, stride=2, padding=1)
+
+x = torch.randn(1, 64, 56, 56)
+print(conv_s1(x).shape)  # torch.Size([1, 64, 56, 56])
+print(conv_s2(x).shape)  # torch.Size([1, 128, 28, 28])
 ```
 
-### Padding
+### 3. 패딩 (Padding)
 
-- **valid (padding=0)**: 경계 축소
-- **same**: 입력/출력 크기 동일 (padding = kernel_size // 2)
+입력 가장자리에 값(보통 0)을 추가:
 
-### Dilation
-
-커널 요소 사이에 간격 추가:
-
-$$
-O = \frac{I - D(K-1) - 1 + 2P}{S} + 1
-$$
+- **padding=0 (valid)**: 출력이 줄어듦. 가장자리 정보 손실.
+- **padding=K//2 (same)**: 출력 크기 = 입력 크기 유지. 가장 많이 사용.
 
 ```python
-# Dilated convolution: 넓은 receptive field
-conv_dilated = nn.Conv2d(64, 64, kernel_size=3, padding=2, dilation=2)
-# 3x3 커널이 5x5 영역 커버
+# Same padding: 입력 = 출력
+conv_same = nn.Conv2d(64, 64, kernel_size=3, padding=1)   # 3//2 = 1
+conv_same5 = nn.Conv2d(64, 64, kernel_size=5, padding=2)  # 5//2 = 2
+conv_same7 = nn.Conv2d(64, 64, kernel_size=7, padding=3)  # 7//2 = 3
 ```
+
+### 4. 딜레이션 (Dilation)
+
+커널 원소 사이에 간격을 넣어 **같은 파라미터로 더 넓은 영역**을 봅니다:
+
+```
+일반 3×3 (dilation=1):     Dilated 3×3 (dilation=2):
+■ ■ ■                      ■ · ■ · ■
+■ ■ ■     → 3×3 영역       · · · · ·
+■ ■ ■                      ■ · ■ · ■    → 5×5 영역!
+                           · · · · ·
+                           ■ · ■ · ■
+```
+
+$$
+O = \frac{I - d(K-1) - 1 + 2P}{S} + 1
+$$
+
+- $d$ : dilation rate
+
+```python
+# Dilated convolution: 파라미터 9개로 5×5 영역 커버
+conv_d2 = nn.Conv2d(64, 64, 3, padding=2, dilation=2)
+
+# 주로 Segmentation에서 사용 (DeepLab)
+```
+
+---
+
+## 멀티채널 Convolution
+
+### 현실의 Conv2d: 3D 연산
+
+실제로는 입력이 여러 채널(RGB의 3채널, 중간 레이어의 64채널 등)을 가집니다.
+
+{{< figure src="/images/components/convolution/ko/conv2d-multi-channel.jpeg" caption="멀티채널 입력에서의 Convolution: 각 채널별로 다른 커널을 적용하고 결과를 합산" >}}
+
+```
+입력: (C_in × H × W)           커널: (C_in × K × K)         출력: (1 × H' × W')
+┌──────────────────┐           ┌──────────────────┐
+│  채널 1 (H × W)  │           │  커널 1 (K × K)  │
+│  채널 2 (H × W)  │     ×     │  커널 2 (K × K)  │     →    1장의 출력
+│  채널 3 (H × W)  │           │  커널 3 (K × K)  │
+└──────────────────┘           └──────────────────┘
+
+이런 커널 세트가 C_out개 → 출력: (C_out × H' × W')
+```
+
+```python
+# RGB 입력(3채널)에서 64개 특징 맵 추출
+conv = nn.Conv2d(in_channels=3, out_channels=64, kernel_size=3, padding=1)
+
+# 커널 형태: (C_out, C_in, K, K) = (64, 3, 3, 3)
+print(conv.weight.shape)  # torch.Size([64, 3, 3, 3])
+
+x = torch.randn(1, 3, 224, 224)   # (B, C_in, H, W)
+y = conv(x)
+print(y.shape)  # torch.Size([1, 64, 224, 224])  (B, C_out, H', W')
+```
+
+---
 
 ## 파라미터 수 계산
 
 ```
 파라미터 수 = (K × K × C_in + 1) × C_out
+                ─────────────   ─     ────
+                 커널 크기     bias   필터 개수
 ```
-
-- K: 커널 크기
-- C_in: 입력 채널
-- C_out: 출력 채널
-- +1: 편향(bias)
-
-예: Conv2d(64, 128, 3):
-```
-(3 × 3 × 64 + 1) × 128 = 73,856 파라미터
-```
-
-## Depthwise Separable Convolution
-
-파라미터 효율을 위한 분리:
-
-1. **Depthwise**: 채널별로 독립적 convolution
-2. **Pointwise**: 1×1 conv로 채널 혼합
 
 ```python
-class DepthwiseSeparable(nn.Module):
+conv = nn.Conv2d(64, 128, kernel_size=3, padding=1)
+
+# 수동 계산
+manual = (3 * 3 * 64 + 1) * 128
+print(f"수동 계산: {manual:,}")  # 수동 계산: 73,856
+
+# PyTorch 확인
+pytorch = sum(p.numel() for p in conv.parameters())
+print(f"PyTorch: {pytorch:,}")  # PyTorch: 73,856
+```
+
+### 실전 파라미터 비교
+
+| 모델 첫 레이어 | 설정 | 파라미터 수 |
+|---|---|---|
+| AlexNet | Conv2d(3, 96, 11, stride=4) | 34,944 |
+| VGG | Conv2d(3, 64, 3, padding=1) | 1,792 |
+| ResNet | Conv2d(3, 64, 7, stride=2, padding=3) | 9,472 |
+
+---
+
+## 특수한 Convolution
+
+### 1×1 Convolution
+
+공간은 건드리지 않고 **채널만 혼합/변환**합니다:
+
+```python
+# 채널 축소 (bottleneck)
+reduce = nn.Conv2d(256, 64, kernel_size=1)   # 256채널 → 64채널
+# 파라미터: (1×1×256+1)×64 = 16,448
+
+# 채널 확장
+expand = nn.Conv2d(64, 256, kernel_size=1)   # 64채널 → 256채널
+
+x = torch.randn(1, 256, 56, 56)
+print(reduce(x).shape)  # torch.Size([1, 64, 56, 56])  공간은 그대로!
+```
+
+GoogLeNet과 ResNet의 bottleneck 구조에서 핵심 역할을 합니다.
+
+### Depthwise Separable Convolution
+
+일반 convolution을 두 단계로 분리하여 **파라미터를 획기적으로 줄입니다**:
+
+```
+일반 Convolution:
+  입력 (C_in × H × W) → 커널 (C_out × C_in × K × K) → 출력 (C_out × H' × W')
+
+Depthwise Separable:
+  Step 1: Depthwise — 채널별 독립 연산
+    입력 (C_in × H × W) → 커널 (C_in × 1 × K × K) → 중간 (C_in × H' × W')
+
+  Step 2: Pointwise — 1×1 conv로 채널 혼합
+    중간 (C_in × H' × W') → 커널 (C_out × C_in × 1 × 1) → 출력 (C_out × H' × W')
+```
+
+```python
+class DepthwiseSeparableConv(nn.Module):
     def __init__(self, in_ch, out_ch, kernel_size=3):
         super().__init__()
+        # Step 1: 채널별 독립 convolution (groups=in_ch)
         self.depthwise = nn.Conv2d(
             in_ch, in_ch, kernel_size,
-            padding=kernel_size//2, groups=in_ch  # 채널별 독립
+            padding=kernel_size // 2, groups=in_ch
         )
+        # Step 2: 1×1 conv로 채널 혼합
         self.pointwise = nn.Conv2d(in_ch, out_ch, 1)
 
     def forward(self, x):
         return self.pointwise(self.depthwise(x))
 
 # 파라미터 비교
-# 일반: 3×3×64×128 = 73,728
-# Separable: 3×3×64 + 64×128 = 576 + 8,192 = 8,768 (약 8.4배 감소)
+conv_normal = nn.Conv2d(64, 128, 3, padding=1)
+conv_sep = DepthwiseSeparableConv(64, 128)
+
+params_normal = sum(p.numel() for p in conv_normal.parameters())
+params_sep = sum(p.numel() for p in conv_sep.parameters())
+
+print(f"일반: {params_normal:,}")     # 일반: 73,856
+print(f"Separable: {params_sep:,}")  # Separable: 8,896
+print(f"비율: {params_normal / params_sep:.1f}배 감소")  # 비율: 8.3배 감소
 ```
+
+MobileNet, EfficientNet 등 경량 모델의 핵심입니다.
+
+---
+
+## 특징 계층 구조
+
+Conv 레이어를 쌓으면 점점 복잡한 패턴을 인식합니다:
+
+{{< figure src="/images/components/convolution/ko/conv2d-feature-hierarchy.jpeg" caption="레이어가 깊어질수록 저수준(에지) → 중수준(텍스처) → 고수준(객체 부분) 특징을 추출" >}}
+
+```
+Layer 1-2: 에지, 색상 변화     → "경계선이 있나?"
+Layer 3-4: 텍스처, 코너         → "줄무늬인가? 점박이인가?"
+Layer 5-7: 객체 부분            → "바퀴인가? 눈인가?"
+Layer 8+:  전체 객체            → "자동차인가? 고양이인가?"
+```
+
+이것이 **모든 CNN의 핵심 원리**입니다. 단순한 패턴 감지기를 쌓아서 복잡한 패턴을 인식합니다.
+
+---
+
+## 딥러닝 연결고리
+
+| 개념 | 어디서 쓰이나 | 왜 중요한가 |
+|------|-------------|------------|
+| 3×3 conv | [VGG](/ko/docs/architecture/cnn/vgg), [ResNet](/ko/docs/architecture/cnn/resnet) | 현대 CNN의 표준 블록 |
+| 1×1 conv | [ResNet](/ko/docs/architecture/cnn/resnet) bottleneck | 채널 차원 조절 |
+| Stride 2 | [ResNet](/ko/docs/architecture/cnn/resnet), 대부분의 CNN | Pooling 대체 다운샘플링 |
+| Dilated conv | DeepLab, Segmentation 모델 | 넓은 RF, 해상도 유지 |
+| Depthwise Sep. | MobileNet, EfficientNet | 경량화 |
+| Transposed conv | [U-Net](/ko/docs/architecture/segmentation/unet), GAN | 업샘플링 ([상세](/ko/docs/components/convolution/transposed-conv)) |
+
+---
 
 ## 관련 콘텐츠
 
-- [Pooling](/ko/docs/components/convolution/pooling)
-- [Receptive Field](/ko/docs/components/convolution/receptive-field)
-- [Batch Normalization](/ko/docs/components/normalization/batch-norm)
+- [행렬](/ko/docs/math/linear-algebra/matrix) — Convolution의 행렬 표현 (Toeplitz matrix)
+- [Pooling](/ko/docs/components/convolution/pooling) — 다운샘플링 연산
+- [Receptive Field](/ko/docs/components/convolution/receptive-field) — 출력이 "보는" 입력 영역
+- [Transposed Convolution](/ko/docs/components/convolution/transposed-conv) — 업샘플링 연산
+- [Batch Normalization](/ko/docs/components/normalization/batch-norm) — Conv 뒤에 거의 항상 함께 사용
+- [AlexNet](/ko/docs/architecture/cnn/alexnet) — Convolution을 깊게 쌓은 최초의 모델

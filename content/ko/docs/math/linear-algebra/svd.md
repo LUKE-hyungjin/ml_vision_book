@@ -6,6 +6,10 @@ math: true
 
 # 특이값 분해 (Singular Value Decomposition)
 
+{{% hint info %}}
+**선수지식**: [고유값/고유벡터](/ko/docs/math/linear-algebra/eigenvalue)
+{{% /hint %}}
+
 > **한 줄 요약**: SVD는 **모든 행렬을 해부하는 방법**입니다. LoRA, 모델 압축, 추천 시스템의 핵심입니다.
 
 ## 왜 SVD를 배워야 하나요?
@@ -131,6 +135,8 @@ $$
 2. **$\Sigma$**: 각 축 방향으로 늘리거나 줄임 (스케일링)
 3. **$U$**: 출력 공간에서 회전 (직교 변환)
 
+{{< figure src="/images/math/linear-algebra/ko/svd-decomposition.png" caption="SVD는 모든 행렬을 '회전(V^T) → 스케일(Σ) → 회전(U)' 세 단계로 분해한다" >}}
+
 ```python
 import matplotlib.pyplot as plt
 import numpy as np
@@ -198,6 +204,8 @@ $$
 - $U_r$: U의 첫 r개 열
 - $\Sigma_r$: 상위 r개 특이값
 - $V_r^T$: $V^T$의 첫 r개 행
+
+{{< figure src="/images/math/linear-algebra/ko/svd-low-rank.png" caption="저랭크 근사: 상위 r개 특이값만 사용하여 원래 행렬을 근사 — 작은 특이값은 버려도 정보 손실이 적다" >}}
 
 ### Eckart-Young 정리
 

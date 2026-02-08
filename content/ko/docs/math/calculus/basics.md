@@ -45,7 +45,7 @@ Learning rate는 "미분 값에 비례해서 얼마나 이동할 것인가"입�
 
 ## 미분이란 무엇인가?
 
-{{< figure src="/images/math/calculus/ko/derivative-concept.svg" caption="미분의 핵심: 할선(평균 변화율)이 접선(순간 변화율)으로 수렴" >}}
+{{< figure src="/images/math/calculus/ko/derivative-concept.png" caption="미분의 핵심: 할선(평균 변화율)이 접선(순간 변화율)으로 수렴" >}}
 
 ### 핵심 아이디어: 순간 변화율
 
@@ -189,7 +189,7 @@ $$
 
 ## 딥러닝 활성화 함수의 미분
 
-{{< figure src="/images/math/calculus/ko/activation-derivatives.svg" caption="활성화 함수(ReLU, Sigmoid)의 미분과 각각의 문제점" >}}
+{{< figure src="/images/math/calculus/ko/activation-derivatives.png" caption="활성화 함수(ReLU, Sigmoid)의 미분과 각각의 문제점" >}}
 
 ### ReLU
 

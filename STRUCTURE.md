@@ -43,7 +43,7 @@ math/ (수학을 배운다) → components/ (부품을 배운다) → architectu
 
 ### math/linear-algebra/ — 선형대수
 
-- [ ] matrix.md — 선수지식: 없음
+- [x] matrix.md — 선수지식: vector
 - [x] vector.md — 선수지식: 없음
 - [x] eigenvalue.md — 선수지식: matrix, vector
 - [x] svd.md — 선수지식: matrix, eigenvalue
@@ -79,8 +79,6 @@ math/ (수학을 배운다) → components/ (부품을 배운다) → architectu
 ## components/ — 딥러닝 빌딩 블록
 
 > 판단 기준: "이건 모델을 만들 때 사용하는 부품/기법인가?"
->
-> 현재 `math/` 아래에 위치. `components/`로 이동 예정.
 
 ### components/convolution/ — 합성곱
 

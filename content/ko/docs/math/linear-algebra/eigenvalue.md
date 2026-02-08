@@ -6,6 +6,10 @@ math: true
 
 # 고유값과 고유벡터 (Eigenvalue & Eigenvector)
 
+{{% hint info %}}
+**선수지식**: [행렬 연산](/ko/docs/math/linear-algebra/matrix)
+{{% /hint %}}
+
 > **한 줄 요약**: 고유값/고유벡터는 **행렬이 정말 하는 일**을 보여줍니다. PCA, 학습 안정성, 모델 압축의 핵심입니다.
 
 ## 왜 고유값을 배워야 하나요?
@@ -85,6 +89,8 @@ print(f"변환 후: {Av2}")  # [3, 0] - 방향 유지, 크기 3배!
 행렬 A가 데이터를 "잡아당기는" 변환이라고 생각하면:
 - **고유벡터** = 잡아당기는 방향 (힘이 작용하는 축)
 - **고유값** = 각 방향으로 얼마나 세게 당기는지
+
+{{< figure src="/images/math/linear-algebra/ko/eigenvalue-concept.jpeg" caption="일반 벡터는 방향이 바뀌지만, 고유벡터는 방향이 유지되고 크기만 λ배 변한다" >}}
 
 ---
 

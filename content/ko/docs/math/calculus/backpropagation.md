@@ -80,7 +80,7 @@ Backward: 출력 → 입력 (중간값 재사용)
 
 ## 알고리즘 단계별 이해
 
-{{< figure src="/images/math/calculus/ko/forward-backward-pass.svg" caption="Backpropagation 3단계: Forward Pass → Backward Pass → Parameter Update" >}}
+{{< figure src="/images/math/calculus/ko/forward-backward-pass.png" caption="Backpropagation 3단계: Forward Pass → Backward Pass → Parameter Update" >}}
 
 ### 1단계: Forward Pass
 
@@ -214,7 +214,7 @@ print(f"\n최종 Loss: {loss:.6f}")
 
 PyTorch는 연산 **그래프**를 자동으로 만들고 역전파합니다.
 
-{{< figure src="/images/math/calculus/ko/computation-graph.svg" caption="계산 그래프: 각 노드의 local gradient를 역방향으로 곱해 최종 gradient 계산" >}}
+{{< figure src="/images/math/calculus/ko/computation-graph.png" caption="계산 그래프: 각 노드의 local gradient를 역방향으로 곱해 최종 gradient 계산" >}}
 
 ### 계산 그래프란?
 

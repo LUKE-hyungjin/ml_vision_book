@@ -191,6 +191,8 @@ b = torch.tensor([-1.0, 0.0])
 print(f"반대 방향: {torch.dot(a, b)}")  # -1.0 (음수)
 ```
 
+{{< figure src="/images/math/linear-algebra/ko/dot-product-geometry.jpeg" caption="내적의 기하학적 의미: 같은 방향(양수), 수직(0), 반대 방향(음수)" >}}
+
 ### 딥러닝에서의 내적
 
 **1. Attention Score**

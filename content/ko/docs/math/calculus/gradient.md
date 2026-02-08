@@ -362,7 +362,7 @@ optimizer = torch.optim.Adam(model.parameters())
 
 ---
 
-{{< figure src="/images/math/calculus/ko/gradient-comparison.svg" caption="Gradient, Jacobian, Hessian 비교: 입출력 타입과 딥러닝 적용" >}}
+{{< figure src="/images/math/calculus/ko/gradient-comparison.png" caption="Gradient, Jacobian, Hessian 비교: 입출력 타입과 딥러닝 적용" >}}
 
 ## Gradient vs Jacobian vs Hessian 정리
 
@@ -395,7 +395,7 @@ print(f"Hessian:\n{H}")
 
 ## Gradient의 기하학적 의미
 
-{{< figure src="/images/math/calculus/ko/gradient-contour.svg" caption="Gradient는 등고선에 수직이며, 반대 방향(-∇f)이 Loss 감소 방향" >}}
+{{< figure src="/images/math/calculus/ko/gradient-contour.png" caption="Gradient는 등고선에 수직이며, 반대 방향(-∇f)이 Loss 감소 방향" >}}
 
 ### 핵심 직관: 가장 가파른 오르막 방향
 
@@ -583,7 +583,7 @@ for name, param in model.named_parameters():
 
 ## Learning Rate의 역할
 
-{{< figure src="/images/math/calculus/ko/learning-rate-effect.svg" caption="Learning Rate에 따른 학습 곡선: 너무 작으면 느리고, 적절하면 수렴, 너무 크면 발산" >}}
+{{< figure src="/images/math/calculus/ko/learning-rate-effect.png" caption="Learning Rate에 따른 학습 곡선: 너무 작으면 느리고, 적절하면 수렴, 너무 크면 발산" >}}
 
 ### Learning Rate가 너무 크면?
 

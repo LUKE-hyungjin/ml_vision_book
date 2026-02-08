@@ -6,6 +6,10 @@ math: true
 
 # 행렬 연산 (Matrix Operations)
 
+{{% hint info %}}
+**선수지식**: [벡터 기초](/ko/docs/math/linear-algebra/vector)
+{{% /hint %}}
+
 > **한 줄 요약**: 행렬은 **벡터들의 모음**이자 **공간 변환**입니다. 딥러닝의 모든 레이어는 행렬 곱셈입니다.
 
 ## 왜 행렬을 배워야 하나요?
@@ -131,6 +135,8 @@ linear = nn.Linear(784, 256)
 # 이것은 784차원 공간의 점을 256차원 공간의 점으로 "변환"하는 것
 ```
 
+{{< figure src="/images/math/linear-algebra/ko/matrix-transformation.jpeg" caption="행렬은 벡터를 다른 벡터로 변환하는 함수 — 회전, 스케일, 투영 등" >}}
+
 ---
 
 ## 행렬 곱셈: 가장 중요한 연산
@@ -174,6 +180,8 @@ A = torch.randn(32, 784)   # (32, 784)
 B = torch.randn(256, 784)  # (256, 784)
 C = A @ B                  # Error! 784 ≠ 256
 ```
+
+{{< figure src="/images/math/linear-algebra/ko/matrix-dimension-rule.jpeg" caption="행렬 곱셈의 차원 규칙: 안쪽 차원(k)이 같아야 곱해지고, 바깥 차원(m, n)이 결과" >}}
 
 ### 왜 순서가 중요한가?
 
