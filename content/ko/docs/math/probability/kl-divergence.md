@@ -85,7 +85,7 @@ P에서 드물게 나오는 단어를 Q가 잘못 예측해도?
 → KL 발산에 작은 영향 (드문 단어니까)
 ```
 
-![KL Divergence 개념](/images/probability/ko/kl-divergence.svg)
+![KL Divergence 개념](/images/probability/ko/kl-divergence.png)
 
 ### Cross-Entropy와의 관계
 
@@ -102,7 +102,7 @@ Cross-Entropy = 타겟의 Entropy + KL 발산
 Cross-Entropy 최소화 = KL 발산 최소화 = 예측을 타겟에 가깝게!
 ```
 
-![Cross-Entropy와 KL 발산 관계](/images/probability/ko/ce-kl-relationship.svg)
+![Cross-Entropy와 KL 발산 관계](/images/probability/ko/ce-kl-relationship.png)
 
 ---
 
@@ -146,7 +146,7 @@ D_KL(Q || P) = 0.9 × log(0.9/0.5) + 0.1 × log(0.1/0.5)
 # 서로 다름!
 ```
 
-![KL 발산의 비대칭성](/images/probability/ko/kl-asymmetry.svg)
+![KL 발산의 비대칭성](/images/probability/ko/kl-asymmetry.png)
 
 ---
 
@@ -162,22 +162,7 @@ D_KL(Q || P) = 0.9 × log(0.9/0.5) + 0.1 × log(0.1/0.5)
 | **P가 낮고 Q가 높으면** | 작은 페널티 | 큰 페널티 |
 | **결과** | Mode-covering (다 커버) | Mode-seeking (하나 집중) |
 
-### 시각적 비교
-
-```
-P (실제: 두 봉우리)       Forward KL 결과        Reverse KL 결과
-
-   ╭─╮   ╭─╮               ╭─────╮               ╭─╮
-   │ │   │ │               │     │               │ │
-───┴─┴───┴─┴───         ───┴─────┴───         ───┴─┴───────
-    ↑       ↑              흐릿하지만             하나만
-  mode1  mode2            둘 다 커버             선명하게
-
-Forward: P가 있는 곳은 Q도 있어야 함 → 모든 모드 커버
-Reverse: Q가 있는 곳은 P도 있어야 함 → 하나만 확실히
-```
-
-![Forward KL vs Reverse KL](/images/probability/ko/forward-reverse-kl.svg)
+![Forward KL vs Reverse KL](/images/probability/ko/forward-reverse-kl.jpeg)
 
 ### 딥러닝에서의 선택
 

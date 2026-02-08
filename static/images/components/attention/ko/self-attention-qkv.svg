@@ -1,0 +1,134 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 520" font-family="'Segoe UI', Arial, sans-serif">
+  <rect width="900" height="520" fill="#1a1a2e"/>
+
+  <!-- Title -->
+  <text x="450" y="40" text-anchor="middle" fill="#e0e0e0" font-size="20" font-weight="bold">Self-Attention: QKV 연산 흐름</text>
+
+  <!-- Input tokens -->
+  <text x="80" y="80" text-anchor="middle" fill="#aaa" font-size="13">입력 시퀀스</text>
+  <rect x="30" y="95" width="100" height="36" rx="6" fill="#2d2d4e" stroke="#6c63ff" stroke-width="1.5"/>
+  <text x="80" y="118" text-anchor="middle" fill="#e0e0e0" font-size="14">고양이</text>
+  <rect x="30" y="140" width="100" height="36" rx="6" fill="#2d2d4e" stroke="#6c63ff" stroke-width="1.5"/>
+  <text x="80" y="163" text-anchor="middle" fill="#e0e0e0" font-size="14">가</text>
+  <rect x="30" y="185" width="100" height="36" rx="6" fill="#2d2d4e" stroke="#6c63ff" stroke-width="1.5"/>
+  <text x="80" y="208" text-anchor="middle" fill="#e0e0e0" font-size="14">앉았다</text>
+
+  <!-- Arrows from input to Q, K, V -->
+  <defs>
+    <marker id="arrow" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+      <path d="M0,0 L8,3 L0,6" fill="#888"/>
+    </marker>
+    <marker id="arrow-green" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+      <path d="M0,0 L8,3 L0,6" fill="#4ecca3"/>
+    </marker>
+    <marker id="arrow-blue" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+      <path d="M0,0 L8,3 L0,6" fill="#6c63ff"/>
+    </marker>
+    <marker id="arrow-orange" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+      <path d="M0,0 L8,3 L0,6" fill="#ff6b6b"/>
+    </marker>
+  </defs>
+
+  <!-- W_Q, W_K, W_V boxes -->
+  <text x="230" y="80" text-anchor="middle" fill="#aaa" font-size="13">가중치 행렬</text>
+
+  <rect x="190" y="95" width="80" height="36" rx="6" fill="#1e3a2e" stroke="#4ecca3" stroke-width="1.5"/>
+  <text x="230" y="118" text-anchor="middle" fill="#4ecca3" font-size="14" font-weight="bold">W_Q</text>
+
+  <rect x="190" y="140" width="80" height="36" rx="6" fill="#1e2a3e" stroke="#4a90d9" stroke-width="1.5"/>
+  <text x="230" y="163" text-anchor="middle" fill="#4a90d9" font-size="14" font-weight="bold">W_K</text>
+
+  <rect x="190" y="185" width="80" height="36" rx="6" fill="#3e1e2e" stroke="#ff6b6b" stroke-width="1.5"/>
+  <text x="230" y="208" text-anchor="middle" fill="#ff6b6b" font-size="14" font-weight="bold">W_V</text>
+
+  <!-- Arrows input -> weights -->
+  <line x1="130" y1="113" x2="185" y2="113" stroke="#888" stroke-width="1.2" marker-end="url(#arrow)"/>
+  <line x1="130" y1="158" x2="185" y2="158" stroke="#888" stroke-width="1.2" marker-end="url(#arrow)"/>
+  <line x1="130" y1="203" x2="185" y2="203" stroke="#888" stroke-width="1.2" marker-end="url(#arrow)"/>
+
+  <!-- Q, K, V result -->
+  <text x="370" y="80" text-anchor="middle" fill="#aaa" font-size="13">결과</text>
+
+  <rect x="320" y="95" width="100" height="36" rx="6" fill="#1e3a2e" stroke="#4ecca3" stroke-width="2"/>
+  <text x="370" y="118" text-anchor="middle" fill="#4ecca3" font-size="15" font-weight="bold">Q (Query)</text>
+  <text x="370" y="86" text-anchor="middle" fill="#4ecca3" font-size="10">"무엇을 찾을까?"</text>
+
+  <rect x="320" y="140" width="100" height="36" rx="6" fill="#1e2a3e" stroke="#4a90d9" stroke-width="2"/>
+  <text x="370" y="163" text-anchor="middle" fill="#4a90d9" font-size="15" font-weight="bold">K (Key)</text>
+  <text x="370" y="131" text-anchor="middle" fill="#4a90d9" font-size="10">"여기 뭐가 있지?"</text>
+
+  <rect x="320" y="185" width="100" height="36" rx="6" fill="#3e1e2e" stroke="#ff6b6b" stroke-width="2"/>
+  <text x="370" y="208" text-anchor="middle" fill="#ff6b6b" font-size="15" font-weight="bold">V (Value)</text>
+  <text x="370" y="176" text-anchor="middle" fill="#ff6b6b" font-size="10">"실제 정보는 이거야"</text>
+
+  <!-- Arrows weights -> QKV -->
+  <line x1="270" y1="113" x2="315" y2="113" stroke="#4ecca3" stroke-width="1.5" marker-end="url(#arrow-green)"/>
+  <line x1="270" y1="158" x2="315" y2="158" stroke="#4a90d9" stroke-width="1.5" marker-end="url(#arrow-blue)"/>
+  <line x1="270" y1="203" x2="315" y2="203" stroke="#ff6b6b" stroke-width="1.5" marker-end="url(#arrow-orange)"/>
+
+  <!-- Step 2: QK^T -->
+  <text x="580" y="80" text-anchor="middle" fill="#aaa" font-size="13">1단계: 유사도 계산</text>
+  <rect x="480" y="95" width="200" height="60" rx="8" fill="#2d2d4e" stroke="#ffd93d" stroke-width="2"/>
+  <text x="580" y="122" text-anchor="middle" fill="#ffd93d" font-size="16" font-weight="bold">QK^T / sqrt(d_k)</text>
+  <text x="580" y="143" text-anchor="middle" fill="#aaa" font-size="12">"각 단어가 얼마나 관련 있나?"</text>
+
+  <!-- Arrow QKV -> score -->
+  <line x1="420" y1="113" x2="475" y2="120" stroke="#888" stroke-width="1.2" marker-end="url(#arrow)"/>
+  <line x1="420" y1="158" x2="475" y2="130" stroke="#888" stroke-width="1.2" marker-end="url(#arrow)"/>
+
+  <!-- Step 3: Softmax -->
+  <text x="580" y="195" text-anchor="middle" fill="#aaa" font-size="13">2단계: 확률로 변환</text>
+  <rect x="500" y="205" width="160" height="45" rx="8" fill="#2d2d4e" stroke="#ff9a56" stroke-width="2"/>
+  <text x="580" y="233" text-anchor="middle" fill="#ff9a56" font-size="16" font-weight="bold">softmax</text>
+
+  <line x1="580" y1="155" x2="580" y2="200" stroke="#888" stroke-width="1.2" marker-end="url(#arrow)"/>
+
+  <!-- Step 4: Weighted sum -->
+  <text x="580" y="290" text-anchor="middle" fill="#aaa" font-size="13">3단계: 가중합</text>
+  <rect x="490" y="300" width="180" height="45" rx="8" fill="#2d2d4e" stroke="#4ecca3" stroke-width="2"/>
+  <text x="580" y="328" text-anchor="middle" fill="#4ecca3" font-size="16" font-weight="bold">Attention x V</text>
+
+  <line x1="580" y1="250" x2="580" y2="295" stroke="#888" stroke-width="1.2" marker-end="url(#arrow)"/>
+
+  <!-- V arrow to weighted sum -->
+  <path d="M420,203 Q455,280 485,320" stroke="#ff6b6b" stroke-width="1.2" fill="none" marker-end="url(#arrow-orange)"/>
+
+  <!-- Output -->
+  <rect x="510" y="380" width="140" height="45" rx="8" fill="#1e3a2e" stroke="#4ecca3" stroke-width="2.5"/>
+  <text x="580" y="407" text-anchor="middle" fill="#e0e0e0" font-size="15" font-weight="bold">출력</text>
+
+  <line x1="580" y1="345" x2="580" y2="375" stroke="#888" stroke-width="1.2" marker-end="url(#arrow)"/>
+
+  <!-- Attention score example -->
+  <rect x="30" y="280" width="400" height="200" rx="10" fill="#1e1e36" stroke="#555" stroke-width="1"/>
+  <text x="230" y="310" text-anchor="middle" fill="#ffd93d" font-size="14" font-weight="bold">Attention Score 예시: "앉았다"가 Query일 때</text>
+
+  <rect x="55" y="330" width="80" height="30" rx="4" fill="#4ecca3" fill-opacity="0.15" stroke="#4ecca3" stroke-width="1"/>
+  <text x="95" y="350" text-anchor="middle" fill="#4ecca3" font-size="13">고양이</text>
+  <text x="95" y="370" text-anchor="middle" fill="#4ecca3" font-size="12" font-weight="bold">0.45</text>
+
+  <rect x="150" y="330" width="60" height="30" rx="4" fill="#6c63ff" fill-opacity="0.1" stroke="#6c63ff" stroke-width="1"/>
+  <text x="180" y="350" text-anchor="middle" fill="#6c63ff" font-size="13">가</text>
+  <text x="180" y="370" text-anchor="middle" fill="#6c63ff" font-size="12">0.05</text>
+
+  <rect x="225" y="330" width="80" height="30" rx="4" fill="#ff6b6b" fill-opacity="0.1" stroke="#ff6b6b" stroke-width="1"/>
+  <text x="265" y="350" text-anchor="middle" fill="#ff6b6b" font-size="13">앉았다</text>
+  <text x="265" y="370" text-anchor="middle" fill="#ff6b6b" font-size="12">0.10</text>
+
+  <rect x="320" y="330" width="85" height="30" rx="4" fill="#4ecca3" fill-opacity="0.1" stroke="#4ecca3" stroke-width="1"/>
+  <text x="362" y="350" text-anchor="middle" fill="#4ecca3" font-size="13">매트 위에</text>
+  <text x="362" y="370" text-anchor="middle" fill="#4ecca3" font-size="12">0.40</text>
+
+  <text x="230" y="400" text-anchor="middle" fill="#aaa" font-size="11">"앉았다"와 가장 관련 있는 것: 고양이(누가?), 매트 위에(어디에?)</text>
+  <text x="230" y="420" text-anchor="middle" fill="#aaa" font-size="11">→ 높은 가중치로 정보를 가져옴</text>
+
+  <!-- Legend -->
+  <rect x="700" y="380" width="180" height="120" rx="8" fill="#1e1e36" stroke="#555" stroke-width="1"/>
+  <text x="790" y="400" text-anchor="middle" fill="#ddd" font-size="12" font-weight="bold">수식 요약</text>
+  <text x="710" y="422" fill="#ffd93d" font-size="11">1. QK^T / sqrt(d_k)</text>
+  <text x="710" y="440" fill="#aaa" font-size="10">  → 유사도 점수</text>
+  <text x="710" y="460" fill="#ff9a56" font-size="11">2. softmax(...)</text>
+  <text x="710" y="478" fill="#aaa" font-size="10">  → 확률 변환</text>
+  <text x="710" y="498" fill="#4ecca3" font-size="11">3. ... x V</text>
+  <text x="710" y="510" fill="#aaa" font-size="10">  → 가중 평균</text>
+</svg>

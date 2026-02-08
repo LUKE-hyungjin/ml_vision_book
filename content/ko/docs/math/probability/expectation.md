@@ -100,7 +100,7 @@ $$
 
 ### 시각적 이해
 
-![기댓값과 분산](/images/probability/ko/expectation-variance.svg)
+![기댓값과 분산](/images/probability/ko/expectation-variance.png)
 
 ### 수학적 정의
 
@@ -146,7 +146,7 @@ $$
 
 **해결**: 각 층에서 평균=0, 분산=1로 정규화!
 
-![Batch Normalization](/images/probability/ko/batchnorm-visualization.svg)
+![Batch Normalization](/images/probability/ko/batchnorm-visualization.png)
 
 ```python
 def batch_norm(x, eps=1e-5):

@@ -92,22 +92,7 @@ I = -log₂(1/6) = log₂(6) ≈ 2.58 bits
 I = -log₂(1/8,145,060) ≈ 23 bits
 ```
 
-**시각화**:
-```
-정보량 I(x)
-    │
-    │ \
-    │  \
-    │   \
-    │    ╲
-    │     ──────────
-    └────────────────→ P(x)
-    0               1
-
-확률이 낮을수록 정보량이 큼!
-```
-
-![정보량](/images/probability/ko/information-quantity.svg)
+![정보량](/images/probability/ko/information-quantity.jpeg)
 
 ---
 
@@ -159,21 +144,7 @@ $$
 H(p) = -p \log p - (1-p) \log(1-p)
 $$
 
-```
-H(p)
-  │      ╭───╮
-1 ├─────╱     ╲─────
-  │    ╱       ╲
-  │   ╱         ╲
-  │  ╱           ╲
-0 ├─╱─────────────╲─→ p
-  0      0.5      1
-
-• p = 0.5일 때 최대 (가장 불확실)
-• p = 0 또는 1일 때 0 (확정적)
-```
-
-![베르누이 엔트로피](/images/probability/ko/bernoulli-entropy.svg)
+![베르누이 엔트로피](/images/probability/ko/bernoulli-entropy.jpeg)
 
 **딥러닝 적용**: 이진 분류에서 예측 확신도 측정
 
@@ -226,7 +197,7 @@ D_KL(p||q)를 줄이면 → q가 p에 가까워짐 → Cross-Entropy 감소
 결론: Cross-Entropy 최소화 = 예측을 정답에 맞추기!
 ```
 
-![엔트로피와 Cross-Entropy](/images/probability/ko/entropy-crossentropy.svg)
+![엔트로피와 Cross-Entropy](/images/probability/ko/entropy-crossentropy.jpeg)
 
 ### 다중 클래스 분류에서의 Cross-Entropy
 
@@ -257,23 +228,7 @@ y_pred_wrong = [0.9, 0.05, 0.03, 0.02]
 loss_wrong = -log(0.03) ≈ 3.51
 ```
 
-**시각화**:
-```
-Loss
-  │
-  │  \
-  │   \
-3 ├────\
-  │     \
-1 ├──────────────
-  │              ────────
-0 └──────────────────────→ ŷ_correct
-  0        0.5           1
-
-예측 확률이 높을수록 Loss가 낮음!
-```
-
-![Cross-Entropy Loss 곡선](/images/probability/ko/cross-entropy-loss-curve.svg)
+![Cross-Entropy Loss 곡선](/images/probability/ko/cross-entropy-loss-curve.png)
 
 ### PyTorch에서 Cross-Entropy
 
@@ -437,23 +392,6 @@ $$
 
 **해석**: "X와 Y가 공유하는 정보량"
 
-### 시각적 이해
-
-```
-┌──────────────────────────────────┐
-│           H(X,Y)                 │
-│  ┌────────────────────────────┐  │
-│  │         H(X)               │  │
-│  │    ┌──────────┐            │  │
-│  │    │  I(X;Y)  │    H(Y)    │  │
-│  │    │  공유     │            │  │
-│  │    └──────────┘            │  │
-│  └────────────────────────────┘  │
-└──────────────────────────────────┘
-
-I(X;Y) = H(X) + H(Y) - H(X,Y)
-```
-
 ### 딥러닝 활용
 
 **InfoNCE Loss (Contrastive Learning)**:
@@ -465,7 +403,7 @@ I(X;Y) = H(X) + H(Y) - H(X,Y)
 # 같은 이미지의 다른 augmentation → 상호정보량 최대화
 ```
 
-![상호 정보량](/images/probability/ko/mutual-information.svg)
+![상호 정보량](/images/probability/ko/mutual-information.png)
 
 ---
 

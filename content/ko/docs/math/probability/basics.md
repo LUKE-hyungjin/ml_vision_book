@@ -66,7 +66,7 @@ $$
 
 ### 시각적 이해: 확률의 범위
 
-![확률의 범위](/images/probability/ko/probability-scale.svg)
+![확률의 범위](/images/probability/ko/probability-scale.png)
 
 ---
 
@@ -123,7 +123,7 @@ $$
 - $P(B|A)$: "A가 주어졌을 때 B의 확률" (읽기: "P of B given A")
 - $P(A \cap B)$: A와 B가 **동시에** 일어날 확률
 
-![조건부 확률](/images/probability/ko/conditional-probability.svg)
+![조건부 확률](/images/probability/ko/conditional-probability.jpeg)
 
 ### 예시: 카드 뽑기
 
@@ -192,7 +192,7 @@ $$
 
 표의 **가장자리(margin)**에 합계가 적히기 때문입니다!
 
-![결합 확률과 주변 확률](/images/probability/ko/joint-marginal.svg)
+![결합 확률과 주변 확률](/images/probability/ko/joint-marginal.png)
 
 ---
 
@@ -223,7 +223,7 @@ $$
 - 비가 오는 날 우산 가져가기 (비 → 우산 확률 높아짐)
 - 공부한 시간과 시험 점수
 
-![독립 vs 종속](/images/probability/ko/independence.svg)
+![독립 vs 종속](/images/probability/ko/independence.jpeg)
 
 ### 딥러닝에서 독립 가정
 
@@ -249,7 +249,7 @@ $$
 P(B) = \sum_i P(B|A_i) \cdot P(A_i)
 $$
 
-![전확률 법칙](/images/probability/ko/total-probability.svg)
+![전확률 법칙](/images/probability/ko/total-probability.png)
 
 ### 예시: AI 정확도 계산
 

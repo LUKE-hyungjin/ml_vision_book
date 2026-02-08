@@ -78,7 +78,7 @@ $$
 | **사전 확률** | $P(A)$ | B를 보기 전 A일 확률 | 아무나 잡았을 때 암일 확률 |
 | **증거** | $P(B)$ | B가 나올 전체 확률 | 아무나 검사했을 때 양성 확률 |
 
-![베이즈 정리](/images/probability/ko/bayes-theorem.svg)
+![베이즈 정리](/images/probability/ko/bayes-theorem.png)
 
 ---
 
@@ -141,7 +141,7 @@ $$
 질병이 희귀하면, 오진(495명)이 실제 환자(99명)보다 많음!
 ```
 
-![의료 검사 베이즈](/images/probability/ko/medical-test-bayes.svg)
+![의료 검사 베이즈](/images/probability/ko/medical-test-bayes.jpeg)
 
 ---
 
@@ -314,7 +314,7 @@ $$
 → 사후 확률: p ≈ 0.8에 집중
 ```
 
-![베이지안 업데이트](/images/probability/ko/bayesian-update.svg)
+![베이지안 업데이트](/images/probability/ko/bayesian-update.png)
 
 ---
 

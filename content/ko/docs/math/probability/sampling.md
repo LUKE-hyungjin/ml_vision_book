@@ -136,20 +136,7 @@ $$
 - 확률적 부분(ε)을 **입력**으로 분리
 - μ, σ에 대한 gradient가 흐를 수 있음!
 
-```
-직접 샘플링 (gradient 끊김):
-    mu, sigma → [샘플링] → z
-                    ↑
-               gradient X
-
-Reparameterization (gradient 흐름):
-    mu, sigma → [×, +] → z
-                  ↑
-    epsilon ─────╯    ← 상수처럼 취급
-               gradient O
-```
-
-![Reparameterization Trick](/images/probability/ko/reparameterization-trick.svg)
+![Reparameterization Trick](/images/probability/ko/reparameterization-trick.png)
 
 ### VAE에서의 구현
 
@@ -265,21 +252,7 @@ $$
 - $T = 1$: 원래 분포
 - $T \rightarrow \infty$: 균등 분포 (완전 랜덤)
 
-### 시각화
-
-```
-logits = [3.0, 1.0, 0.5]
-
-T = 0.1 (낮음)         T = 1.0 (기본)         T = 5.0 (높음)
-  │█                     │ █                    │█ █ █
-  │█                     │ █ █                  │█ █ █
-  │█                     │ █ █ █                │█ █ █
-  └┴─┴─                  └─┴─┴─┴─               └─┴─┴─┴─
-[0.99, 0.01, 0.00]     [0.66, 0.24, 0.10]     [0.40, 0.33, 0.27]
-  확신 (argmax)           보통                   균등에 가까움
-```
-
-![Temperature Scaling](/images/probability/ko/sampling-temperature.svg)
+![Temperature Scaling](/images/probability/ko/sampling-temperature.png)
 
 ### 구현
 
@@ -386,7 +359,7 @@ Top-p (p=0.9):
   → 상황에 따라 유동적!
 ```
 
-![Top-k vs Top-p 샘플링](/images/probability/ko/top-k-top-p.svg)
+![Top-k vs Top-p 샘플링](/images/probability/ko/top-k-top-p.png)
 
 ---
 

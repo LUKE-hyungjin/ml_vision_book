@@ -51,7 +51,7 @@ nn.Dropout(p=0.5)  # 50% 확률로 뉴런을 끔
 
 ## 주요 분포 시각화
 
-![주요 확률 분포](/images/probability/ko/distributions.svg)
+![주요 확률 분포](/images/probability/ko/distributions.jpeg)
 
 ---
 
@@ -366,7 +366,7 @@ $$
 \text{softmax}(z/T)_i = \frac{e^{z_i/T}}{\sum_j e^{z_j/T}}
 $$
 
-![Temperature Scaling](/images/probability/ko/sampling-temperature.svg)
+![Temperature Scaling](/images/probability/ko/sampling-temperature.png)
 
 ```python
 def softmax_with_temperature(logits, temperature=1.0):
@@ -390,7 +390,7 @@ probs = softmax_with_temperature(logits, temperature=0.7)
 
 ## 4. 분포 간 관계
 
-![분포 간 관계](/images/probability/ko/distribution-relationship.svg)
+![분포 간 관계](/images/probability/ko/distribution-relationship.jpeg)
 
 **핵심 관계**:
 1. **베르누이 → 이항**: n번 시행의 성공 횟수
