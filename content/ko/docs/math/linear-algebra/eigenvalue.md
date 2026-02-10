@@ -1,6 +1,6 @@
 ---
 title: "고유값/고유벡터"
-weight: 3
+weight: 6
 math: true
 ---
 

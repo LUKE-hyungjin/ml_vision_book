@@ -1,6 +1,6 @@
 ---
 title: "Positional Encoding"
-weight: 3
+weight: 4
 math: true
 ---
 
@@ -75,6 +75,38 @@ $$
 - $d$: 전체 임베딩 차원
 - $10000$: 주파수를 결정하는 상수
 
+### 왜 10000인가?
+
+$10000^{2i/d}$는 각 차원의 **파장(wavelength)**을 결정합니다:
+
+```
+차원 i=0:   파장 = 2π × 10000^(0/512)    = 2π      ≈ 6.28     (가장 빠른 진동)
+차원 i=128: 파장 = 2π × 10000^(256/512)  = 2π×100  ≈ 628      (중간 속도)
+차원 i=255: 파장 = 2π × 10000^(510/512)  = 2π×9770 ≈ 61,400   (가장 느린 진동)
+```
+
+**파장 범위**: $2\pi$ ~ $2\pi \times 10000$
+
+- **너무 작은 상수** (예: 100): 느린 차원의 파장이 짧아져 → 먼 위치를 구분하기 어려움
+- **너무 큰 상수** (예: 1,000,000): 빠른 차원 외에는 거의 변하지 않아 → 인접 위치 구분 어려움
+- **10000**: 일반적인 시퀀스 길이(수백~수천)에서 **인접 위치도, 먼 위치도** 잘 구분되는 경험적 최적값
+
+```python
+import torch
+import math
+
+# 상수에 따른 PE 변화 비교
+d = 512
+for base in [100, 10000, 1000000]:
+    div = torch.exp(torch.arange(0, d, 2).float() * (-math.log(base) / d))
+    min_freq = div[-1].item()
+    max_freq = div[0].item()
+    print(f"base={base:>10}: 주파수 범위 [{min_freq:.6f}, {max_freq:.1f}]")
+    # base=100:      [0.010000, 1.0] — 좁은 범위
+    # base=10000:    [0.000100, 1.0] — 넓은 범위 ✓
+    # base=1000000:  [0.000001, 1.0] — 너무 넓음 (대부분 0에 가까움)
+```
+
 ### 직관적 이해
 
 **시계 비유**: 시, 분, 초침을 생각해봅시다.
@@ -91,6 +123,27 @@ Sinusoidal PE도 마찬가지입니다:
 - **낮은 차원 (i 작음)**: 빠르게 진동 → 인접한 위치 구분
 - **높은 차원 (i 큼)**: 느리게 진동 → 먼 위치 구분
 - 모든 차원을 합치면 → **각 위치가 고유한 패턴**
+
+### 상대 위치 표현이 가능한 이유 (수학적 증명)
+
+$PE(pos+k)$가 $PE(pos)$의 **선형 변환**이라는 것은, sin/cos의 덧셈 정리에서 나옵니다:
+
+$$
+\sin(\omega \cdot (pos+k)) = \sin(\omega \cdot pos)\cos(\omega \cdot k) + \cos(\omega \cdot pos)\sin(\omega \cdot k)
+$$
+
+$$
+\cos(\omega \cdot (pos+k)) = \cos(\omega \cdot pos)\cos(\omega \cdot k) - \sin(\omega \cdot pos)\sin(\omega \cdot k)
+$$
+
+이것을 행렬로 쓰면:
+
+$$
+\begin{pmatrix} PE_{(pos+k, 2i)} \\ PE_{(pos+k, 2i+1)} \end{pmatrix} = \begin{pmatrix} \cos(\omega_i k) & \sin(\omega_i k) \\ -\sin(\omega_i k) & \cos(\omega_i k) \end{pmatrix} \begin{pmatrix} PE_{(pos, 2i)} \\ PE_{(pos, 2i+1)} \end{pmatrix}
+$$
+
+→ 오른쪽의 회전 행렬은 **$k$에만 의존**하고 $pos$에 무관합니다.
+→ 모델이 이 선형 변환을 학습하면, **상대 거리 $k$**에 기반한 패턴을 파악할 수 있습니다.
 
 ### 장점
 
@@ -202,6 +255,39 @@ vit_pe = ViTPositionalEncoding(num_patches=196, d_model=768)
 
 ViT의 Positional Encoding을 시각화하면, 인접한 패치끼리 유사한 값을 가지는 2D 격자 패턴이 나타납니다.
 
+### 해상도 변경 시: Position Interpolation
+
+ViT를 224×224로 학습했는데 384×384로 추론하면? 패치 수가 196 → 576으로 늘어납니다.
+
+```
+224×224 (학습): 14×14 = 196 패치 → PE 196개 학습됨
+384×384 (추론): 24×24 = 576 패치 → PE 576개 필요!
+
+해결: 14×14 PE를 24×24로 2D 보간 (bicubic interpolation)
+```
+
+```python
+import torch.nn.functional as F
+
+def interpolate_pos_encoding(pos_embed, old_size=14, new_size=24):
+    """
+    학습된 위치 인코딩을 새 해상도에 맞게 보간
+
+    pos_embed: (1, 1+196, d_model) — [CLS] + 14×14 패치
+    """
+    cls_token = pos_embed[:, :1]        # [CLS]는 그대로
+    patch_embed = pos_embed[:, 1:]      # (1, 196, d_model)
+
+    # 2D로 reshape → bicubic 보간 → 다시 1D
+    patch_embed = patch_embed.reshape(1, old_size, old_size, -1).permute(0, 3, 1, 2)
+    patch_embed = F.interpolate(patch_embed, size=(new_size, new_size), mode='bicubic')
+    patch_embed = patch_embed.permute(0, 2, 3, 1).reshape(1, new_size**2, -1)
+
+    return torch.cat([cls_token, patch_embed], dim=1)  # (1, 1+576, d_model)
+```
+
+이 기법 덕분에 ViT는 학습 때와 다른 해상도에서도 추론이 가능합니다. DeiT-III, BEiT v2 등에서 표준적으로 사용됩니다.
+
 ---
 
 ## 방법 4: Rotary Positional Encoding (RoPE)
@@ -251,6 +337,8 @@ def apply_rope(q, k, cos, sin):
 
 ### 직관적 이해
 
+{{< figure src="/images/components/attention/ko/rope-rotation-visualization.png" caption="RoPE: 위치에 따라 벡터를 회전 — 내적이 상대 거리 (n-m)에만 의존" >}}
+
 2D 벡터를 각도 $\theta$만큼 회전시키는 것을 생각해봅시다:
 
 $$
@@ -259,9 +347,119 @@ $$
 
 RoPE는 이것을 고차원으로 확장한 것입니다. 각 위치마다 다른 회전 각도를 적용하면, 두 위치의 내적이 자동으로 **상대 거리**에만 의존하게 됩니다.
 
+### 왜 상대 위치가 자연스럽게 인코딩되나?
+
+2D에서 증명해봅시다. 위치 $m$의 Q와 위치 $n$의 K가 있을 때:
+
+$$
+q_m = R(\theta \cdot m) \cdot q, \quad k_n = R(\theta \cdot n) \cdot k
+$$
+
+여기서 $R(\alpha)$는 회전 행렬입니다. 내적을 계산하면:
+
+$$
+q_m^T k_n = q^T R(\theta \cdot m)^T R(\theta \cdot n) k = q^T R(\theta \cdot (n - m)) k
+$$
+
+→ 내적 결과가 **절대 위치** $m, n$이 아니라 **상대 거리** $(n-m)$에만 의존합니다!
+
+```python
+import torch
+
+# RoPE의 상대 위치 특성 수치 검증
+def rope_2d(x, pos, theta=10000.0):
+    """2D RoPE 적용"""
+    angle = pos / theta
+    cos_a, sin_a = torch.cos(angle), torch.sin(angle)
+    x0, x1 = x[0], x[1]
+    return torch.stack([x0 * cos_a - x1 * sin_a, x0 * sin_a + x1 * cos_a])
+
+q = torch.randn(2)
+k = torch.randn(2)
+
+# 위치 (3, 7)과 (10, 14) → 상대 거리 동일 (4)
+dot1 = rope_2d(q, 3) @ rope_2d(k, 7)
+dot2 = rope_2d(q, 10) @ rope_2d(k, 14)
+print(f"pos(3,7):   {dot1:.4f}")
+print(f"pos(10,14): {dot2:.4f}")
+# 두 값이 동일! → 상대 거리만 중요
+```
+
+### RoPE 주파수 미리 계산
+
+실제 구현에서는 주파수를 미리 계산하여 재사용합니다:
+
+```python
+def precompute_rope_freqs(seq_len, head_dim, base=10000.0):
+    """RoPE의 cos/sin 테이블 미리 계산"""
+    # 각 차원 쌍의 주파수 (Sinusoidal PE와 같은 원리)
+    freqs = 1.0 / (base ** (torch.arange(0, head_dim, 2).float() / head_dim))
+
+    # 위치 × 주파수 → 각도
+    positions = torch.arange(seq_len).float()
+    angles = positions.unsqueeze(1) * freqs.unsqueeze(0)  # (seq_len, head_dim/2)
+
+    # cos, sin 테이블
+    cos = torch.cos(angles).repeat(1, 2)  # (seq_len, head_dim)
+    sin = torch.sin(angles).repeat(1, 2)
+    return cos, sin
+
+# LLaMA: head_dim=128, max_seq_len=4096
+cos, sin = precompute_rope_freqs(4096, 128)
+# cos.shape = (4096, 128) — 한 번 계산 후 캐싱
+```
+
+---
+
+## 방법 5: ALiBi (Attention with Linear Biases)
+
+BLOOM에서 사용하는 방법으로, 위치 인코딩을 **입력에 더하는 대신** attention score에 **편향(bias)**을 더합니다.
+
+### 핵심 아이디어
+
+```
+기존 PE:  입력 = X + PE(pos)  → Q, K에 위치 정보 포함
+ALiBi:    입력 = X            → attention score에 직접 거리 패널티 추가
+
+scores = Q × K^T - m × |i - j|
+                   ↑
+           거리에 비례하는 패널티 (head별 다른 기울기 m)
+```
+
+### 수식
+
+$$
+\text{Attention}(Q, K, V) = \text{softmax}\left(\frac{QK^T}{\sqrt{d_k}} - m \cdot |i - j|\right) V
+$$
+
+- $|i - j|$: 토큰 간 절대 거리
+- $m$: head별로 다른 기울기 (기하급수적으로 감소: $m = 2^{-8/n}, 2^{-16/n}, \ldots$)
+
+```
+8개 Head의 기울기 m:
+  Head 1: m = 1/2    (가까운 것만 봄)
+  Head 2: m = 1/4
+  Head 3: m = 1/8
+  ...
+  Head 8: m = 1/256  (먼 것도 잘 봄)
+
+→ 각 head가 자연스럽게 "시야 범위"가 다름
+```
+
+### 장점
+
+| 장점 | 설명 |
+|------|------|
+| **구현 매우 간단** | attention score에 행렬 하나 더하기 |
+| **학습 파라미터 0개** | $m$은 고정값 |
+| **길이 외삽 우수** | 학습 시 1K → 추론 시 8K도 안정적 |
+| **메모리 절약** | 별도 PE 벡터 저장 불필요 |
+
 ---
 
 ## 비교 정리
+
+{{< figure src="/images/components/attention/ko/positional-encoding-methods-comparison.jpeg" caption="Positional Encoding 방법 비교 — Sinusoidal, Learnable, RoPE, ALiBi의 발전 과정" >}}
 
 | 방법 | 학습 필요 | 길이 외삽 | 상대 위치 | 대표 모델 |
 |------|---------|----------|----------|----------|

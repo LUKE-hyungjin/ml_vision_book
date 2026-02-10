@@ -1,6 +1,6 @@
 ---
 title: "최적화 수학"
-weight: 5
+weight: 8
 math: true
 ---
 

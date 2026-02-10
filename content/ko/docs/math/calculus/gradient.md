@@ -1,6 +1,6 @@
 ---
 title: "Gradient"
-weight: 2
+weight: 4
 math: true
 ---
 

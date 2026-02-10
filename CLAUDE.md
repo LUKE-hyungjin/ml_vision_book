@@ -143,26 +143,49 @@ content/
 
 | 디렉토리 | 내용 | 예시 |
 |----------|------|------|
-| `math/linear-algebra/` | 선형대수 기초 | matrix, vector, eigenvalue, SVD |
-| `math/calculus/` | 미적분/최적화 | gradient, backprop, chain rule |
-| `math/probability/` | 확률/통계 | bayes, distribution, sampling |
-| `math/geometry/` | 기하학 | camera model, homography |
+| `math/linear-algebra/` | 선형대수 기초 | matrix, vector, eigenvalue, SVD, linear systems |
+| `math/calculus/` | 미적분/최적화 | gradient, backprop, chain rule, Jacobian, Taylor series |
+| `math/probability/` | 확률/통계 | bayes, distribution, sampling, covariance, multivariate Gaussian |
+| `math/geometry/` | 기하학 | camera model, homography, homogeneous coordinates, coordinate transforms |
+| `math/signal-processing/` | 신호처리 | Fourier transform, sampling/aliasing, filters |
 
 ### Components 하위 분류
 
 | 디렉토리 | 내용 | 예시 |
 |----------|------|------|
-| `components/convolution/` | 합성곱 관련 | conv2d, pooling, receptive field |
-| `components/attention/` | 어텐션 관련 | self-attention, cross-attention, positional encoding |
-| `components/normalization/` | 정규화 기법 | batch norm, layer norm, RMSNorm |
-| `components/activation/` | 활성화 함수 | relu, gelu, sigmoid |
+| `components/convolution/` | 합성곱 관련 | conv2d, pooling, depthwise-separable, dilated conv |
+| `components/attention/` | 어텐션 관련 | self-attention, multi-head, cross-attention, window attention |
+| `components/normalization/` | 정규화 기법 | batch norm, layer norm, group norm, instance norm |
+| `components/activation/` | 활성화 함수 | relu, gelu, sigmoid, softmax, swish/silu |
+| `components/structural/` | 구조 패턴 | residual block, skip connection, FPN, encoder-decoder |
 | `components/detection/` | Detection 연산 | IoU, NMS, anchor box |
-| `components/generative/` | 생성 모델 수학 | DDPM 수학, score matching, flow matching |
-| `components/quantization/` | 양자화 | data types, PTQ, QAT |
-| `components/training/loss/` | 손실 함수 | cross-entropy, focal loss, contrastive loss |
-| `components/training/optimizer/` | 최적화 알고리즘 | SGD, Adam, AdamW, LR scheduler |
-| `components/training/regularization/` | 정규화 기법 | dropout, weight decay, label smoothing |
+| `components/generative/` | 생성 모델 수학 | DDPM 수학, score matching, flow matching, CFG |
+| `components/compression/` | 모델 경량화 | knowledge distillation, pruning, NAS |
+| `components/quantization/` | 양자화 | data types, mixed precision, PTQ, QAT |
+| `components/training/loss/` | 손실 함수 | cross-entropy, focal, dice, smooth-l1, IoU loss |
+| `components/training/optimizer/` | 최적화 알고리즘 | SGD, Adam, AdamW, LR scheduler, EMA |
+| `components/training/regularization/` | 정규화 기법 | dropout, weight decay, data augmentation, stochastic depth |
 | `components/training/peft/` | 파라미터 효율적 학습 | LoRA, QLoRA, adapter, prefix tuning |
+| `components/embedding/` | 임베딩/토큰화 | patch embedding, CLS token, linear projection |
+| `components/video/` | 영상(비디오) 처리 | optical flow, temporal modeling |
+| `components/self-supervised/` | 자기지도 학습 | contrastive learning, masked image modeling |
+
+### Architecture 하위 분류
+
+| 디렉토리 | 내용 | 예시 |
+|----------|------|------|
+| `architecture/classical/` | Classical CV | SIFT, HOG |
+| `architecture/cnn/` | CNN 아키텍처 | AlexNet, VGG, ResNet, ConvNeXt |
+| `architecture/efficient/` | 경량화 모델 | MobileNet, EfficientNet, ShuffleNet |
+| `architecture/transformer/` | Transformer | ViT, DeiT, Swin Transformer, BEiT |
+| `architecture/detection/` | Detection | YOLO, Faster R-CNN, DETR, RT-DETR |
+| `architecture/segmentation/` | Segmentation | U-Net, DeepLab, Mask R-CNN, SAM |
+| `architecture/self-supervised/` | 자기지도 학습 모델 | SimCLR, MoCo, MAE, DINOv2 |
+| `architecture/generative/` | 생성 모델 | GAN, VAE, DDPM, Stable Diffusion, DiT |
+| `architecture/multimodal/` | 멀티모달 | CLIP, SigLIP, BLIP-2, LLaVA |
+| `architecture/video/` | 비디오 이해 | Video Swin, VideoMAE, CogVideoX |
+| `architecture/restoration/` | 영상 복원/향상 | ESRGAN, SwinIR |
+| `architecture/3d/` | 3D Vision | NeRF, 3DGS, Depth Anything |
 
 ## 콘텐츠 작성 템플릿
 

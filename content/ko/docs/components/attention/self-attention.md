@@ -115,6 +115,32 @@ d_k = 64일 때:
 
 $\sqrt{d_k}$로 나누면 값의 분산이 1 근처로 유지됩니다.
 
+**수학적 근거**: Q와 K의 각 원소가 평균 0, 분산 1인 독립 분포를 따른다고 가정하면:
+
+$$
+\text{Var}(q \cdot k) = \sum_{j=1}^{d_k} \text{Var}(q_j k_j) = d_k
+$$
+
+→ 내적의 분산이 $d_k$에 비례 → $\sqrt{d_k}$로 나누면 분산이 다시 1로:
+
+```python
+import torch
+
+# 스케일링의 효과를 수치적으로 확인
+d_k = 64
+q = torch.randn(1000, d_k)
+k = torch.randn(1000, d_k)
+
+dots = (q * k).sum(dim=-1)           # 내적
+scaled = dots / (d_k ** 0.5)          # 스케일링
+
+print(f"스케일링 전 — 평균: {dots.mean():.2f}, 분산: {dots.var():.2f}")
+# 평균: ~0, 분산: ~64 (= d_k)
+
+print(f"스케일링 후 — 평균: {scaled.mean():.2f}, 분산: {scaled.var():.2f}")
+# 평균: ~0, 분산: ~1
+```
+
 ### 3단계: Softmax + Value 가중합
 
 $$
@@ -130,6 +156,80 @@ $$
 출력 = 0.35 × V(고양이가) + 0.15 × V(매트) + 0.20 × V(위에) + 0.30 × V(앉았다)
 → "고양이가 앉았다"라는 맥락이 반영된 새로운 표현
 ```
+
+### Temperature Scaling
+
+{{< figure src="/images/components/attention/ko/temperature-scaling-comparison.png" caption="Temperature에 따른 Attention 분포 변화 — τ↓ 날카로운 집중, τ↑ 균일한 분산" >}}
+
+Softmax에 **온도(temperature)** 파라미터 $\tau$를 추가하면 attention 분포의 "날카로움"을 조절할 수 있습니다:
+
+$$
+\text{Attention} = \text{softmax}\left(\frac{QK^T}{\tau \cdot \sqrt{d_k}}\right)V
+$$
+
+```
+scores = [2.0, 1.0, 0.5]
+
+τ = 0.5 (낮은 온도, 날카로운 분포):
+  softmax([4.0, 2.0, 1.0]) = [0.84, 0.11, 0.04]  → 거의 hard attention
+
+τ = 1.0 (기본):
+  softmax([2.0, 1.0, 0.5]) = [0.59, 0.22, 0.13]  → 부드러운 attention
+
+τ = 2.0 (높은 온도, 균일한 분포):
+  softmax([1.0, 0.5, 0.25]) = [0.42, 0.25, 0.20]  → 거의 uniform
+```
+
+Knowledge Distillation에서 teacher 모델의 attention을 "부드럽게" 전달할 때 $\tau > 1$을 사용합니다.
+
+### Attention Dropout
+
+학습 시 attention weights에 **dropout**을 적용합니다:
+
+$$
+\text{output} = \text{Dropout}(\text{softmax}(\text{scores})) \times V
+$$
+
+```python
+# 학습 시
+attn_weights = F.softmax(scores / self.scale, dim=-1)
+attn_weights = F.dropout(attn_weights, p=0.1, training=self.training)  # 10% 확률로 연결 끊기
+output = attn_weights @ V
+```
+
+**왜 Attention에 dropout을 적용하나?**
+- 특정 토큰 간의 관계에 **과의존(co-adaptation)**하는 것을 방지
+- 모든 단어가 "고양이가"만 보지 않도록 강제 → 더 **다양한 관계**를 학습
+- 일반적으로 `p=0.0~0.1`을 사용 (ViT: 0.0, BERT: 0.1)
+
+### Attention Map의 학습 과정
+
+학습 초기와 후기의 Attention Map은 매우 다릅니다:
+
+```
+학습 초기 (랜덤 가중치):
+         고양이가  매트  위에  앉았다
+고양이가  [ 0.25   0.25  0.25  0.25 ]   ← 거의 균일 분포
+매트      [ 0.24   0.26  0.25  0.25 ]
+위에      [ 0.25   0.25  0.24  0.26 ]
+앉았다    [ 0.26   0.24  0.25  0.25 ]
+
+학습 중기 (패턴 형성):
+         고양이가  매트  위에  앉았다
+고양이가  [ 0.40   0.15  0.10  0.35 ]   ← 의미적 관계 형성 시작
+매트      [ 0.10   0.35  0.40  0.15 ]
+위에      [ 0.08   0.42  0.30  0.20 ]
+앉았다    [ 0.35   0.10  0.25  0.30 ]
+
+학습 후기 (명확한 패턴):
+         고양이가  매트  위에  앉았다
+고양이가  [ 0.45   0.05  0.05  0.45 ]   ← 주어-동사 관계 확립
+매트      [ 0.05   0.40  0.50  0.05 ]   ← 장소-전치사 관계
+위에      [ 0.05   0.50  0.30  0.15 ]
+앉았다    [ 0.50   0.05  0.15  0.30 ]   ← "앉았다"가 "고양이가"에 집중
+```
+
+이 과정에서 **W_Q, W_K, W_V** 행렬이 점차 "의미 있는 관계를 포착하는 방향"으로 학습됩니다.
 
 ---
 
@@ -187,8 +287,6 @@ print(out.shape)                # torch.Size([2, 5, 64])
 
 한 사람이 문장을 분석하면 한 가지 관점만 봅니다. 하지만 **여러 전문가**가 각자 다른 관점에서 분석하면 더 풍부한 이해가 가능합니다.
 
-<!-- TODO: Multi-Head Attention 이미지 추가 예정 -->
-
 예를 들어 "고양이가 매트 위에 앉았다"에서:
 - **Head 1**: 문법 관계 → "앉았다"의 주어는 "고양이가"
 - **Head 2**: 위치 관계 → "앉았다"의 장소는 "매트 위에"
@@ -200,24 +298,22 @@ $$
 \text{MultiHead}(Q,K,V) = \text{Concat}(\text{head}_1, \ldots, \text{head}_h)W^O
 $$
 
-- 각 head는 독립적으로 Attention 수행
-- 결과를 이어붙인 뒤(Concat), 선형 변환($W^O$)으로 합침
+$$
+\text{head}_i = \text{Attention}(QW_i^Q, KW_i^K, VW_i^V)
+$$
+
+**핵심**: 전체 차원(768)을 Head 수(12)로 나눠서, 각 Head는 64차원에서 독립적으로 Attention을 수행합니다. 총 연산량은 Single-Head와 **동일**합니다.
 
 ### 구현
 
 ```python
 class MultiHeadSelfAttention(nn.Module):
-    """실제 사용되는 Multi-Head Self-Attention"""
-
     def __init__(self, embed_dim, num_heads=8):
         super().__init__()
-        self.embed_dim = embed_dim
         self.num_heads = num_heads
-        self.head_dim = embed_dim // num_heads  # 768 // 8 = 96
+        self.head_dim = embed_dim // num_heads
 
-        # Q, K, V를 한번에 계산 (효율)
         self.qkv = nn.Linear(embed_dim, embed_dim * 3)
-        # 출력 프로젝션
         self.proj = nn.Linear(embed_dim, embed_dim)
         self.scale = math.sqrt(self.head_dim)
 
@@ -229,29 +325,20 @@ class MultiHeadSelfAttention(nn.Module):
         qkv = qkv.permute(2, 0, 3, 1, 4)  # (3, B, heads, N, head_dim)
         q, k, v = qkv.unbind(0)
 
-        # Attention (head별 독립 수행)
-        attn = (q @ k.transpose(-2, -1)) / self.scale  # (B, heads, N, N)
-        attn = F.softmax(attn, dim=-1)
+        # Head별 독립 Attention
+        attn = F.softmax((q @ k.transpose(-2, -1)) / self.scale, dim=-1)
 
         # 가중합 후 head 합치기
-        out = (attn @ v)                               # (B, heads, N, head_dim)
-        out = out.transpose(1, 2).reshape(B, N, C)     # (B, N, embed_dim)
-
+        out = (attn @ v).transpose(1, 2).reshape(B, N, C)
         return self.proj(out)
 
-# 사용: ViT-Base 설정
-x = torch.randn(32, 196, 768)    # 배치 32, 14×14 패치, 차원 768
+# ViT-Base: 12 heads × 64 dim = 768
 mha = MultiHeadSelfAttention(768, num_heads=12)
-out = mha(x)                      # (32, 196, 768)
+x = torch.randn(32, 196, 768)  # 배치 32, 14×14 패치
+out = mha(x)                    # (32, 196, 768)
 ```
 
-**파라미터 수 비교:**
-
-| 구성 | 계산 | 파라미터 수 |
-|------|------|-----------|
-| QKV 프로젝션 | 768 × (768×3) | 1,769,472 |
-| 출력 프로젝션 | 768 × 768 | 589,824 |
-| **합계** | | **~2.4M** |
+→ Head별 패턴 분석, Attention Mask, 실전 설정값 등: [Multi-Head Attention 상세](/ko/docs/components/attention/multi-head-attention)
 
 ---
 
@@ -272,24 +359,19 @@ N이 커지면 메모리가 **제곱으로** 증가합니다. 이것이 긴 시�
 
 ### 해결책
 
-| 방법 | 핵심 아이디어 | 복잡도 |
-|------|-------------|--------|
-| **Flash Attention** | GPU 메모리 최적화 (tiling) | $O(N^2)$ 이지만 실제로 2-4배 빠름 |
-| **Window Attention** | 로컬 윈도우만 계산 (Swin Transformer) | $O(N \cdot W^2)$ |
-| **Linear Attention** | kernel trick으로 근사 | $O(N \cdot d)$ |
+| 방법 | 핵심 아이디어 | 복잡도 | 상세 |
+|------|-------------|--------|------|
+| **[Flash Attention](/ko/docs/components/attention/flash-attention)** | GPU 메모리 최적화 (tiling) | $O(N^2)$ 이지만 2-4배 빠름 | [→](/ko/docs/components/attention/flash-attention) |
+| **[Window Attention](/ko/docs/components/attention/window-attention)** | 로컬 윈도우만 계산 (Swin) | $O(N \cdot W^2)$ | [→](/ko/docs/components/attention/window-attention) |
+| **Linear Attention** | kernel trick으로 근사 | $O(N \cdot d)$ | |
 
 ### Flash Attention 사용법
 
 ```python
-# PyTorch 2.0+ (가장 실용적인 해결책)
-from torch.nn.functional import scaled_dot_product_attention
-
-# GPU에서 자동으로 Flash Attention 적용
-# 수학적으로 동일한 결과, 메모리만 효율적
-attn_output = scaled_dot_product_attention(q, k, v)
+# PyTorch 2.0+ — 한 줄로 Flash Attention 적용
+# 수학적으로 동일한 결과, 메모리 O(N²) → O(N)
+attn_output = F.scaled_dot_product_attention(q, k, v)
 ```
-
-Flash Attention은 수학적 결과는 동일하면서 메모리 사용량을 $O(N^2)$에서 $O(N)$으로 줄입니다. 속도도 2-4배 빨라집니다.
 
 ---
 
@@ -301,12 +383,15 @@ Flash Attention은 수학적 결과는 동일하면서 메모리 사용량을 $O
 | 왜 필요한가? | CNN의 고정된 시야를 넘어 전역 관계 파악 |
 | Q, K, V란? | 검색어, 태그, 실제 내용 (도서관 비유) |
 | 왜 $\sqrt{d_k}$로 나누나? | 값이 너무 커지는 것 방지 → gradient 안정화 |
-| Multi-Head는 왜? | 여러 관점에서 동시에 분석 |
-| 단점은? | $O(N^2)$ 복잡도 → Flash Attention으로 해결 |
+| Multi-Head는 왜? | 여러 관점에서 동시에 분석 → [상세](/ko/docs/components/attention/multi-head-attention) |
+| 단점은? | $O(N^2)$ 복잡도 → [Flash Attention](/ko/docs/components/attention/flash-attention)으로 해결 |
 
 ## 관련 콘텐츠
 
+- [Multi-Head Attention](/ko/docs/components/attention/multi-head-attention) — 여러 관점에서 동시에 분석
 - [Cross-Attention](/ko/docs/components/attention/cross-attention) — 서로 다른 두 시퀀스를 연결
 - [Positional Encoding](/ko/docs/components/attention/positional-encoding) — 순서 정보 주입
+- [Window Attention](/ko/docs/components/attention/window-attention) — 윈도우 기반 효율적 Attention
+- [Flash Attention](/ko/docs/components/attention/flash-attention) — GPU 메모리 최적화
 - [Layer Normalization](/ko/docs/components/normalization/layer-norm) — Transformer 블록의 필수 요소
 - [ViT](/ko/docs/architecture/transformer/vit) — 이미지에 Self-Attention을 적용한 모델

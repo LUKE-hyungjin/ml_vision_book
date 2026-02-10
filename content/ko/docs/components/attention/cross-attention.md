@@ -1,6 +1,6 @@
 ---
 title: "Cross-Attention"
-weight: 2
+weight: 3
 math: true
 ---
 
@@ -107,6 +107,68 @@ $$
 ```
 
 **주의**: Attention 행렬이 (4096 × 77)입니다. Self-Attention의 (4096 × 4096)보다 훨씬 작습니다! Cross-Attention은 일반적으로 Self-Attention보다 연산이 가벼습니다.
+
+### 계산 복잡도 비교
+
+Cross-Attention의 연산량을 Self-Attention과 비교해봅시다:
+
+| 연산 | Self-Attention | Cross-Attention |
+|------|---------------|-----------------|
+| **Attention 행렬** | $N \times N$ | $N \times M$ |
+| **FLOPs (QK^T)** | $O(N^2 \cdot d)$ | $O(N \cdot M \cdot d)$ |
+| **메모리** | $O(N^2)$ | $O(N \cdot M)$ |
+
+**Stable Diffusion 실제 수치** (64×64 latent, CLIP 77 토큰, d=320):
+
+| | Self-Attention | Cross-Attention | 비율 |
+|---|---|---|---|
+| **Attention 행렬** | 4096 × 4096 = 16.8M | 4096 × 77 = 315K | **53배 작음** |
+| **메모리 (FP16)** | 33.6 MB | 630 KB | **53배 절약** |
+| **FLOPs** | ~10.7 GFLOPs | ~200 MFLOPs | **53배 적음** |
+
+→ Cross-Attention은 Self-Attention 대비 매우 가볍습니다. 전체 U-Net 연산의 대부분은 Self-Attention이 차지합니다.
+
+### 차원 불일치 처리
+
+{{< figure src="/images/components/attention/ko/cross-attention-dimension-gradient.jpeg" caption="Cross-Attention의 차원 투영(768→320)과 Gradient 흐름 — CLIP Frozen 시 gradient 차단" >}}
+
+Cross-Attention의 실전 과제 중 하나는 **두 시퀀스의 차원이 다른 경우**입니다:
+
+```
+이미지: (B, 4096, 320)   — 320차원
+텍스트: (B, 77, 768)     — 768차원 (CLIP)
+
+Q = X × W_Q ∈ ℝ^(320×320)  → (B, 4096, 320)
+K = C × W_K ∈ ℝ^(768×320)  → (B, 77, 320)     ← 768→320 변환!
+V = C × W_V ∈ ℝ^(768×320)  → (B, 77, 320)     ← 768→320 변환!
+
+→ W_K와 W_V가 "768차원 텍스트 공간"을 "320차원 이미지 공간"으로 투영
+→ Q와 K의 내적이 가능하려면 마지막 차원(d_k)이 반드시 일치해야 함
+```
+
+이 투영(projection)이 Cross-Attention의 핵심 학습 대상입니다. 서로 다른 모달리티의 **공유 표현 공간(shared representation space)**을 학습하는 것입니다.
+
+### Gradient 흐름
+
+Cross-Attention의 gradient는 **양쪽 시퀀스 모두**에 흐릅니다:
+
+```
+순전파:
+  X → W_Q → Q ─┐
+                ├→ Attention Score → Output → Loss
+  C → W_K → K ─┘
+  C → W_V → V ─────────────────────┘
+
+역전파:
+  ∂Loss/∂W_Q ← Q를 통해 (이미지 측 학습)
+  ∂Loss/∂W_K ← K를 통해 (텍스트→이미지 매핑 학습)
+  ∂Loss/∂W_V ← V를 통해 (텍스트 정보 전달 학습)
+
+  ∂Loss/∂X ← gradient가 이미지로 흐름
+  ∂Loss/∂C ← gradient가 텍스트 인코더로 흐름 (frozen이 아닌 경우)
+```
+
+**중요**: Stable Diffusion에서 CLIP 텍스트 인코더는 보통 **frozen** (학습하지 않음)입니다. 따라서 $\partial Loss / \partial C$는 계산되지만 CLIP 가중치 업데이트에는 사용되지 않습니다. U-Net의 $W_Q$, $W_K$, $W_V$만 학습됩니다.
 
 ---
 
@@ -257,6 +319,60 @@ def visualize_cross_attention(attn_map, text_tokens, image_size=(64, 64)):
 - "cat" 토큰이 이미지의 고양이 영역에 높은 값을 가지는지
 - "hat" 토큰이 모자 영역에 대응하는지
 확인할 수 있습니다.
+
+---
+
+## 흔한 실패 패턴과 디버깅
+
+### 1. Attention Collapse — 모든 Query가 같은 Key에 집중
+
+```
+정상:
+  머리 영역 → "hat"       (0.7)
+  얼굴 영역 → "cat"       (0.6)
+  배경 영역 → 균일 분포    (0.15, 0.15, ...)
+
+비정상 (Collapse):
+  머리 영역 → "cat"       (0.9)
+  얼굴 영역 → "cat"       (0.9)
+  배경 영역 → "cat"       (0.8)
+  → 모든 영역이 하나의 토큰에만 집중!
+```
+
+**원인**: 학습 초기 learning rate가 너무 크거나, 텍스트 인코딩의 특정 토큰 norm이 비정상적으로 큰 경우.
+
+**진단**: Attention Map의 엔트로피를 모니터링합니다:
+
+```python
+import torch
+
+def attention_entropy(attn_weights):
+    """Attention 분포의 엔트로피 (높을수록 균일)"""
+    # attn_weights: (B, heads, N, M)
+    entropy = -(attn_weights * torch.log(attn_weights + 1e-8)).sum(dim=-1)
+    return entropy.mean()
+
+# 정상: 엔트로피 ~2-4 (77개 토큰 기준)
+# Collapse: 엔트로피 ~0.1-0.5
+```
+
+### 2. 텍스트-이미지 불일치 — 프롬프트가 반영되지 않음
+
+"빨간 자동차"를 요청했는데 파란 자동차가 생성되는 경우:
+- Cross-Attention의 **"빨간" 토큰 attention weight가 낮은** 것이 원인
+- Classifier-Free Guidance (CFG) scale을 높여 텍스트 조건을 강화하면 개선
+
+### 3. 차원 불일치 버그
+
+```python
+# 흔한 실수: context_dim과 query_dim 혼동
+cross_attn = CrossAttention(
+    query_dim=320,      # 이미지 차원
+    context_dim=320,    # ← 틀림! CLIP은 768차원
+    num_heads=8
+)
+# RuntimeError: mat1 and mat2 shapes cannot be multiplied (77x768 and 320x320)
+```
 
 ---
 

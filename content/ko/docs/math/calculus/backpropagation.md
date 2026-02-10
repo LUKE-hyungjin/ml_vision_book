@@ -1,6 +1,6 @@
 ---
 title: "Backpropagation"
-weight: 4
+weight: 7
 math: true
 ---
 

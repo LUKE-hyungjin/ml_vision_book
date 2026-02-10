@@ -30,6 +30,10 @@ Convolution의 3가지 핵심 성질:
 | 2 | [Pooling](/ko/docs/components/convolution/pooling) | 공간을 줄이면서 정보를 보존하려면? | 다운샘플링, 위치 불변성 |
 | 3 | [Receptive Field](/ko/docs/components/convolution/receptive-field) | 출력 하나가 입력의 얼마를 보나? | 모델 설계의 핵심 기준 |
 | 4 | [Transposed Conv](/ko/docs/components/convolution/transposed-conv) | 줄인 걸 다시 키우려면? | 디코더, 생성 모델 |
+| 5 | [Depthwise Separable Conv](/ko/docs/components/convolution/depthwise-separable-conv) | 연산량을 8배 줄이려면? | MobileNet, EfficientNet |
+| 6 | [Dilated Conv](/ko/docs/components/convolution/dilated-conv) | 해상도 유지하며 넓게 보려면? | DeepLab, Segmentation |
+| 7 | [Deformable Conv](/ko/docs/components/convolution/deformable-conv) | 불규칙 객체에 맞추려면? | DCN, Detection |
+| 8 | [Grouped Conv](/ko/docs/components/convolution/grouped-conv) | 채널을 나눠서 효율적으로? | ResNeXt, ShuffleNet |
 
 ## 관련 콘텐츠
 

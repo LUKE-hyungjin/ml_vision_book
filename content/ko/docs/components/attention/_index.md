@@ -40,13 +40,17 @@ Attention은 **줌인/줌아웃이 자유로운 카메라**와 같습니다:
 | 개념 | 한 줄 설명 | 대표 모델 |
 |------|-----------|----------|
 | [Self-Attention](/ko/docs/components/attention/self-attention) | 자기 자신 내에서 관계를 파악 | Transformer, ViT |
+| [Multi-Head Attention](/ko/docs/components/attention/multi-head-attention) | 여러 관점에서 동시에 관계를 파악 | 모든 Transformer |
 | [Cross-Attention](/ko/docs/components/attention/cross-attention) | 서로 다른 두 정보를 연결 | Stable Diffusion, VLM |
 | [Positional Encoding](/ko/docs/components/attention/positional-encoding) | 순서 정보를 주입 | 모든 Transformer 기반 모델 |
+| [Window Attention](/ko/docs/components/attention/window-attention) | 윈도우 단위로 효율적 Attention | Swin Transformer |
+| [Flash Attention](/ko/docs/components/attention/flash-attention) | GPU 메모리 최적화 | 모든 Transformer (PyTorch 2.0+) |
 
 ## 읽는 순서
 
 ```
-Self-Attention → Cross-Attention → Positional Encoding
+Self-Attention → Multi-Head Attention → Cross-Attention → Positional Encoding
+                                     → Window Attention → Flash Attention
 ```
 
 Self-Attention이 기본입니다. 이것을 먼저 이해하면 나머지는 자연스럽게 따라옵니다.

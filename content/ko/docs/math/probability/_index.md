@@ -110,6 +110,30 @@ output = model(image)
 
 ---
 
+### 4단계: 다변수와 의존성 (심화)
+
+여러 변수 간의 관계를 이해합니다.
+
+| 순서 | 문서 | 배우는 것 | 왜 필요한가? |
+|:----:|------|----------|-------------|
+| 10 | [공분산과 상관계수](/ko/docs/math/probability/covariance-correlation) | 변수 간 관계, PCA | 특성 분석, Whitening |
+| 11 | [결합/조건부 분포](/ko/docs/math/probability/joint-conditional) | 동시 분포, 조건부 | 분류, 조건부 생성 |
+| 12 | [다변량 가우시안](/ko/docs/math/probability/multivariate-gaussian) | 고차원 가우시안 | VAE 잠재 공간, Diffusion |
+| 13 | [상호 정보량](/ko/docs/math/probability/mutual-information) | 공유 정보 측정 | Contrastive Learning |
+| 14 | [마르코프 체인](/ko/docs/math/probability/markov-chains) | 순차적 전이 | Diffusion, MCMC |
+
+```
+공분산 ──→ 다변량 가우시안
+              │
+결합/조건부 ──┤
+              │
+엔트로피+KL ──→ 상호 정보량
+
+확률변수 ──→ 마르코프 체인 ──→ Diffusion
+```
+
+---
+
 ## 핵심 연결고리
 
 확률 개념들이 딥러닝에서 어떻게 연결되는지 보여드립니다.
@@ -128,6 +152,14 @@ output = model(image)
 KL 발산 ─────────────────→ VAE Loss, 지식 증류
      │                              │
 MLE ─────────────────────→ 딥러닝 학습 = NLL 최소화
+     │                              │
+공분산/상관계수 ────────→ PCA, Whitening, Barlow Twins
+     │                              │
+다변량 가우시안 ────────→ VAE 잠재공간, Diffusion 노이즈
+     │                              │
+상호 정보량 ────────────→ Contrastive Learning (InfoNCE)
+     │                              │
+마르코프 체인 ──────────→ Diffusion Process, MCMC
 ```
 
 ---
@@ -149,6 +181,7 @@ MLE ─────────────────────→ 딥러닝
 | **딥러닝 기초** | 1단계 (확률의 기초 ~ 기댓값과 분산) |
 | **모델 이해하기** | 2단계까지 (+ 확률분포, 베이즈, 샘플링) |
 | **논문 읽기** | 3단계까지 (+ 엔트로피, KL, MLE) |
+| **생성 모델/심화** | 4단계까지 (+ 다변량 가우시안, 마르코프 체인) |
 
 ---
 
