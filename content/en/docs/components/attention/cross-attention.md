@@ -1,6 +1,6 @@
 ---
 title: "Cross-Attention"
-weight: 2
+weight: 3
 math: true
 ---
 
@@ -85,6 +85,45 @@ $$
 
 **Key difference: Q comes from X, while K and V come from C.**
 
+### Masked Form (Practical)
+
+To exclude padding tokens, add a mask before softmax:
+
+$$
+\text{CrossAttn}(X, C, M) = \text{softmax}\left(\frac{QK^T}{\sqrt{d_k}} + M\right)V
+$$
+
+- $M$ : mask matrix (0 for valid tokens, very negative values for padding, e.g., $-10^4$ or $-\infty$)
+- In practice, $M$ is commonly broadcast as $\mathbb{R}^{B \times 1 \times 1 \times M}$ and added to score tensor $(B, h, N, M)$.
+- After softmax, padded positions get near-zero attention weights.
+
+### Bool Mask Convention (standardize early)
+
+Different PyTorch codebases use opposite bool meanings, which wastes debugging time. In Cross-Attention, it is safer to **normalize mask semantics first**.
+
+- Accept either external convention: `True=valid` or `True=blocked`
+- Convert internal convention to `True=keep`
+- Use `~keep` in `masked_fill` for score masking
+
+```python
+def normalize_keep_mask(mask: torch.Tensor, *, true_means_keep: bool) -> torch.Tensor:
+    """
+    mask: (B, M) bool
+    return: keep mask (B, M), True=allowed
+    """
+    if mask.dtype != torch.bool:
+        raise TypeError("mask must be bool")
+    return mask if true_means_keep else ~mask
+
+# Example: tokenizer provides True=padding(blocked)
+raw_mask = padding_mask_bool                     # True=blocked
+keep = normalize_keep_mask(raw_mask, true_means_keep=False)
+score_mask = keep[:, None, None, :]              # (B,1,1,M)
+scores = scores.masked_fill(~score_mask, torch.finfo(scores.dtype).min)
+```
+
+Keeping this one rule fixed across the team avoids many `dim`, `broadcast`, and `~mask` mistakes.
+
 ### Step-by-Step
 
 ```
@@ -108,6 +147,139 @@ Step 4: output = attn × V  → (4096, 320)
 
 **Note**: The attention matrix is (4096 × 77). Much smaller than Self-Attention's (4096 × 4096)! Cross-Attention is generally lighter than Self-Attention.
 
+### Intuition Recap: Why is Q from image, but K/V from text?
+
+- **Q (image)** is the question: "What should I draw at this location?"
+- **K (text)** is the index: "Which semantic tag does this token represent?"
+- **V (text)** is the actual content to inject.
+
+So the image builds queries, while text provides answer candidates. That is why Cross-Attention behaves as a **conditioning injection layer**, not just a simple feature merge.
+
+## Common Implementation Pitfalls
+
+1. **Apply a text padding mask**
+   - If sentence lengths differ within a batch, attention can leak into padding tokens.
+   - Add a mask (usually `-inf`) to Cross-Attention scores so padded positions are excluded by softmax.
+
+2. **Keep the $\sqrt{d_k}$ scaling**
+   - If you remove scaling, score variance grows and softmax becomes too sharp, making training unstable.
+   - The issue is stronger when head dimension is large (e.g., 128).
+
+3. **Check softmax stability in mixed precision**
+   - In FP16/BF16, combining large negative masks with large scores can produce NaNs.
+   - In practice, many implementations cast scores to FP32 for softmax, then cast back.
+
+## Quick Shape Sanity Checklist
+
+When debugging, printing these three lines often catches most bugs quickly:
+
+- `q.shape == (B, h, N, d)`
+- `k.shape == (B, h, M, d)`
+- `mask.shape == (B, 1, 1, M)` (if mask is used)
+
+If these are correct, the score tensor should become `(B, h, N, M)` automatically. Then softmax must be applied on the last axis `M`, so each image position properly chooses among text tokens.
+
+## Softmax Axis Check (Common Bug)
+
+One of the most frequent Cross-Attention bugs is using the wrong softmax axis.
+
+```python
+# Correct: normalize over text axis (M)
+attn = F.softmax(scores, dim=-1)   # scores: (B, h, N, M)
+
+# Wrong example: normalize over image axis (N)
+bad = F.softmax(scores, dim=-2)
+```
+
+- With `dim=-1`: each image position chooses **which text tokens** to attend to.
+- With `dim=-2`: interpretation flips toward "which image positions" per token, which can break intended conditioning behavior.
+
+Quick checks:
+- `attn.sum(dim=-1)` should be close to 1.
+- Mean attention on masked text positions should stay near 0.
+
+## Practical: Combining Causal + Padding Masks
+
+In decoder cross-attention / hybrid blocks, you may need both masks at once.
+The key is to **align mask shape to score shape, then apply one boolean mask**.
+
+```python
+# scores: (B, h, N, M)
+# causal_mask:  (N, M) bool, True=allowed / False=blocked
+# padding_mask: (B, M) bool, True=valid / False=padding
+
+allow = causal_mask[None, None, :, :] & padding_mask[:, None, None, :]
+# allow: (B, 1, N, M) -> broadcastable to scores
+
+scores = scores.masked_fill(~allow, torch.finfo(scores.dtype).min)
+attn = F.softmax(scores.float(), dim=-1).to(scores.dtype)
+```
+
+- Printing `allow.shape` before `masked_fill` and checking `(B, 1, N, M)` catches many shape bugs.
+- Using `torch.finfo(dtype).min` is usually safer than hardcoded `-1e9` in FP16/BF16 paths.
+
+## Complexity Comparison
+
+Let's compare Cross-Attention with Self-Attention:
+
+| Operation | Self-Attention | Cross-Attention |
+|-----------|----------------|-----------------|
+| **Attention matrix** | $N \times N$ | $N \times M$ |
+| **FLOPs (QK^T)** | $O(N^2 \cdot d)$ | $O(N \cdot M \cdot d)$ |
+| **Memory** | $O(N^2)$ | $O(N \cdot M)$ |
+
+**Stable Diffusion example** (64×64 latent, 77 CLIP tokens, d=320):
+
+| | Self-Attention | Cross-Attention | Ratio |
+|---|---|---|---|
+| **Attention matrix** | 4096 × 4096 = 16.8M | 4096 × 77 = 315K | **53× smaller** |
+| **Memory (FP16)** | 33.6 MB | 630 KB | **53× less** |
+| **FLOPs** | ~10.7 GFLOPs | ~200 MFLOPs | **53× less** |
+
+→ Cross-Attention is much lighter than Self-Attention. In many U-Net blocks, Self-Attention dominates attention cost.
+
+### Dimension Mismatch Handling
+
+{{< figure src="/images/components/attention/ko/cross-attention-dimension-gradient.jpeg" caption="Cross-Attention projection (768→320) and gradient flow — gradients to CLIP are blocked when CLIP is frozen" >}}
+
+A practical challenge is when two sequences have different feature dimensions:
+
+```
+Image: (B, 4096, 320)   — 320 dims
+Text:  (B, 77, 768)     — 768 dims (CLIP)
+
+Q = X × W_Q ∈ ℝ^(320×320)  → (B, 4096, 320)
+K = C × W_K ∈ ℝ^(768×320)  → (B, 77, 320)     ← 768→320 projection
+V = C × W_V ∈ ℝ^(768×320)  → (B, 77, 320)     ← 768→320 projection
+
+→ W_K and W_V project text space (768) into image-attention space (320)
+→ Q and K must share the same last dimension d_k for dot product
+```
+
+This projection is one of the key learnable parts of Cross-Attention: learning a **shared representation space** across modalities.
+
+### Gradient Flow
+
+Gradients in Cross-Attention flow to both branches:
+
+```
+Forward:
+  X → W_Q → Q ─┐
+                ├→ Attention Score → Output → Loss
+  C → W_K → K ─┘
+  C → W_V → V ─────────────────────┘
+
+Backward:
+  ∂Loss/∂W_Q ← through Q (image-side query learning)
+  ∂Loss/∂W_K ← through K (text→image matching learning)
+  ∂Loss/∂W_V ← through V (content injection learning)
+
+  ∂Loss/∂X ← gradient flows to image features
+  ∂Loss/∂C ← gradient flows to text features (if text encoder is trainable)
+```
+
+**Important**: In Stable Diffusion, CLIP text encoder is usually **frozen**. So gradients wrt $C$ may exist in computation, but CLIP parameters are not updated. The trainable parts are mostly U-Net-side attention projections.
+
 ---
 
 ## Implementation
@@ -125,7 +297,7 @@ class CrossAttention(nn.Module):
         super().__init__()
         self.num_heads = num_heads
         self.head_dim = query_dim // num_heads
-        self.scale = math.sqrt(self.head_dim)
+        self.scale = self.head_dim ** -0.5  # 1/sqrt(d_k)
 
         # Q from target (image), K/V from condition (text)
         self.to_q = nn.Linear(query_dim, query_dim)
@@ -133,10 +305,11 @@ class CrossAttention(nn.Module):
         self.to_v = nn.Linear(context_dim, query_dim)
         self.proj = nn.Linear(query_dim, query_dim)
 
-    def forward(self, x, context):
+    def forward(self, x, context, context_mask=None):
         """
-        x:       (B, N, query_dim)   - image features (the asker)
-        context: (B, M, context_dim) - text embeddings (the answerer)
+        x:            (B, N, query_dim)   - image features (the asker)
+        context:      (B, M, context_dim) - text embeddings (the answerer)
+        context_mask: (B, M) bool, True=valid token / False=padding
         """
         B, N, C = x.shape
 
@@ -146,8 +319,15 @@ class CrossAttention(nn.Module):
         v = self.to_v(context).view(B, -1, self.num_heads, self.head_dim).transpose(1, 2)
 
         # Attention: which text token does each image region focus on?
-        attn = (q @ k.transpose(-2, -1)) / self.scale  # (B, heads, N, M)
-        attn = F.softmax(attn, dim=-1)
+        scores = (q @ k.transpose(-2, -1)) * self.scale  # (B, heads, N, M)
+
+        # Exclude padding tokens (mask=False) from softmax
+        if context_mask is not None:
+            mask = context_mask[:, None, None, :]  # (B,1,1,M)
+            scores = scores.masked_fill(~mask, torch.finfo(scores.dtype).min)
+
+        # Compute softmax in FP32 for mixed-precision stability
+        attn = F.softmax(scores.float(), dim=-1).to(q.dtype)
 
         # Inject text info into image
         out = (attn @ v).transpose(1, 2).reshape(B, N, C)
@@ -256,6 +436,62 @@ def visualize_cross_attention(attn_map, text_tokens, image_size=(64, 64)):
 This visualization lets you verify:
 - Whether "cat" token has high values in the cat region of the image
 - Whether "hat" token corresponds to the hat region
+
+---
+
+## Common Failure Patterns and Debugging
+
+### 1. Attention Collapse — All Queries focus on one Key
+
+```
+Normal:
+  Head region  → "hat"   (0.7)
+  Face region  → "cat"   (0.6)
+  Background   → near-uniform (0.15, 0.15, ...)
+
+Collapsed:
+  Head region  → "cat"   (0.9)
+  Face region  → "cat"   (0.9)
+  Background   → "cat"   (0.8)
+  → Almost every region attends to a single token
+```
+
+**Likely causes**:
+- Too large learning rate in early training
+- Abnormally large norm for a specific text token embedding
+
+**Quick diagnostic**: monitor attention entropy.
+
+```python
+import torch
+
+def attention_entropy(attn_weights):
+    """Entropy of attention distributions (higher = more spread)."""
+    # attn_weights: (B, heads, N, M)
+    entropy = -(attn_weights * torch.log(attn_weights + 1e-8)).sum(dim=-1)
+    return entropy.mean()
+
+# Rule of thumb (77-token text):
+# Normal: entropy around 2-4
+# Collapse: entropy around 0.1-0.5
+```
+
+### 2. Text-Image Mismatch — Prompt not reflected
+
+If you ask for "a red car" but get a blue car, one frequent cause is weak attention on the token "red".
+In diffusion pipelines, increasing CFG (Classifier-Free Guidance) often strengthens text conditioning.
+
+### 3. Dimension Mismatch Bug
+
+```python
+# Common mistake: mixing context_dim and query_dim
+cross_attn = CrossAttention(
+    query_dim=320,      # image dim
+    context_dim=320,    # ❌ wrong for CLIP text (usually 768)
+    num_heads=8
+)
+# RuntimeError: mat1 and mat2 shapes cannot be multiplied (77x768 and 320x320)
+```
 
 ---
 

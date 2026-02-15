@@ -429,11 +429,18 @@ scores = Q × K^T - m × |i - j|
 ### 수식
 
 $$
-\text{Attention}(Q, K, V) = \text{softmax}\left(\frac{QK^T}{\sqrt{d_k}} - m \cdot |i - j|\right) V
+\text{Attention}(Q, K, V) = \text{softmax}\left(\frac{QK^T}{\sqrt{d_k}} - m_h \cdot |i - j|\right) V
 $$
 
+**각 기호의 의미:**
+- $Q, K, V$: Query, Key, Value 행렬
+- $d_k$: key 차원 수 (스케일링에 사용)
+- $i, j$: Query 위치와 Key 위치 인덱스
 - $|i - j|$: 토큰 간 절대 거리
-- $m$: head별로 다른 기울기 (기하급수적으로 감소: $m = 2^{-8/n}, 2^{-16/n}, \ldots$)
+- $m_h$: $h$번째 head의 기울기 (head마다 다른 거리 패널티)
+
+- $m_h$는 보통 head별로 기하급수적으로 감소시킵니다 (예: $m_h \in \{2^{-8/n}, 2^{-16/n}, \ldots\}$).
+- **실전 주의(디코더 causal)**: 보통은 미래 토큰을 마스크하므로 유효한 구간에서 $j \le i$이고, 이때 $|i-j|$ 대신 $(i-j)$를 그대로 써도 동일하게 동작합니다. 구현에 따라 부호/방향이 다를 수 있으니 `causal mask`와 함께 점검하세요.
 
 ```
 8개 Head의 기울기 m:
@@ -446,6 +453,30 @@ $$
 → 각 head가 자연스럽게 "시야 범위"가 다름
 ```
 
+### Head별 slope 생성 (실무에서 자주 쓰는 형태)
+
+ALiBi는 head마다 다른 기울기 $m_h$를 써서, 어떤 head는 근거리 위주로 보고 어떤 head는 원거리까지 보도록 만듭니다.
+
+```python
+import torch
+
+def build_alibi_slopes(n_heads: int) -> torch.Tensor:
+    """head별 ALiBi slope (큰 값=head가 근거리 위주)
+
+    반환 shape: (n_heads,)
+    """
+    # ALiBi 논문 구현에서 널리 쓰이는 power-of-two 기반 스케일
+    # n_heads가 2의 거듭제곱이 아니어도 단조 감소 slope를 구성
+    start = 2 ** (-8.0 / n_heads)
+    return torch.tensor([start ** (i + 1) for i in range(n_heads)], dtype=torch.float32)
+
+# 예시: 8 heads
+slopes = build_alibi_slopes(8)
+print(slopes)  # tensor([0.9170, 0.8409, ..., 0.5000])
+```
+
+> 구현마다 slope 생성식은 조금씩 다를 수 있지만, **head마다 단조 감소 기울기**를 주는 원칙은 동일합니다.
+
 ### 장점
 
 | 장점 | 설명 |
@@ -454,6 +485,20 @@ $$
 | **학습 파라미터 0개** | $m$은 고정값 |
 | **길이 외삽 우수** | 학습 시 1K → 추론 시 8K도 안정적 |
 | **메모리 절약** | 별도 PE 벡터 저장 불필요 |
+
+### 최소 구현 스케치
+
+```python
+# scores: (batch, heads, q_len, k_len)
+# distance: |i-j| 행렬, shape (q_len, k_len)
+# slopes: head별 기울기, shape (heads, 1, 1)
+
+scores = (q @ k.transpose(-2, -1)) / math.sqrt(d_k)
+scores = scores - slopes * distance  # ALiBi bias
+scores = scores + causal_mask         # 필요 시 인과 마스크 유지
+attn = torch.softmax(scores, dim=-1)
+out = attn @ v
+```
 
 ---
 
@@ -485,6 +530,15 @@ $$
 | Sinusoidal은? | sin/cos로 만든 고정 패턴 — 학습 불필요, 임의 길이 |
 | Learnable은? | 학습으로 최적화 — ViT에서 사용 |
 | RoPE는? | Q/K를 위치에 따라 회전 — 최신 LLM 표준 |
+
+## 실무 체크포인트
+
+1. **패딩 토큰 처리**: Positional Encoding을 더하더라도, attention mask에서 padding 위치를 반드시 차단해야 합니다.
+2. **길이 외삽 전략**: 긴 문장이 자주 나오면 Learnable PE보다 RoPE/ALiBi가 보통 더 안정적입니다.
+3. **해상도 변경(ViT)**: 입력 해상도를 바꿀 때는 Position Interpolation을 함께 적용해야 성능 하락을 줄일 수 있습니다.
+4. **디버깅 순서**: 학습 불안정 시 `mask 방향 → PE shape → 최대 길이 초과 여부` 순으로 확인하면 빠릅니다.
+5. **KV 캐시 오프셋(추론)**: RoPE를 캐시와 함께 쓸 때는 새 토큰의 위치 인덱스를 `현재 시퀀스 길이` 기준으로 이어 붙여야 합니다. 오프셋이 어긋나면 문맥 일관성이 급격히 떨어질 수 있습니다.
+6. **RoPE base 일관성(train/serve)**: 학습 때 사용한 `rope_theta`(예: 10000, 500000)를 추론 서버에서도 동일하게 맞추세요. base가 다르면 같은 위치 인덱스여도 회전 각도가 달라져 품질이 눈에 띄게 흔들릴 수 있습니다.
 
 ## 관련 콘텐츠
 

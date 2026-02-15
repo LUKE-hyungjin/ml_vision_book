@@ -6,96 +6,53 @@ bookCollapseSection: true
 
 # 생성 모델 (Generative Models)
 
-{{% hint info %}}
-**선수지식**: [확률분포](/ko/docs/math/probability) | [Neural Network 기초](/ko/docs/architecture/cnn)
-{{% /hint %}}
+> **선수지식**: [확률 분포](/ko/docs/math/probability/distribution) | [VAE](/ko/docs/architecture/generative/vae) | [GAN](/ko/docs/architecture/generative/gan)
 
-## 생성 모델이란?
+## 왜 필요한가?
+생성 모델의 목표는 **데이터를 분류**하는 것이 아니라, 데이터의 패턴을 배워 **새로운 샘플을 만들어내는 것**입니다.
+예를 들어 화가가 많은 그림을 보고 화풍의 규칙을 익힌 뒤 새 그림을 그리듯, 모델도 이미지 분포를 학습해 새로운 이미지를 생성합니다.
 
-> **비유**: 화가가 수천 장의 그림을 보고 "그림의 규칙"을 익히면, 새로운 그림을 그릴 수 있습니다. 생성 모델도 데이터의 "분포"를 학습하여 **새로운 샘플을 창조**합니다.
+## 수식/기호 관점에서 보는 생성
+생성 모델은 보통 데이터 분포 $p_{\text{data}}(x)$를 근사하는 모델 분포 $p_\theta(x)$를 학습합니다.
 
----
+$$
+\theta^* = \arg\min_\theta D\big(p_{\text{data}}(x) \;\|\; p_\theta(x)\big)
+$$
 
-## 세 가지 접근법
+- $x$: 이미지 같은 관측 데이터
+- $\theta$: 모델 파라미터
+- $p_{\text{data}}(x)$: 실제 데이터 분포
+- $p_\theta(x)$: 모델이 학습한 분포
+- $D(\cdot\|\cdot)$: 두 분포 차이(예: KL, JS, Wasserstein 등)
 
+## 직관: 세 가지 큰 흐름
 {{< figure src="/images/generative/ko/generative-comparison.svg" caption="VAE vs GAN vs Diffusion 비교" >}}
 
-| 모델 | 핵심 아이디어 | 비유 |
+| 계열 | 핵심 아이디어 | 직관 |
 |------|--------------|------|
-| **VAE** | 압축 → 복원 학습 | 그림을 요약하고 다시 그리기 |
-| **GAN** | 진짜 vs 가짜 경쟁 | 위조지폐범 vs 감별사 |
-| **Diffusion** | 노이즈 제거 학습 | 흐린 사진 복원하기 |
+| **VAE** | 잠재공간으로 압축 후 복원 | 요약본으로 다시 원문 복원 |
+| **GAN** | 생성자-판별자 경쟁 학습 | 위조지폐범 vs 감별사 |
+| **Diffusion** | 노이즈를 점진적으로 제거 | 흐린 사진을 단계적으로 복원 |
 
----
+## 구현 관점: 어떤 모델을 먼저 볼까?
+1. [VAE](/ko/docs/architecture/generative/vae): 확률 모델링과 잠재공간의 출발점
+2. [GAN](/ko/docs/architecture/generative/gan): 고품질 생성의 고전
+3. [DDPM](/ko/docs/architecture/generative/ddpm): 현대 생성 모델의 주류 기반
+4. [Stable Diffusion](/ko/docs/architecture/generative/stable-diffusion): 실전 Text-to-Image의 표준
+5. [Flux](/ko/docs/architecture/generative/flux): 최신 Flow Matching 계열
 
-## 발전 과정
-
-```
-2013: VAE - "압축했다 복원하면 새로운 걸 만들 수 있지 않을까?"
-  ↓
-2014: GAN - "진짜와 구분 못하게 만들면 되지 않을까?"
-  ↓
-2020: DDPM - "노이즈를 예측하면 제거할 수 있지 않을까?"
-  ↓
-2018: StyleGAN - "스타일을 층별로 제어하면 어떨까?"
-  ↓
-2020: DDPM - "노이즈를 조금씩 제거하면 어떨까?"
-  ↓
-2021: VQGAN, DALL-E - "이미지를 토큰으로 만들면 어떨까?"
-  ↓
-2022: Stable Diffusion - "작은 공간에서 하면 더 빠르지 않을까?"
-  ↓
-2023: ControlNet, DiT - "포즈 제어, Transformer로 스케일업!"
-  ↓
-2024: Flux - "Flow Matching + DiT = 더 빠르고 더 좋게!"
-```
-
----
-
-## 모델 상세
-
-### 기초 모델
-
-| 모델 | 방식 | 장점 | 단점 |
-|------|------|------|------|
-| [VAE](/ko/docs/architecture/generative/vae) | 변분 추론 | 안정적 학습 | 흐릿한 결과 |
-| [GAN](/ko/docs/architecture/generative/gan) | 적대적 학습 | 선명한 결과 | 불안정, mode collapse |
-| [VQGAN](/ko/docs/architecture/generative/vqgan) | VQ + GAN | 고품질 토큰화 | 2단계 학습 필요 |
-| [StyleGAN](/ko/docs/architecture/generative/stylegan) | 스타일 주입 GAN | 고품질 얼굴 | 도메인 제한적 |
-
-### Diffusion 모델
-
-| 모델 | 방식 | 장점 | 단점 |
-|------|------|------|------|
-| [DDPM](/ko/docs/architecture/generative/ddpm) | U-Net + 노이즈 예측 | Diffusion의 기초 | 느린 샘플링 (1000 스텝) |
-| [Stable Diffusion](/ko/docs/architecture/generative/stable-diffusion) | Latent Diffusion | 고품질, 다양성 | 느린 샘플링 |
-| [ControlNet](/ko/docs/architecture/generative/controlnet) | 조건부 Diffusion | 정밀 제어 | 추가 학습 필요 |
-| [DiT](/ko/docs/architecture/generative/dit) | Diffusion + Transformer | 스케일링 용이 | 계산량 많음 |
-| [Flux](/ko/docs/architecture/generative/flux) | Flow Matching + DiT | 빠름, 고품질 | 큰 모델 크기 |
-
-### Text-to-Image
-
-| 모델 | 방식 | 장점 | 단점 |
-|------|------|------|------|
-| [DALL-E](/ko/docs/architecture/generative/dall-e) | CLIP + Diffusion | 텍스트 이해력 | 비공개 |
-| [Qwen Image Edit](/ko/docs/architecture/generative/qwen-image-edit) | VLM + Diffusion | 자연어 편집 | 무거움 |
-
----
-
-## 왜 Diffusion이 승리했나?
-
-1. **안정적 학습**: GAN처럼 불안정하지 않음
-2. **고품질 결과**: VAE보다 선명함
-3. **다양성**: mode collapse 없음
-4. **조건부 생성**: 텍스트, 이미지 등 다양한 조건 가능
-
-**단점**: 느린 샘플링 → DDIM, LCM 등으로 해결 중!
-
----
+## 발전 과정 (요약)
+- 2013: VAE
+- 2014: GAN
+- 2018: StyleGAN
+- 2020: DDPM
+- 2021: VQGAN, DALL-E
+- 2022: Stable Diffusion
+- 2023: ControlNet, DiT
+- 2024: Flux
 
 ## 관련 콘텐츠
-
-- [생성 모델 수학](/ko/docs/components/generative) - DDPM, Score Matching, Sampling
-- [Flow Matching](/ko/docs/components/generative/flow-matching) - Flux, SD3의 수학적 기반
-- [확률 분포](/ko/docs/math/probability) - 생성 모델의 수학적 기초
-- [Generation 태스크](/ko/docs/task/generation) - FID, IS 등 평가 지표
+- [생성 모델 수학](/ko/docs/components/generative)
+- [Flow Matching](/ko/docs/components/generative/flow-matching)
+- [확률 분포](/ko/docs/math/probability/distribution)
+- [Generation 태스크](/ko/docs/task/generation)

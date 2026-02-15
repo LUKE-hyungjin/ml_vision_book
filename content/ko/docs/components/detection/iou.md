@@ -6,171 +6,148 @@ math: true
 
 # IoU (Intersection over Union)
 
-## 개요
+{{% hint info %}}
+**선수지식**: 없음
+{{% /hint %}}
 
-IoU는 두 영역의 겹침 정도를 측정하는 지표입니다. 객체 검출의 핵심 메트릭입니다.
+## 한 줄 요약
+> **IoU는 예측 박스와 정답 박스가 얼마나 겹치는지를 0~1로 수치화한 지표입니다.**
 
-## 수식
+## 왜 필요한가?
+객체 검출에서는 모델이 "대충 비슷한 위치"를 찾았는지, "정확히 맞췄는지"를 구분해야 합니다.
+IoU는 이 겹침 정도를 공통 기준으로 만들어 주기 때문에:
 
+- 평가(AP, mAP)의 기준이 되고
+- 학습 중 양성/음성 샘플을 나누는 기준이 되며
+- [NMS](/ko/docs/components/detection/nms)에서 중복 박스를 제거하는 기준이 됩니다.
+
+비유하면, 정답 박스와 예측 박스를 종이에 겹쳐 놓았을 때 **겹친 면적 비율**을 보는 것입니다.
+
+## 수식/기호
 $$
-\text{IoU} = \frac{|A \cap B|}{|A \cup B|} = \frac{\text{교집합 넓이}}{\text{합집합 넓이}}
+\mathrm{IoU} = \frac{|A \cap B|}{|A \cup B|}
 $$
 
-- 범위: 0 (겹침 없음) ~ 1 (완전 일치)
+**각 기호의 의미:**
+- $A$ : 예측 bounding box 영역
+- $B$ : 정답(ground truth) bounding box 영역
+- $|A \cap B|$ : 교집합(겹친 부분) 면적
+- $|A \cup B|$ : 합집합(두 영역 전체) 면적
 
-## 박스 IoU 계산
+범위는 $0 \le \mathrm{IoU} \le 1$ 입니다.
 
+- 0: 전혀 안 겹침
+- 1: 완전히 일치
+
+## 직관
+- **교집합이 크고 합집합이 작을수록** IoU가 커집니다.
+- 박스가 살짝만 어긋나도 교집합이 크게 줄어 IoU가 빠르게 떨어집니다.
+- 그래서 IoU 임계값(예: 0.5, 0.75)에 따라 "맞았다/틀렸다" 판정이 달라집니다.
+
+## 숫자로 보는 예시
+두 박스의 면적이 각각 100이고, 겹친 면적이 60이라고 가정해봅시다.
+
+- 교집합: $|A \cap B| = 60$
+- 합집합: $|A \cup B| = 100 + 100 - 60 = 140$
+- 따라서 $\mathrm{IoU} = 60/140 \approx 0.43$
+
+이 경우 IoU 0.5 기준에서는 TP가 아니고, 0.4 기준에서는 TP가 될 수 있습니다.
+즉, **같은 예측이라도 임계값에 따라 판정이 달라진다**는 점이 핵심입니다.
+
+## 임계값에 따른 판정 변화
+아래처럼 같은 IoU 값이라도 기준에 따라 결과가 달라집니다.
+
+| IoU 값 | 임계값 0.5 | 임계값 0.75 |
+|---:|---|---|
+| 0.43 | FP (미탐지) | FP (미탐지) |
+| 0.62 | TP | FP (엄격 기준에서는 실패) |
+| 0.81 | TP | TP |
+
+평가 기준이 엄격해질수록(예: 0.75) **정확한 위치 정렬**이 더 중요해집니다.
+
+## 좌표 형식에서 자주 하는 실수
+IoU 수식은 같아도 **박스 표현 방식**이 다르면 값이 틀어집니다.
+
+- `xyxy`: `[x1, y1, x2, y2]` (좌상단/우하단)
+- `cxcywh`: `[cx, cy, w, h]` (중심점/너비/높이)
+
+모델 출력이 `cxcywh`인데 `xyxy`로 바로 계산하면 교집합이 잘못 계산됩니다.
+실무에서는 **IoU 계산 전에 좌표계를 먼저 통일**하는 습관이 중요합니다.
+
+간단 변환식:
+$$
+\begin{aligned}
+x_1 &= c_x - \frac{w}{2}, \quad y_1 = c_y - \frac{h}{2},\\
+x_2 &= c_x + \frac{w}{2}, \quad y_2 = c_y + \frac{h}{2}
+\end{aligned}
+$$
+
+## 경계 케이스(실무 중요)
+IoU 구현에서 성능보다 먼저 챙겨야 하는 건 **안전한 수치 처리**입니다.
+
+- 박스가 뒤집힌 경우(`x2 < x1` 또는 `y2 < y1`)는 면적이 0이 되도록 `max(0, ...)` 처리
+- 두 박스가 모두 비정상이라 합집합이 0이 되면, `0으로 나누기`를 피하려고 IoU를 0으로 반환
+- 부동소수점 오차로 아주 작은 음수가 나올 수 있으므로, 필요하면 `eps`(예: `1e-9`)를 더해 안정화
+
+이 세 가지만 지켜도 학습 중 NaN 전파를 크게 줄일 수 있습니다.
+
+## IoU의 한계와 확장 지표
+IoU는 직관적이지만, 박스가 **전혀 겹치지 않으면 항상 0**이라서
+"얼마나 멀리 떨어졌는지" 정보를 주지 못합니다.
+
+그래서 박스 회귀 손실에서는 다음 확장 지표를 자주 씁니다.
+
+- **GIoU**: IoU에 "가장 작은 외접 박스" 정보를 추가
+- **DIoU/CIoU**: 중심점 거리(그리고 종횡비)까지 반영
+
+GIoU의 대표식은 다음과 같습니다.
+$$
+\mathrm{GIoU} = \mathrm{IoU} - \frac{|C \setminus (A \cup B)|}{|C|}
+$$
+
+**추가 기호:**
+- $C$ : 박스 $A, B$를 모두 포함하는 가장 작은 축정렬 박스
+- $|C \setminus (A \cup B)|$ : 외접 박스 안에서 두 박스가 차지하지 못한 빈 영역
+
+겹침이 0이어도 GIoU는 음수가 될 수 있어, 학습 시 "어느 방향이 더 나쁜지"를 구분하기 쉬워집니다.
+
+## 구현
 ```python
 def box_iou(box1, box2):
     """
-    box1, box2: [x1, y1, x2, y2] 형식
+    box: [x1, y1, x2, y2] (좌상단, 우하단)
     """
-    # 교집합
-    x1 = max(box1[0], box2[0])
-    y1 = max(box1[1], box2[1])
-    x2 = min(box1[2], box2[2])
-    y2 = min(box1[3], box2[3])
+    # 1) 교집합 좌표
+    ix1 = max(box1[0], box2[0])
+    iy1 = max(box1[1], box2[1])
+    ix2 = min(box1[2], box2[2])
+    iy2 = min(box1[3], box2[3])
 
-    intersection = max(0, x2 - x1) * max(0, y2 - y1)
+    # 2) 교집합 면적
+    inter_w = max(0.0, ix2 - ix1)
+    inter_h = max(0.0, iy2 - iy1)
+    inter = inter_w * inter_h
 
-    # 각 박스 넓이
-    area1 = (box1[2] - box1[0]) * (box1[3] - box1[1])
-    area2 = (box2[2] - box2[0]) * (box2[3] - box2[1])
+    # 3) 각 박스 면적
+    area1 = max(0.0, box1[2] - box1[0]) * max(0.0, box1[3] - box1[1])
+    area2 = max(0.0, box2[2] - box2[0]) * max(0.0, box2[3] - box2[1])
 
-    # 합집합
-    union = area1 + area2 - intersection
+    # 4) 합집합 면적
+    union = area1 + area2 - inter
 
-    return intersection / union if union > 0 else 0
+    # 5) IoU
+    return inter / union if union > 0 else 0.0
 ```
 
-## 배치 IoU (Vectorized)
-
-```python
-import torch
-
-def batch_iou(boxes1, boxes2):
-    """
-    boxes1: (N, 4), boxes2: (M, 4)
-    Returns: (N, M) IoU matrix
-    """
-    # 교집합 좌표
-    x1 = torch.max(boxes1[:, None, 0], boxes2[None, :, 0])
-    y1 = torch.max(boxes1[:, None, 1], boxes2[None, :, 1])
-    x2 = torch.min(boxes1[:, None, 2], boxes2[None, :, 2])
-    y2 = torch.min(boxes1[:, None, 3], boxes2[None, :, 3])
-
-    intersection = (x2 - x1).clamp(min=0) * (y2 - y1).clamp(min=0)
-
-    # 넓이
-    area1 = (boxes1[:, 2] - boxes1[:, 0]) * (boxes1[:, 3] - boxes1[:, 1])
-    area2 = (boxes2[:, 2] - boxes2[:, 0]) * (boxes2[:, 3] - boxes2[:, 1])
-
-    union = area1[:, None] + area2[None, :] - intersection
-
-    return intersection / union
-```
-
-## GIoU (Generalized IoU)
-
-겹치지 않는 박스에도 그라디언트 제공:
-
-$$
-\text{GIoU} = \text{IoU} - \frac{|C - A \cup B|}{|C|}
-$$
-
-C: 두 박스를 감싸는 최소 박스
-
-```python
-def giou(box1, box2):
-    iou = box_iou(box1, box2)
-
-    # 최소 외접 박스
-    c_x1 = min(box1[0], box2[0])
-    c_y1 = min(box1[1], box2[1])
-    c_x2 = max(box1[2], box2[2])
-    c_y2 = max(box1[3], box2[3])
-
-    c_area = (c_x2 - c_x1) * (c_y2 - c_y1)
-    union = # ... (위 코드 참조)
-
-    return iou - (c_area - union) / c_area
-```
-
-## DIoU (Distance IoU)
-
-중심점 거리 고려:
-
-$$
-\text{DIoU} = \text{IoU} - \frac{\rho^2(b, b^{gt})}{c^2}
-$$
-
-- ρ: 두 중심점 거리
-- c: 외접 박스 대각선 길이
-
-```python
-def diou(box1, box2):
-    iou = box_iou(box1, box2)
-
-    # 중심점
-    cx1 = (box1[0] + box1[2]) / 2
-    cy1 = (box1[1] + box1[3]) / 2
-    cx2 = (box2[0] + box2[2]) / 2
-    cy2 = (box2[1] + box2[3]) / 2
-
-    rho2 = (cx1 - cx2)**2 + (cy1 - cy2)**2
-
-    # 외접 박스 대각선
-    c_x1 = min(box1[0], box2[0])
-    c_y1 = min(box1[1], box2[1])
-    c_x2 = max(box1[2], box2[2])
-    c_y2 = max(box1[3], box2[3])
-
-    c2 = (c_x2 - c_x1)**2 + (c_y2 - c_y1)**2
-
-    return iou - rho2 / c2
-```
-
-## CIoU (Complete IoU)
-
-종횡비까지 고려:
-
-$$
-\text{CIoU} = \text{IoU} - \frac{\rho^2}{c^2} - \alpha v
-$$
-
-$$
-v = \frac{4}{\pi^2}\left(\arctan\frac{w^{gt}}{h^{gt}} - \arctan\frac{w}{h}\right)^2
-$$
-
-$$
-\alpha = \frac{v}{(1 - \text{IoU}) + v}
-$$
-
-## IoU Loss
-
-회귀 손실로 사용:
-
-```python
-def iou_loss(pred_boxes, target_boxes):
-    iou = batch_iou(pred_boxes, target_boxes)
-    return 1 - iou.diag().mean()
-
-def giou_loss(pred_boxes, target_boxes):
-    giou = batch_giou(pred_boxes, target_boxes)
-    return 1 - giou.diag().mean()
-```
-
-## IoU 임계값
-
-| 용도 | 임계값 | 의미 |
-|------|--------|------|
-| COCO AP | 0.5:0.95 | 다양한 IoU에서 평균 |
-| Pascal VOC | 0.5 | 50% 이상 겹침 |
-| NMS | 0.5~0.7 | 중복으로 간주 |
-| 학습 positive | 0.5~0.7 | 양성 샘플 기준 |
-| 학습 negative | < 0.3~0.4 | 음성 샘플 기준 |
+## 실무에서 자주 쓰는 임계값
+| 용도 | IoU 기준 | 의미 |
+|---|---:|---|
+| Pascal VOC AP | 0.5 | 50% 이상 겹치면 TP |
+| COCO AP | 0.5:0.95 | 여러 임계값 평균으로 더 엄격한 평가 |
+| NMS | 0.5~0.7 | 너무 겹치는 예측 박스 제거 |
+| Anchor 매칭(예시) | pos: ≥0.5, neg: <0.4 | 학습 샘플 라벨링 기준 |
 
 ## 관련 콘텐츠
-
-- [NMS](/ko/docs/components/detection/nms)
 - [Anchor Box](/ko/docs/components/detection/anchor)
+- [NMS](/ko/docs/components/detection/nms)
+- [YOLO](/ko/docs/architecture/detection/yolo)

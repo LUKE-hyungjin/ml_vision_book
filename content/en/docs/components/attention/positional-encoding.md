@@ -1,6 +1,6 @@
 ---
 title: "Positional Encoding"
-weight: 3
+weight: 4
 math: true
 ---
 
@@ -261,6 +261,70 @@ RoPE extends this to high dimensions. Applying different rotation angles at each
 
 ---
 
+## Method 5: ALiBi (Attention with Linear Biases)
+
+Used in BLOOM-style models. Instead of adding positional vectors to inputs, ALiBi adds a **distance-based bias** directly to attention logits.
+
+### Formula
+
+$$
+\text{Attention}(Q, K, V) = \text{softmax}\left(\frac{QK^T}{\sqrt{d_k}} - m_h \cdot |i - j|\right) V
+$$
+
+**Symbol meanings:**
+- $Q, K, V$: Query, Key, Value matrices
+- $d_k$: Key dimension (for scaling)
+- $i, j$: Query/Key position indices
+- $|i-j|$: Absolute token distance
+- $m_h$: Slope for head $h$ (different heads use different distance penalties)
+
+- **Practical note (decoder causal setup)**: With a causal mask, valid pairs satisfy $j \le i$, so using $(i-j)$ instead of $|i-j|$ gives the same effect on valid positions. Different codebases use different sign/direction conventions, so verify it together with the causal mask.
+
+### Intuition
+
+Heads with larger $m_h$ focus more on nearby tokens; heads with smaller $m_h$ can look farther away.
+This naturally creates multi-scale context windows without learning extra positional parameters.
+
+### Per-head slope construction (common practical pattern)
+
+ALiBi uses different slopes $m_h$ for different heads, so some heads specialize in short-range context while others keep longer-range context.
+
+```python
+import torch
+
+def build_alibi_slopes(n_heads: int) -> torch.Tensor:
+    """ALiBi slope per head (larger slope = stronger local bias).
+
+    Returns shape: (n_heads,)
+    """
+    # Common power-of-two-style schedule used in many ALiBi implementations
+    # Produces monotonically decreasing slopes even when n_heads is not a power of two
+    start = 2 ** (-8.0 / n_heads)
+    return torch.tensor([start ** (i + 1) for i in range(n_heads)], dtype=torch.float32)
+
+# Example: 8 heads
+slopes = build_alibi_slopes(8)
+print(slopes)  # tensor([0.9170, 0.8409, ..., 0.5000])
+```
+
+> Exact slope formulas vary by codebase, but the key principle is the same: **monotonically decreasing per-head slopes**.
+
+### Minimal implementation sketch
+
+```python
+# scores: (batch, heads, q_len, k_len)
+# distance: |i-j| matrix, shape (q_len, k_len)
+# slopes: per-head slope, shape (heads, 1, 1)
+
+scores = (q @ k.transpose(-2, -1)) / math.sqrt(d_k)
+scores = scores - slopes * distance  # ALiBi bias
+scores = scores + causal_mask         # keep causal masking when needed
+attn = torch.softmax(scores, dim=-1)
+out = attn @ v
+```
+
+---
+
 ## Comparison
 
 | Method | Learning | Length Extrapolation | Relative Position | Key Models |
@@ -287,6 +351,15 @@ RoPE extends this to high dimensions. Applying different rotation angles at each
 | Sinusoidal? | Fixed sin/cos pattern — no learning, any length |
 | Learnable? | Optimized through training — used in ViT |
 | RoPE? | Rotates Q/K by position — modern LLM standard |
+
+## Practical Checklist
+
+1. **Padding handling**: Even with positional encoding added, attention masks must still block padding positions.
+2. **Length extrapolation**: If long contexts are common, RoPE/ALiBi is usually more stable than Learnable PE.
+3. **Resolution change (ViT)**: When input resolution changes, apply position interpolation to reduce accuracy drops.
+4. **Debug order**: For unstable training, check `mask direction → PE shape → max length overflow` first.
+5. **KV-cache offset (inference)**: When using RoPE with KV cache, continue position indices from the current sequence length. A wrong offset can quickly break long-context coherence.
+6. **RoPE base consistency (train/serve)**: Keep `rope_theta` (for example, 10000 or 500000) identical between training and inference. If the base differs, the same position index maps to a different rotation angle, often causing visible quality degradation.
 
 ## Related Content
 

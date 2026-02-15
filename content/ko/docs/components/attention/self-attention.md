@@ -71,6 +71,35 @@ $$
 \text{Attention}(Q, K, V) = \text{softmax}\left(\frac{QK^T}{\sqrt{d_k}}\right)V
 $$
 
+**각 기호의 의미:**
+- $Q$ (Query): 현재 토큰이 "무엇을 찾는지"를 담은 질의 벡터
+- $K$ (Key): 각 토큰이 "어떤 정보를 갖는지"를 나타내는 키 벡터
+- $V$ (Value): 실제로 전달할 정보 벡터
+- $d_k$: Key 벡터 차원 (스케일링에 사용)
+
+**텐서 크기(단일 헤드 기준):**
+- 입력 $X$: $(B, N, d)$
+- $Q, K, V$: $(B, N, d_k)$
+- 점수 행렬 $QK^T$: $(B, N, N)$
+- 출력 $Z$: $(B, N, d_v)$
+
+여기서 $B$는 배치 크기, $N$은 시퀀스 길이(토큰 수)입니다.
+
+### 직관: 한 토큰 입장에서 보면
+
+시퀀스의 i번째 토큰 하나를 기준으로 보면, Self-Attention은 다음 한 줄로 이해할 수 있습니다.
+
+$$
+z_i = \sum_{j=1}^{N} \alpha_{ij} v_j, \qquad
+\alpha_{ij}=\frac{\exp(s_{ij})}{\sum_{t=1}^{N}\exp(s_{it})}, \qquad
+s_{ij}=\frac{q_i\cdot k_j}{\sqrt{d_k}}
+$$
+
+- $\alpha_{ij}$: i번째 토큰이 j번째 토큰을 "얼마나 참고할지"를 나타내는 가중치
+- $z_i$: 문맥이 반영된 i번째 토큰의 새로운 표현
+
+즉, **i번째 토큰은 모든 토큰의 Value를 가중평균해서 자신의 표현을 업데이트**합니다.
+
 복잡해 보이지만, 3단계로 나누면 간단합니다:
 
 {{< figure src="/images/components/attention/ko/self-attention-score-matrix.png" caption="Attention Score 행렬 — 각 단어 쌍의 유사도" >}}
@@ -155,6 +184,94 @@ $$
 
 출력 = 0.35 × V(고양이가) + 0.15 × V(매트) + 0.20 × V(위에) + 0.30 × V(앉았다)
 → "고양이가 앉았다"라는 맥락이 반영된 새로운 표현
+```
+
+### 작은 수치 예시 (손계산 감각)
+
+아주 작은 경우($N=2$, $d_k=2$)를 직접 계산해 보면 흐름이 더 명확해집니다.
+
+$$
+q_i=[1,2],
+\quad
+k_1=[1,0],\;k_2=[1,2],
+\quad
+v_1=[2,0],\;v_2=[0,4]
+$$
+
+1) 점수 계산:
+$$
+s_{i1}=\frac{q_i\cdot k_1}{\sqrt{2}}=\frac{1}{\sqrt{2}},
+\qquad
+s_{i2}=\frac{q_i\cdot k_2}{\sqrt{2}}=\frac{5}{\sqrt{2}}
+$$
+
+2) softmax 가중치(근사):
+$$
+[\alpha_{i1},\alpha_{i2}] \approx [0.06,\;0.94]
+$$
+
+3) 출력 벡터:
+$$
+z_i=\alpha_{i1}v_1+\alpha_{i2}v_2
+\approx 0.06[2,0]+0.94[0,4]
+\approx [0.12,\;3.76]
+$$
+
+즉, 점수가 더 큰 $k_2$에 연결된 $v_2$가 출력에 더 크게 반영됩니다.
+
+### Attention Mask (Causal / Padding)
+
+실전에서는 모든 토큰을 항상 볼 수 있는 것이 아닙니다. 그래서 점수 행렬에 **마스크(mask)**를 더해
+"봐도 되는 위치"와 "보면 안 되는 위치"를 구분합니다.
+마스크는 **softmax 전에 점수 공간에서 적용**됩니다.
+
+$$
+\text{Attention}(Q,K,V)=\text{softmax}\left(\frac{QK^T}{\sqrt{d_k}} + M\right)V
+$$
+
+**각 기호의 의미(추가):**
+- $M$: 마스크 행렬
+- 허용 위치: $M_{ij}=0$
+- 차단 위치: $M_{ij}=-\infty$ (실제로는 매우 작은 음수, 예: -1e9)
+
+마스크를 softmax 전에 더하면, 차단 위치는 확률이 거의 0이 됩니다.
+
+- **Causal mask**: i번째 토큰이 미래 토큰($j>i$)을 못 보게 함 (언어모델 생성)
+- **Padding mask**: 패딩 토큰을 보지 않게 함 (배치 길이 맞춤 시)
+
+### 마스크 결합 실전 팁 (Causal + Padding)
+
+실무에서는 두 마스크를 함께 씁니다. 이때 가장 흔한 버그는 **shape 브로드캐스팅 불일치**입니다.
+
+- attention score shape: `(B, heads, N, N)`
+- padding mask shape(권장): `(B, 1, 1, N)`
+- causal mask shape(권장): `(1, 1, N, N)`
+
+두 마스크를 OR(또는 add)로 결합해 softmax 전에 한 번에 적용하면 안정적입니다.
+
+```python
+# True = 차단 위치라고 가정
+combined_mask = padding_mask | causal_mask
+scores = scores.masked_fill(combined_mask, torch.finfo(scores.dtype).min)
+attn = torch.softmax(scores, dim=-1)
+```
+
+### 마스크 관례(True=keep vs True=block) 안전하게 처리하기
+
+프레임워크/코드베이스마다 bool 마스크의 의미가 다릅니다.
+- 어떤 구현: `True=keep(허용)`
+- 다른 구현: `True=block(차단)`
+
+관례를 명시적으로 맞춰주는 작은 헬퍼를 두면, train/serve 불일치를 크게 줄일 수 있습니다.
+
+```python
+def normalize_bool_mask(mask_bool: torch.Tensor, true_means_keep: bool) -> torch.Tensor:
+    """반환값은 True=차단(block) 관례로 통일"""
+    return ~mask_bool if true_means_keep else mask_bool
+
+# 예시: 외부 라이브러리 마스크가 True=keep인 경우
+block_mask = normalize_bool_mask(ext_mask_bool, true_means_keep=True)
+scores = scores.masked_fill(block_mask, torch.finfo(scores.dtype).min)
 ```
 
 ### Temperature Scaling
@@ -264,6 +381,9 @@ class SelfAttention(nn.Module):
         # 1단계: 유사도 계산
         scores = Q @ K.transpose(-2, -1)  # (B, N, N)
 
+        # (선택) 패딩/causal 마스크 적용: 차단 위치를 매우 작은 값으로
+        # scores = scores.masked_fill(mask == 0, float('-inf'))
+
         # 2단계: 스케일링 + softmax
         attn_weights = F.softmax(scores / self.scale, dim=-1)  # (B, N, N)
 
@@ -280,6 +400,83 @@ print(out.shape)                # torch.Size([2, 5, 64])
 ```
 
 ---
+
+## 실전 구현 체크리스트
+
+Self-Attention은 수식은 간단하지만, 구현에서 작은 실수가 자주 납니다. 아래 4가지는 꼭 확인하세요.
+
+1. **마스크는 softmax 전에 적용**
+   - 올바른 순서: `scores + mask → softmax → dropout → V`
+   - softmax 후에 마스크를 곱하면 확률 정규화가 깨집니다.
+
+2. **`dim=-1` 축으로 softmax 적용**
+   - attention score의 마지막 축(키 축) 기준으로 확률화해야 합니다.
+   - 축을 잘못 잡으면 "어떤 토큰을 볼지"가 아니라 "어떤 쿼리인지"를 정규화하게 됩니다.
+
+3. **Softmax 수치 안정성 확보**
+   - 직접 구현할 때는 `scores`에서 행별 최댓값을 먼저 빼고 softmax를 적용하면 overflow를 줄일 수 있습니다.
+   - 예: `attn = torch.softmax(scores - scores.max(dim=-1, keepdim=True).values, dim=-1)`
+
+4. **학습/추론 모드 분리**
+   - 학습: attention dropout 사용 (`model.train()`)
+   - 추론: dropout 비활성 (`model.eval()`)
+
+5. **길이 증가 시 메모리 급증 대비**
+   - 해상도나 토큰 길이가 늘면 $N^2$ 메모리가 빠르게 커집니다.
+   - 긴 시퀀스는 [Flash Attention](/ko/docs/components/attention/flash-attention), 로컬 구조는 [Window Attention](/ko/docs/components/attention/window-attention)을 우선 검토하세요.
+
+### 빠른 디버깅 스모크 테스트
+
+학습이 불안정할 때는 아래 3가지를 한 번에 출력해 보면 원인을 빠르게 좁힐 수 있습니다.
+
+```python
+with torch.no_grad():
+    # 1) 행 합이 1인지 (softmax 축 확인)
+    row_sum = attn_weights.sum(dim=-1).mean().item()
+
+    # 2) NaN/Inf 여부
+    has_nan = torch.isnan(attn_weights).any().item()
+    has_inf = torch.isinf(attn_weights).any().item()
+
+    # 3) 과도한 쏠림 여부 (행별 최대값 평균)
+    peak = attn_weights.max(dim=-1).values.mean().item()
+
+print(f"row_sum≈{row_sum:.4f}, nan={has_nan}, inf={has_inf}, peak={peak:.4f}")
+```
+
+- `row_sum`이 1에서 크게 벗어나면 softmax 축/마스크 순서를 먼저 점검합니다.
+- `peak`가 너무 크면(예: 0.98+) scale, lr, warmup을 우선 확인합니다.
+
+## 자주 발생하는 실패 패턴
+
+실전에서 Self-Attention이 불안정해질 때는 아래 패턴부터 점검하면 빠르게 원인을 좁힐 수 있습니다.
+
+1. **Attention이 한 토큰으로 과도하게 쏠림 (collapse)**
+   - 증상: attention map이 거의 one-hot처럼 보이고, 검증 성능이 정체됩니다.
+   - 점검: temperature/scale 설정, learning rate, gradient norm, warmup 길이.
+
+2. **Padding 토큰으로 attention 누수**
+   - 증상: 문장 길이가 달라질 때 성능이 불안정하고, 짧은 문장에서 특히 성능이 흔들립니다.
+   - 점검: padding mask shape 브로드캐스팅이 올바른지, `-inf` 적용 축이 맞는지.
+
+3. **Causal mask 방향 반전**
+   - 증상: 오토리그레시브 생성에서 미래 토큰 정보를 몰래 보고 train/serve 괴리가 발생합니다.
+   - 점검: 상삼각/하삼각 마스크 방향, 프레임워크별 mask convention(True=keep/True=block) 확인.
+
+### FP16/BF16에서 마스크 상수 선택 주의
+
+혼합정밀도 학습에서는 `-1e9` 같은 큰 음수를 그대로 쓰면 dtype 변환 과정에서 예기치 않은 `-inf`/`nan` 전파를 만들 수 있습니다.
+가급적 **dtype별 최소값**을 사용해 마스크를 채우는 것이 안전합니다.
+
+```python
+# logits/scores와 같은 dtype/device에 맞춰 안전한 mask 값 사용
+mask_value = torch.finfo(scores.dtype).min
+scores = scores.masked_fill(mask == 0, mask_value)
+attn = torch.softmax(scores, dim=-1)
+```
+
+- 핵심: 마스크 상수는 `scores.dtype`에 맞춰 선택
+- 체크: AMP 사용 시 NaN이 뜨면 mask 상수와 적용 순서를 먼저 확인
 
 ## Multi-Head Attention
 

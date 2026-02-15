@@ -85,6 +85,45 @@ $$
 
 **핵심 차이: Q는 X에서, K와 V는 C에서 온다.**
 
+### 마스크를 포함한 형태 (실전)
+
+패딩 토큰을 제외하려면 softmax 전에 마스크를 더합니다:
+
+$$
+\text{CrossAttn}(X, C, M) = \text{softmax}\left(\frac{QK^T}{\sqrt{d_k}} + M\right)V
+$$
+
+- $M$ : 마스크 행렬 (유효 토큰은 0, 패딩 토큰은 매우 작은 값, 예: $-10^4$ 또는 $-\infty$)
+- 실전 구현에서는 보통 $M \in \mathbb{R}^{B \times 1 \times 1 \times M}$ 형태로 broadcast해 score $(B, h, N, M)$에 더합니다.
+- softmax 이후 패딩 위치의 가중치는 0에 가깝게 됩니다.
+
+### bool 마스크 관례(실무에서 꼭 통일)
+
+PyTorch 코드베이스마다 bool 의미가 달라 디버깅 시간이 크게 낭비됩니다. Cross-Attention에서는 아래처럼 **입력 마스크를 먼저 정규화**해 두면 안전합니다.
+
+- 외부 입력은 `True=유효` 또는 `True=차단` 둘 다 허용
+- 내부 계산은 `True=허용(keep)`으로 통일
+- 점수 마스킹 시에는 `~keep`을 `masked_fill`에 사용
+
+```python
+def normalize_keep_mask(mask: torch.Tensor, *, true_means_keep: bool) -> torch.Tensor:
+    """
+    mask: (B, M) bool
+    return: keep mask (B, M), True=허용
+    """
+    if mask.dtype != torch.bool:
+        raise TypeError("mask must be bool")
+    return mask if true_means_keep else ~mask
+
+# 예시: tokenizer에서 True=padding(차단)으로 준 경우
+raw_mask = padding_mask_bool                     # True=차단
+keep = normalize_keep_mask(raw_mask, true_means_keep=False)
+score_mask = keep[:, None, None, :]              # (B,1,1,M)
+scores = scores.masked_fill(~score_mask, torch.finfo(scores.dtype).min)
+```
+
+이 규칙 하나만 팀 내에서 고정해도 `dim`, `broadcast`, `~mask` 실수를 크게 줄일 수 있습니다.
+
 ### 단계별 이해
 
 ```
@@ -107,6 +146,77 @@ $$
 ```
 
 **주의**: Attention 행렬이 (4096 × 77)입니다. Self-Attention의 (4096 × 4096)보다 훨씬 작습니다! Cross-Attention은 일반적으로 Self-Attention보다 연산이 가벼습니다.
+
+### 직관 한 번 더: 왜 Q는 이미지, K/V는 텍스트일까?
+
+- **Q(이미지)**는 "이 위치에 무엇을 그려야 하지?"라는 질문입니다.
+- **K(텍스트)**는 "이 단어가 어떤 의미 태그를 갖는지"를 나타내는 색인입니다.
+- **V(텍스트)**는 실제로 주입할 의미 정보입니다.
+
+즉, 이미지는 질문을 만들고 텍스트는 답변 후보를 제공합니다. 그래서 Cross-Attention은 단순 결합이 아니라 **조건(condition) 주입 레이어**로 동작합니다.
+
+### 구현에서 자주 놓치는 포인트
+
+1. **텍스트 padding mask 적용**
+   - 배치 내 문장 길이가 다르면, 실제 단어가 아닌 padding 토큰에 attention이 새어 들어갈 수 있습니다.
+   - Cross-Attention score에 mask를 더해(보통 `-inf`) padding 위치를 softmax에서 제외합니다.
+
+2. **$\sqrt{d_k}$ 스케일링 유지**
+   - 스케일링을 빼먹으면 score 분산이 커져 softmax가 너무 뾰족해지고, 학습이 불안정해집니다.
+   - 특히 head 차원이 큰 설정(예: 128)에서 영향이 큽니다.
+
+3. **mixed precision에서 softmax 안정성 확인**
+   - FP16/BF16에서 큰 음수 mask와 score가 섞이면 NaN이 생길 수 있습니다.
+   - 실무에서는 score를 FP32로 올려 softmax 후 원래 dtype으로 내리는 패턴을 자주 씁니다.
+
+### 빠른 shape 점검 체크리스트
+
+디버깅 시 아래 세 줄만 먼저 출력해도 오류 원인의 80%를 찾을 수 있습니다.
+
+- `q.shape == (B, h, N, d)`
+- `k.shape == (B, h, M, d)`
+- `mask.shape == (B, 1, 1, M)` (mask를 쓸 때)
+
+이 조건이 맞으면 score shape은 자동으로 `(B, h, N, M)`가 됩니다. 이때 마지막 축 `M`에 softmax를 적용해야 "각 이미지 위치가 어떤 텍스트 토큰을 볼지"가 올바르게 계산됩니다.
+
+### softmax 축 실수 체크 (자주 나는 버그)
+
+Cross-Attention에서 가장 흔한 버그는 `dim`을 잘못 주는 것입니다.
+
+```python
+# 정답: 텍스트 축(M)으로 정규화
+attn = F.softmax(scores, dim=-1)   # scores: (B, h, N, M)
+
+# 오답 예시: 이미지 축(N)으로 정규화
+bad = F.softmax(scores, dim=-2)
+```
+
+- `dim=-1`이면: 각 이미지 위치가 "어떤 텍스트 토큰을 볼지"를 고릅니다.
+- `dim=-2`이면: 각 텍스트 토큰이 "어떤 이미지 위치를 볼지"처럼 해석이 바뀌어, 의도한 conditioning이 깨질 수 있습니다.
+
+빠른 검증 팁:
+- `attn.sum(dim=-1)`은 거의 1이어야 합니다.
+- 마스크된 텍스트 위치의 평균 가중치는 0에 가까워야 합니다.
+
+### 실전: Causal + Padding 마스크를 함께 쓸 때
+
+디코더 Cross-Attention/Hybrid 블록에서는 두 마스크를 동시에 다루는 경우가 있습니다.
+핵심은 **score와 브로드캐스트 가능한 shape로 맞춘 뒤, 불리언 마스크를 한 번에 적용**하는 것입니다.
+
+```python
+# scores: (B, h, N, M)
+# causal_mask:  (N, M) bool, True=허용 / False=차단
+# padding_mask: (B, M) bool, True=유효 / False=padding
+
+allow = causal_mask[None, None, :, :] & padding_mask[:, None, None, :]
+# allow: (B, 1, N, M) -> scores로 broadcast 가능
+
+scores = scores.masked_fill(~allow, torch.finfo(scores.dtype).min)
+attn = F.softmax(scores.float(), dim=-1).to(scores.dtype)
+```
+
+- `masked_fill` 이전에 `allow.shape`를 출력해 `(B, 1, N, M)`인지 확인하면 디버깅 시간이 크게 줄어듭니다.
+- `torch.finfo(dtype).min` 사용은 FP16/BF16에서 하드코딩 `-1e9`보다 안전한 편입니다.
 
 ### 계산 복잡도 비교
 
@@ -187,7 +297,7 @@ class CrossAttention(nn.Module):
         super().__init__()
         self.num_heads = num_heads
         self.head_dim = query_dim // num_heads
-        self.scale = math.sqrt(self.head_dim)
+        self.scale = self.head_dim ** -0.5  # 1/sqrt(d_k)
 
         # Q는 대상(이미지)에서, K/V는 조건(텍스트)에서
         self.to_q = nn.Linear(query_dim, query_dim)
@@ -195,10 +305,11 @@ class CrossAttention(nn.Module):
         self.to_v = nn.Linear(context_dim, query_dim)
         self.proj = nn.Linear(query_dim, query_dim)
 
-    def forward(self, x, context):
+    def forward(self, x, context, context_mask=None):
         """
-        x:       (B, N, query_dim)   - 이미지 특징 (질문하는 쪽)
-        context: (B, M, context_dim) - 텍스트 임베딩 (답하는 쪽)
+        x:            (B, N, query_dim)   - 이미지 특징 (질문하는 쪽)
+        context:      (B, M, context_dim) - 텍스트 임베딩 (답하는 쪽)
+        context_mask: (B, M) bool, True=유효 토큰 / False=padding
         """
         B, N, C = x.shape
 
@@ -208,8 +319,15 @@ class CrossAttention(nn.Module):
         v = self.to_v(context).view(B, -1, self.num_heads, self.head_dim).transpose(1, 2)
 
         # Attention: 이미지의 각 영역이 텍스트의 어떤 토큰에 집중하는가?
-        attn = (q @ k.transpose(-2, -1)) / self.scale  # (B, heads, N, M)
-        attn = F.softmax(attn, dim=-1)
+        scores = (q @ k.transpose(-2, -1)) * self.scale  # (B, heads, N, M)
+
+        # padding 토큰(mask=False)은 softmax에서 제외
+        if context_mask is not None:
+            mask = context_mask[:, None, None, :]  # (B,1,1,M)
+            scores = scores.masked_fill(~mask, torch.finfo(scores.dtype).min)
+
+        # mixed precision 안정성을 위해 softmax는 FP32에서 계산
+        attn = F.softmax(scores.float(), dim=-1).to(q.dtype)
 
         # 텍스트 정보를 이미지에 주입
         out = (attn @ v).transpose(1, 2).reshape(B, N, C)
