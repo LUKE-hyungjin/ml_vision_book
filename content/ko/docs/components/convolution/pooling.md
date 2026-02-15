@@ -242,6 +242,52 @@ print(modern(x).shape)       # torch.Size([1, 64, 28, 28])
 
 ---
 
+## 출력 크기 빠른 공식 (초보자 필수)
+
+Pooling의 출력 크기는 Conv와 거의 같은 형태로 계산합니다.
+
+$$
+O = \left\lfloor \frac{I - K + 2P}{S} \right\rfloor + 1
+$$
+
+- $I$: 입력 크기
+- $K$: 커널 크기
+- $P$: 패딩
+- $S$: 스트라이드
+- $O$: 출력 크기
+
+예시: `I=7, K=2, S=2, P=0`
+
+$$
+O = \left\lfloor \frac{7-2}{2} \right\rfloor + 1 = \lfloor 2.5 \rfloor + 1 = 3
+$$
+
+핵심 포인트:
+- 나누어 떨어지지 않으면 기본적으로 **버림(floor)** 이 적용됩니다.
+- 그래서 입력 크기가 홀수일 때 출력 shape가 예상과 다르게 나오는 일이 많습니다.
+- 실무에서는 모델 전 구간 shape를 프린트해 조기 확인하는 습관이 중요합니다.
+
+## 실무 실패 패턴: 작은 물체가 사라지는 이유
+
+Pooling/stride downsampling을 너무 이르게 많이 쓰면,
+작은 물체의 신호가 깊은 레이어에 가기 전에 사라질 수 있습니다.
+
+간단 감각:
+- 8×8 물체를 stride 2를 세 번 거치면 대략 1×1 수준까지 축소
+- 이 상태에서는 경계/형태 정보가 거의 남지 않습니다
+
+빠른 대응 순서:
+1. 초기 stage downsampling 강도 완화(예: stride=2 레이어 수 줄이기)
+2. detection/segmentation에서는 고해상도 feature branch(FPN) 유지
+3. Max Pooling 대신 학습 가능한 stride conv로 교체 실험
+
+## 1분 디버깅 루틴 (Pooling 편)
+
+- [ ] 입력/출력 shape를 레이어마다 기록했는가? (`print(x.shape)`)
+- [ ] 홀수 해상도에서 출력 크기 버림(floor) 동작을 확인했는가?
+- [ ] 작은 객체 데이터셋인데 초반 downsampling이 과하지 않은가?
+- [ ] 분류에서는 GAP를, 검출/분할에서는 중간 해상도 보존 전략을 분리해서 적용했는가?
+
 ## 딥러닝 연결고리
 
 | 개념 | 어디서 쓰이나 | 왜 중요한가 |

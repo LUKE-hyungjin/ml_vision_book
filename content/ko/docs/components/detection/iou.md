@@ -139,6 +139,71 @@ def box_iou(box1, box2):
     return inter / union if union > 0 else 0.0
 ```
 
+## 미니 실습: 배치 IoU + 빠른 sanity check
+아래 코드는 여러 박스 쌍의 IoU를 한 번에 계산하고,
+초보자가 자주 놓치는 "좌표 뒤집힘/분모 0"를 즉시 확인할 수 있는 최소 예시입니다.
+
+```python
+import torch
+
+
+def pairwise_iou_xyxy(boxes1: torch.Tensor, boxes2: torch.Tensor, eps: float = 1e-9):
+    """
+    boxes1, boxes2: [N, 4] in xyxy format
+    returns: [N] IoU for pairwise rows
+    """
+    # 1) 좌표 순서 보정 (x1<=x2, y1<=y2)
+    x11 = torch.minimum(boxes1[:, 0], boxes1[:, 2])
+    y11 = torch.minimum(boxes1[:, 1], boxes1[:, 3])
+    x12 = torch.maximum(boxes1[:, 0], boxes1[:, 2])
+    y12 = torch.maximum(boxes1[:, 1], boxes1[:, 3])
+
+    x21 = torch.minimum(boxes2[:, 0], boxes2[:, 2])
+    y21 = torch.minimum(boxes2[:, 1], boxes2[:, 3])
+    x22 = torch.maximum(boxes2[:, 0], boxes2[:, 2])
+    y22 = torch.maximum(boxes2[:, 1], boxes2[:, 3])
+
+    # 2) 교집합
+    ix1 = torch.maximum(x11, x21)
+    iy1 = torch.maximum(y11, y21)
+    ix2 = torch.minimum(x12, x22)
+    iy2 = torch.minimum(y12, y22)
+
+    inter = (ix2 - ix1).clamp(min=0) * (iy2 - iy1).clamp(min=0)
+
+    # 3) 합집합
+    area1 = (x12 - x11).clamp(min=0) * (y12 - y11).clamp(min=0)
+    area2 = (x22 - x21).clamp(min=0) * (y22 - y21).clamp(min=0)
+    union = area1 + area2 - inter
+
+    # 4) 안전 나눗셈
+    return inter / (union + eps)
+
+
+pred = torch.tensor([
+    [10., 10., 30., 30.],  # 꽤 잘 맞는 박스
+    [10., 10., 20., 20.],  # 작은 박스
+    [30., 30., 10., 10.],  # 뒤집힌 좌표(의도적)
+])
+
+gt = torch.tensor([
+    [12., 12., 28., 28.],
+    [40., 40., 60., 60.],
+    [12., 12., 28., 28.],
+])
+
+iou = pairwise_iou_xyxy(pred, gt)
+print(iou)  # tensor([...])
+
+# 빠른 체크: IoU는 0~1 범위(작은 수치 오차 허용)
+assert torch.all(iou >= -1e-6) and torch.all(iou <= 1.0 + 1e-6)
+```
+
+초보자용 체크 포인트:
+- 1번째 쌍은 IoU가 상대적으로 큽니다.
+- 2번째 쌍은 멀리 떨어져 IoU가 0에 가깝습니다.
+- 3번째 쌍은 좌표가 뒤집혀 있었지만, 보정 로직 덕분에 NaN 없이 계산됩니다.
+
 ## 실무에서 자주 쓰는 임계값
 | 용도 | IoU 기준 | 의미 |
 |---|---:|---|
@@ -146,6 +211,43 @@ def box_iou(box1, box2):
 | COCO AP | 0.5:0.95 | 여러 임계값 평균으로 더 엄격한 평가 |
 | NMS | 0.5~0.7 | 너무 겹치는 예측 박스 제거 |
 | Anchor 매칭(예시) | pos: ≥0.5, neg: <0.4 | 학습 샘플 라벨링 기준 |
+
+## 디버깅 체크리스트 (현업용)
+모델 성능이 갑자기 떨어지거나 AP가 비정상적으로 낮다면, 아래 순서로 확인하세요.
+
+1. **좌표 포맷 통일**: 예측/정답이 둘 다 `xyxy`인지 확인
+2. **좌표 범위 확인**: `x1 <= x2`, `y1 <= y2` 보장 (뒤집힌 박스 제거)
+3. **스케일 일치**: 한쪽은 픽셀, 한쪽은 0~1 정규화 좌표가 아닌지 확인
+4. **NMS 임계값 재점검**: 너무 낮으면 과억제, 너무 높으면 중복 검출 증가
+5. **평가 임계값 확인**: VOC(0.5)와 COCO(0.5:0.95) 혼동 여부 점검
+
+## 자주 하는 실수 (FAQ)
+- **Q. IoU가 음수가 나올 수 있나요?**  
+  A. 일반 IoU는 음수가 될 수 없습니다. 음수가 나오면 구현 버그일 가능성이 큽니다.
+
+- **Q. 예측 박스가 정답을 완전히 포함하면 IoU=1인가요?**  
+  A. 아닙니다. 두 박스가 완전히 동일할 때만 1입니다. 포함만으로는 1보다 작습니다.
+
+- **Q. AP가 낮은데 분류 점수는 괜찮습니다. 왜 그럴까요?**  
+  A. 분류는 맞았지만 박스 위치가 조금씩 틀려 IoU 임계값을 못 넘는 경우가 흔합니다.
+
+## 30초 암기법: IoU 계산 4단계
+처음 IoU를 구현할 때는 아래 4단계만 기억하면 실수를 크게 줄일 수 있습니다.
+
+1. **겹치는 사각형 좌표 구하기**: `max(left)`, `max(top)`, `min(right)`, `min(bottom)`
+2. **겹친 면적 계산**: `max(0, w) * max(0, h)`
+3. **합집합 계산**: `area1 + area2 - inter`
+4. **나누기 안전 처리**: `union == 0`이면 0 반환
+
+실무에서 IoU 버그의 대부분은 2번(`max(0, ...)` 누락)과 4번(0 나누기)에서 발생합니다.
+
+## 증상→원인 빠른 매핑
+| 관측 증상 | 가장 흔한 원인 | 먼저 볼 항목 |
+|---|---|---|
+| AP50은 괜찮은데 AP75가 급락 | 박스 정렬 정밀도 부족 | NMS threshold, box regression 학습률 |
+| 학습 초반 IoU가 계속 0 근처 | 좌표 포맷 혼합 | `xyxy`/`cxcywh` 변환 위치 |
+| 간헐적 NaN 발생 | union=0 또는 음수 폭/높이 | `max(0, ...)`, `eps`, 입력 검증 |
+| 클래스는 맞는데 FP가 많음 | NMS 과완화 | NMS IoU 기준 상향 검토 |
 
 ## 관련 콘텐츠
 - [Anchor Box](/ko/docs/components/detection/anchor)

@@ -140,6 +140,71 @@ def box_iou(box1, box2):
     return inter / union if union > 0 else 0.0
 ```
 
+## Mini practice: batched IoU + quick sanity checks
+The snippet below computes IoU for multiple box pairs at once,
+and includes the two guards beginners often miss: "flipped coordinates" and "safe division".
+
+```python
+import torch
+
+
+def pairwise_iou_xyxy(boxes1: torch.Tensor, boxes2: torch.Tensor, eps: float = 1e-9):
+    """
+    boxes1, boxes2: [N, 4] in xyxy format
+    returns: [N] IoU for pairwise rows
+    """
+    # 1) Fix coordinate ordering (x1<=x2, y1<=y2)
+    x11 = torch.minimum(boxes1[:, 0], boxes1[:, 2])
+    y11 = torch.minimum(boxes1[:, 1], boxes1[:, 3])
+    x12 = torch.maximum(boxes1[:, 0], boxes1[:, 2])
+    y12 = torch.maximum(boxes1[:, 1], boxes1[:, 3])
+
+    x21 = torch.minimum(boxes2[:, 0], boxes2[:, 2])
+    y21 = torch.minimum(boxes2[:, 1], boxes2[:, 3])
+    x22 = torch.maximum(boxes2[:, 0], boxes2[:, 2])
+    y22 = torch.maximum(boxes2[:, 1], boxes2[:, 3])
+
+    # 2) Intersection
+    ix1 = torch.maximum(x11, x21)
+    iy1 = torch.maximum(y11, y21)
+    ix2 = torch.minimum(x12, x22)
+    iy2 = torch.minimum(y12, y22)
+
+    inter = (ix2 - ix1).clamp(min=0) * (iy2 - iy1).clamp(min=0)
+
+    # 3) Union
+    area1 = (x12 - x11).clamp(min=0) * (y12 - y11).clamp(min=0)
+    area2 = (x22 - x21).clamp(min=0) * (y22 - y21).clamp(min=0)
+    union = area1 + area2 - inter
+
+    # 4) Safe divide
+    return inter / (union + eps)
+
+
+pred = torch.tensor([
+    [10., 10., 30., 30.],  # fairly good match
+    [10., 10., 20., 20.],  # small box far away from GT
+    [30., 30., 10., 10.],  # flipped coordinates (intentional)
+])
+
+gt = torch.tensor([
+    [12., 12., 28., 28.],
+    [40., 40., 60., 60.],
+    [12., 12., 28., 28.],
+])
+
+iou = pairwise_iou_xyxy(pred, gt)
+print(iou)  # tensor([...])
+
+# Quick check: IoU should stay in [0, 1] (with tiny numeric tolerance)
+assert torch.all(iou >= -1e-6) and torch.all(iou <= 1.0 + 1e-6)
+```
+
+Beginner checkpoints:
+- Pair 1 should have relatively high IoU.
+- Pair 2 should be near 0 (far apart).
+- Pair 3 had flipped coordinates, but still computes safely without NaN.
+
 ## Common thresholds in practice
 | Usage | IoU threshold | Meaning |
 |---|---:|---|
@@ -147,6 +212,43 @@ def box_iou(box1, box2):
 | COCO AP | 0.5:0.95 | averaged over stricter thresholds |
 | NMS | 0.5~0.7 | remove highly overlapped duplicates |
 | Anchor matching (example) | pos: ≥0.5, neg: <0.4 | assign training labels |
+
+## Debugging checklist (practical)
+If performance suddenly drops or AP looks abnormally low, check in this order:
+
+1. **Unify coordinate format**: ensure both prediction and GT are `xyxy`
+2. **Validate coordinate ordering**: enforce `x1 <= x2`, `y1 <= y2`
+3. **Match coordinate scale**: avoid mixing pixel coordinates with normalized (0~1) values
+4. **Recheck NMS threshold**: too low causes over-suppression, too high keeps duplicates
+5. **Verify eval protocol**: do not mix VOC-style IoU@0.5 with COCO-style AP@[0.5:0.95]
+
+## Common mistakes (FAQ)
+- **Q. Can IoU be negative?**  
+  A. Standard IoU cannot be negative. A negative value usually indicates a bug in area/intersection code.
+
+- **Q. If prediction fully contains GT, is IoU always 1?**  
+  A. No. IoU is 1 only when both boxes are exactly identical.
+
+- **Q. My classification confidence is good but AP is low. Why?**  
+  A. A common reason is localization error: class is right, but box alignment misses the IoU threshold.
+
+## 30-second memory trick: IoU in 4 steps
+When implementing IoU for the first time, this 4-step checklist catches most bugs.
+
+1. **Find overlap box coordinates**: `max(left)`, `max(top)`, `min(right)`, `min(bottom)`
+2. **Compute overlap area safely**: `max(0, w) * max(0, h)`
+3. **Compute union**: `area1 + area2 - inter`
+4. **Guard division**: return 0 when `union == 0`
+
+In real projects, most IoU bugs come from step 2 (missing clamp) and step 4 (divide-by-zero).
+
+## Symptom → likely cause quick map
+| Observed symptom | Most common cause | First thing to inspect |
+|---|---|---|
+| AP50 is okay but AP75 drops hard | poor localization precision | NMS threshold, box-regression LR |
+| IoU stays near 0 early in training | mixed coordinate formats | where `xyxy`/`cxcywh` conversion happens |
+| intermittent NaN | union=0 or negative width/height | `max(0, ...)`, `eps`, input validation |
+| class is right but too many FP boxes | NMS too loose | increase NMS IoU threshold |
 
 ## Related Content
 - [Anchor Box](/en/docs/components/detection/anchor)

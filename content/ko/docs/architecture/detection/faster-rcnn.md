@@ -6,6 +6,20 @@ math: true
 
 # Faster R-CNN
 
+{{% hint info %}}
+**선수지식**: [Conv2D](/ko/docs/components/convolution/conv2d) · [Anchor Box](/ko/docs/components/detection/anchor) · [NMS](/ko/docs/components/detection/nms)
+{{% /hint %}}
+
+## 한 줄 요약
+> **Faster R-CNN은 `후보 영역 제안(RPN)`과 `정교한 분류/박스 보정(2-stage head)`을 결합해, 정확도를 높인 대표적인 2-stage detector입니다.**
+
+## 왜 이 모델인가?
+초기 detector는 "물체 후보 영역"을 만들 때 Selective Search 같은 외부 알고리즘에 크게 의존했습니다.
+이 단계가 느리고 end-to-end 학습이 어려워 전체 파이프라인 병목이 되었습니다.
+
+Faster R-CNN은 이 후보 영역 생성기를 **신경망(RPN)** 으로 내부화해,
+"후보 찾기"와 "분류/박스 보정"을 한 프레임워크 안에서 학습 가능하게 만든 모델입니다.
+
 ## 개요
 
 - **논문**: Faster R-CNN: Towards Real-Time Object Detection with Region Proposal Networks (2015)
@@ -183,6 +197,22 @@ model.roi_heads.box_predictor = FastRCNNPredictor(in_features, num_classes)
 - Two-stage 방식으로 속도 제한
 - 작은 객체 검출 어려움 (FPN으로 완화)
 - Anchor 설계에 도메인 지식 필요
+
+## 초보자 디버깅 체크리스트
+- [ ] **RPN 제안 품질 확인**: proposal 개수는 많은데 GT와 IoU가 낮지 않은가?
+- [ ] **NMS 임계값 점검**: 너무 낮으면 과억제, 너무 높으면 중복 박스 증가
+- [ ] **RoI 단계 입력 좌표 스케일 확인**: 원본 해상도 좌표와 feature map 좌표를 혼용하지 않았는가?
+- [ ] **분류/박스 손실 균형 확인**: 한쪽 loss만 과도하게 커지며 학습을 지배하지 않는가?
+
+## 자주 하는 실수 (FAQ)
+**Q1. proposal 수를 늘리면 성능이 무조건 좋아지나요?**  
+A. 아닙니다. recall은 오를 수 있지만 계산량이 커지고 FP도 함께 늘 수 있습니다. 보통 상위 proposal 수를 점진적으로 늘려 검증합니다.
+
+**Q2. Faster R-CNN은 YOLO보다 항상 정확한가요?**  
+A. 데이터/백본/학습 설정에 따라 다릅니다. 일반적으로 two-stage가 localization에 강한 경향은 있지만, 최신 one-stage도 매우 높은 정확도를 냅니다.
+
+**Q3. mAP@50은 괜찮은데 mAP@75가 낮습니다. 왜 그런가요?**  
+A. 클래스 분류는 맞지만 박스 정렬 정밀도가 부족한 경우가 많습니다. RPN anchor 설정, box regression 학습률, RoI Align 설정을 우선 점검하세요.
 
 ---
 
